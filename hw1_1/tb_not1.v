@@ -1,41 +1,39 @@
-//~ `New testbench
-`timescale  1ns / 1ps
-
 module tb_not1;
+    reg Inp;
 
-// not1 Parameters
-parameter PERIOD  = 10;
+    wire Out;
 
+    wire Clk;
 
-// not1 Inputs
-reg   in1                                  = 0 ;
+    // dummy wires used in clkrst module
+    wire Rst;
+    wire Err;
 
-// not1 Outputs
-wire  out                                  ;
+    clkrst my_clkrst(.clk(Clk), .rst(Rst), .err(Err));
 
-reg clk;
-reg rst_n;
+    not1 DUT(.in1(Inp), .out(Out));
 
-initial
-begin
-    forever #(PERIOD/2)  clk=~clk;
-end
+    initial begin
+        Inp = 1'b1;
 
-initial
-begin
-    #(PERIOD*2) rst_n  =  1;
-end
+        #4000 $finish;
+    end
 
-not1  u_not1 (
-    .in1                     ( in1   ),
+    always @(posedge Clk) begin
+        Inp = $random;        
+    end
 
-    .out                     ( out   )
-);
-
-initial
-begin
-
-    $finish;
-end
+    always @(negedge Clk) begin
+        case (Inp)
+            1'b0 :
+                if (Out !== 1'b1) begin
+                        $display ("ERRORCHECK Inp = 1'b0");
+                end
+            2'b1 :
+                if (Out !== 1'b0) begin
+                        $display ("ERRORCHECK Inp = 1'b1");
+                end 
+        endcase
+    end
 
 endmodule
