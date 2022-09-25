@@ -1,0 +1,8 @@
+Line 16: Bad keyword initial
+Line 17: begin without always/case
+Line 22: Bad keyword posedge
+Line 22: Always without case(x)
+Line 26: Bad keyword negedge
+Line 29: Bad keyword if
+Line 33: Bad keyword if
+End of file /home/sadmankiba/courses/arch_intro_hw1/hw1_1/tb_not1.v. Hash = -334746003

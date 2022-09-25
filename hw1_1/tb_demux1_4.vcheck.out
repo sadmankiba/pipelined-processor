@@ -1,0 +1,10 @@
+Line 12: Bad keyword initial
+Line 13: begin without always/case
+Line 19: Bad keyword posedge
+Line 19: Always without case(x)
+Line 24: Bad keyword negedge
+Line 27: Bad keyword if
+Line 31: Bad keyword if
+Line 35: Bad keyword if
+Line 39: Bad keyword if
+End of file /home/sadmankiba/courses/arch_intro_hw1/hw1_1/tb_demux1_4.v. Hash = 1098910489

@@ -1,0 +1,9 @@
+Line 16: Bad keyword initial
+Line 17: begin without always/case
+Line 23: Bad keyword posedge
+Line 23: Always without case(x)
+Line 30: Bad keyword negedge
+Line 35: Bad keyword if
+Line 36: Bad keyword if
+Line 30: Always without case(x)
+End of file /home/sadmankiba/courses/arch_intro_hw1/hw1_2/tb_fulladder4.v. Hash = 1268383124
