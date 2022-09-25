@@ -1,0 +1,1 @@
+If we use ripple carry adder for large number of bits, there will be significant delay to get the output. This delay will happen because each 1-bit adder has to wait for the carry out from its previous adder.
