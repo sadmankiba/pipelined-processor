@@ -1,0 +1,71 @@
+# Notes
+
+## Hardware Description Language (HDL)
+
+- HDLs allow the user to describe, design, and test a circuit in software before
+it is ever manufactured.
+
+- HDLs vs conventional programming languages (such as C)?
+  - Description of hardware rather than a sequence of commands
+  - Verilog code is not sequential - all statements describe a single piece of logic
+  - HDL describes a static circuit/hardware. There’s no starting point.
+
+Examples: Verilog, VHDL, SystemVerilog etc.
+
+## Verilog Coding Styles/ Coding Constructs
+
+- RTL/Dataflow modelling
+- Structural Modelling
+- Behavioral Modelling
+
+### RTL/Dataflow modelling
+
+```v
+module half_adder (X, Y, S, C);
+    input X;
+    input Y;
+    output S;
+    output C;
+    assign C = X & Y;
+    assign S = (X & ~Y) | (~X & Y);
+    //assign S = X ^ Y; does the same thing
+endmodule
+```
+
+### Structural modelling
+
+```v
+module half_adder (X, Y, S, C);
+    input X;
+    input Y;
+    output S;
+    output C;
+    wire w1,w2;
+    //Sum
+    and A0(w1,X,~Y);
+    and A1(w2,~X,Y);
+    or O1(S,w1,w2);
+    //Carry
+    and A2(C,X,Y);
+endmodule
+```
+
+### Behavioral modelling
+
+```v
+module half_adder (X, Y, S, C);
+    input X;
+    input Y;
+    output reg S; // using reg
+    output reg C;
+    always@(X,Y)
+    begin
+        if(X&Y)C = 1;
+        else C = 0;
+        
+        if( (X&~Y) | (~X&Y)) S = 1;
+        else S=0;
+    end
+endmodule
+```
+
