@@ -69,3 +69,10 @@ module half_adder (X, Y, S, C);
 endmodule
 ```
 
+
+## Run on CSL
+
+```sh
+# TB is foo_tb.v and RTL files are foo_0.v and foo_1.v
+wsrun.pl foo_tb foo_tb.v foo_0.v foo_1.v
+```
