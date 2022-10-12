@@ -1,0 +1,9 @@
+Line 16: Bad keyword initial
+Line 17: begin without always/case
+Line 23: Bad keyword posedge
+Line 23: Always without case(x)
+Line 29: Bad keyword negedge
+Line 33: Bad keyword if
+Line 34: Bad keyword if
+Line 29: Always without case(x)
+End of file /home/sadmankiba/courses/arch_intro/Intro-to-Arch-Assignments/hw2/hw2_1/tb_cla_4b.v. Hash = 118920402
