@@ -15,16 +15,13 @@ module cla_4b(sum, c_out, a, b, c_in);
     input          c_in;
 
     // YOUR CODE HERE
-    
+    // Pi = Ai ⊕ Bi
+    // Gi = Ai * Bi
     wire g0, p0;
-    pg PG0(p0, g0, a[0], b[0]);
-    pg PG1(p1, g1, a[1], b[1]);
-    pg PG2(p2, g2, a[2], b[2]);
-    pg PG3(p3, g3, a[3], b[3]);
-
-    wire pdc0, c1;
-    and2 AD0(pdc0, p0, c_in);
-    or2 OR0(c1, g0, pdc0);
+    fullAdder_1b F0(p0, g0, a[0], b[0], 1'b0);
+    fullAdder_1b F1(p1, g1, a[1], b[1], 1'b0);
+    fullAdder_1b F2(p2, g2, a[2], b[2], 1'b0);
+    fullAdder_1b F3(p3, g3, a[3], b[3], 1'b0);
     
     wire pdg0, pdg1, c2; 
     and2 AD1(pdg0, p1, g0);
@@ -48,7 +45,7 @@ module cla_4b(sum, c_out, a, b, c_in);
     or4 OR3(prg, pdg5, pdg6, pdg7, pdg9);
     or2 OR4(c_out, g3, prg);
     
-    xor2 XR0(sum[0], p0, c_in);
+    xor2 XR0(sum[0], p0, c0);
     xor2 XR1(sum[1], p1, c1);
     xor2 XR2(sum[2], p2, c2);
     xor3 XR3(sum[3], p3, c3);

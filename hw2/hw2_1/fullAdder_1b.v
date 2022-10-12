@@ -13,6 +13,7 @@ module fullAdder_1b(s, c_out, a, b, c_in);
     // YOUR CODE HERE
     xor3 XTR0(s, c_in, a, b);
 
+    //Cout = Cin(a ⊕ b) + ab
     wire axb;
     xor2 XTW0(axb, a, b);
     
