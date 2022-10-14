@@ -1,4 +1,4 @@
-module inverter(In, sign, Out);
+module inv(In, sign, Out);
 
 	input [15:0] In;
 	input sign;
@@ -6,7 +6,6 @@ module inverter(In, sign, Out);
 
 	wire sign, Ofl, Z;
 
-	//flip all the bits
 	assign Out[15] = ~In[15];	
 	assign Out[14] = ~In[14];	
 	assign Out[13] = ~In[13];	

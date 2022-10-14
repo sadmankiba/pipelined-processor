@@ -27,13 +27,13 @@ module shifter (In, ShAmt, Oper, Out);
     input [1:0]  Oper;
     output [15:0] Out;
 
-	wire [15:0] eight_to_four;
-	wire [15:0] four_to_two;
-	wire [15:0] two_to_one;
+	wire [15:0] eightOut;
+	wire [15:0] fourOut;
+	wire [15:0] twoOut;
 
-	shifter_eight_bit s3(.Out(eight_to_four),.In(In),           .ShAmt(ShAmt[3]), .Oper(Oper));
-	shifter_four_bit s2 (.Out(four_to_two),  .In(eight_to_four),.ShAmt(ShAmt[2]), .Oper(Oper));
-	shifter_two_bit s1  (.Out(two_to_one),   .In(four_to_two),  .ShAmt(ShAmt[1]), .Oper(Oper));
-    shifter_one_bit s0  (.Out(Out),          .In(two_to_one),   .ShAmt(ShAmt[0]), .Oper(Oper));
+	shifter_8b s3(.Out(eightOut),.In(In), .ShAmt(ShAmt[3]), .Oper(Oper));
+	shifter_4b s2 (.Out(fourOut), .In(eightOut),.ShAmt(ShAmt[2]), .Oper(Oper));
+	shifter_2b s1  (.Out(twoOut), .In(fourOut),  .ShAmt(ShAmt[1]), .Oper(Oper));
+    shifter_1b s0  (.Out(Out), .In(twoOut),.ShAmt(ShAmt[0]), .Oper(Oper));
    
 endmodule

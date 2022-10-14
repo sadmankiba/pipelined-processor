@@ -26,37 +26,36 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
     output                      Zero; // Signal if Out is 0
 
     /* YOUR CODE HERE */
-    wire [15:0] a_inv, b_inv, muxed_A, muxed_B;
-	wire [15:0] add_out, or_out, xor_out, and_out, logical_out, shift_out;
-	wire add_Ofl, Ofl_temp;
+    wire [15:0] aInv, bInv, A, B;
+	wire [15:0] addOut, orOut, xorOut, andOut, logicalOut, shiftOut;
+	wire aOfl;
 
-	inverter A_INV(.In(InA[15:0]), .sign(sign), .Out(a_inv[15:0]));
-    inverter B_INV(.In(InB[15:0]), .sign(sign), .Out(b_inv[15:0]));
+	inv AInv(.In(InA[15:0]), .sign(sign), .Out(aInv[15:0]));
+    inv BInv(.In(InB[15:0]), .sign(sign), .Out(bInv[15:0]));
 
 	// Inversion MUX
-	mux2_1_16bit A_OR_AINV (.InB(a_inv[15:0]), .InA(InA[15:0]), .S(invA), .Out(muxed_A[15:0]));
-	mux2_1_16bit B_OR_BINV (.InB(b_inv[15:0]), .InA(InB[15:0]), .S(invB), .Out(muxed_B[15:0]));
+	mux2_1_16b MXA (.InB(aInv[15:0]), .InA(InA[15:0]), .S(invA), .Out(A[15:0]));
+	mux2_1_16b MXB (.InB(bInv[15:0]), .InA(InB[15:0]), .S(invB), .Out(B[15:0]));
 
-    cla_16b CLA (.sum(add_out[15:0]), .ofl(add_Ofl), .sign(sign), 
-        .a(muxed_A[15:0]), .b(muxed_B[15:0]), .c_in(Cin));
-	
-	or16    OR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(or_out[15:0]));
-	xor16   XOR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(xor_out[15:0]));
-	and16   AND0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(and_out[15:0]));
-
-	shifter	SHIFT0(.In(muxed_A[15:0]), .ShAmt(muxed_B[3:0]), .Oper(Oper[1:0]), .Out(shift_out[15:0]));
+    cla_16b CLA (.sum(addOut[15:0]), .ofl(aOfl), .sign(sign), 
+        .a(A[15:0]), .b(B[15:0]), .c_in(Cin));
+	and16   AD (.A(A[15:0]), .B(B[15:0]), .Out(andOut[15:0]));
+	or16    OR (.A(A[15:0]), .B(B[15:0]), .Out(orOut[15:0]));
+	xor16   XR (.A(A[15:0]), .B(B[15:0]), .Out(xorOut[15:0]));
+	shifter	SFT (.In(A[15:0]), .ShAmt(B[3:0]), .Oper(Oper[1:0]), .Out(shiftOut[15:0]));
 
     // Output Mux
-	mux4_1_16bit LOGICAL_MUX (.InD(xor_out[15:0]), .InC(or_out[15:0]), .InB(and_out[15:0]), .InA(add_out[15:0]), .S(Oper[1:0]), .Out(logical_out[15:0]));
-	mux2_1_16bit SHIFT_OR_ALU(.InB(logical_out[15:0]), .InA(shift_out[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
+	mux4_1_16b MXL (.InD(xorOut[15:0]), .InC(orOut[15:0]), .InB(andOut[15:0]), .InA(addOut[15:0]), .S(Oper[1:0]), .Out(logicalOut[15:0]));
+	mux2_1_16b MXOUT(.InB(logicalOut[15:0]), .InA(shiftOut[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
 
 	// Overflow
     wire no0, no1;
     not1 NT0 (no0, Oper[0]);
     not1 NT1 (no1, Oper[1]);
-	and4 AD (Ofl, Oper[2], no1, no0, add_Ofl);
+	and4 AD1 (Ofl, Oper[2], no1, no0, aOfl);
 
 	// Zero
-	zero_detector ZERO(Out[15:0], Zero);
+	// zero_detector ZERO(Out[15:0], Zero);
+    assign Zero = ~|Out[15:0];
     
 endmodule
