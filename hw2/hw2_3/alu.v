@@ -55,7 +55,6 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
 	and4 AD1 (Ofl, Oper[2], no1, no0, aOfl);
 
 	// Zero
-	// zero_detector ZERO(Out[15:0], Zero);
     assign Zero = ~|Out[15:0];
     
 endmodule
