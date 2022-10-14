@@ -39,7 +39,6 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
 
     cla_16b CLA (.sum(add_out[15:0]), .ofl(add_Ofl), .sign(sign), 
         .a(muxed_A[15:0]), .b(muxed_B[15:0]), .c_in(Cin));
-	// adder16 A0(.Out(add_out[15:0]), .Ofl(add_Ofl), .A(muxed_A[15:0]), .B(muxed_B[15:0]), .Cin(Cin), .sign(sign));
 	
 	or16    OR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(or_out[15:0]));
 	xor16   XOR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(xor_out[15:0]));
@@ -52,8 +51,10 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
 	mux2_1_16bit SHIFT_OR_ALU(.InB(logical_out[15:0]), .InA(shift_out[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
 
 	// Overflow
-	mux2_1 OFLMUX1(.InB(add_Ofl), .InA(1'b0), .S(Oper[2]), .Out(Ofl_temp));
-	mux4_1 OFLMUX2(.InD(1'b0), .InC(1'b0), .InB(1'b0), .InA(Ofl_temp), .S(Oper[1:0]), .Out(Ofl));
+    wire no0, no1;
+    not1 NT0 (no0, Oper[0]);
+    not1 NT1 (no1, Oper[1]);
+	and4 AD (Ofl, Oper[2], no1, no0, add_Ofl);
 
 	// Zero
 	zero_detector ZERO(Out[15:0], Zero);
