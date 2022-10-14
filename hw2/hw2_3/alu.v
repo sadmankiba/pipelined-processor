@@ -37,8 +37,9 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl);
 	mux2_1_16bit A_OR_AINV (.InB(a_inv[15:0]), .InA(InA[15:0]), .S(invA), .Out(muxed_A[15:0]));
 	mux2_1_16bit B_OR_BINV (.InB(b_inv[15:0]), .InA(InB[15:0]), .S(invB), .Out(muxed_B[15:0]));
 
-	adder16 A0(.Out(add_out[15:0]), .Ofl(add_Ofl),
-    .A(muxed_A[15:0]), .B(muxed_B[15:0]), .Cin(Cin), .sign(sign));
+    // cla_16b CLA (.sum(add_out[15:0]), .c_out(), .ofl(add_Ofl), .sign(sign), 
+    //     .a(muxed_A[15:0]), .b(muxed_B[15:0]), .c_in(Cin));
+	adder16 A0(.Out(add_out[15:0]), .Ofl(add_Ofl), .A(muxed_A[15:0]), .B(muxed_B[15:0]), .Cin(Cin), .sign(sign));
 	
 	or16    OR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(or_out[15:0]));
 	xor16   XOR0 (.A(muxed_A[15:0]), .B(muxed_B[15:0]), .Out(xor_out[15:0]));
