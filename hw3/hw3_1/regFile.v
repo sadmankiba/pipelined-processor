@@ -26,5 +26,9 @@ module regFile (
    output        err;
 
    /* YOUR CODE HERE */
+   wire [127:0] rgrd;
+   reg_16b(writeData, rgrd[15:0], clk, rst);
+   mux8_1_16b(in, read1RegSel, read1Data);
+
 
 endmodule
