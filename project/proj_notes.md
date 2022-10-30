@@ -15,6 +15,13 @@ wsrun.pl -prog <testdir>/<file>.asm <tb-module-name> *.v
 wsrun.pl -list <testdir>/all.list <tb-module-name> *.v 
 ```
 
+- Run all tests and generate appropriate logs for demo 1.
+
+```
+cd project/demo1/verilog
+/u/s/w/swamit/public/html/courses/cs552/fall2022/handouts/bins/run-phase1-all.sh
+```
+
 Ref: Ian's tutorial video
 
 ## Additional Running
@@ -39,6 +46,7 @@ assemble.sh <file>.asm
 
 
 ## UWisc Articles
+[Command-line ModelSim Tutorial](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/vsimCommandLine.html)
 [Using assembler](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/usingAssembler.html) 
 
 [Test programs](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/testProgs.html)

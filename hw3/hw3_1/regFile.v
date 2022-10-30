@@ -26,9 +26,34 @@ module regFile (
    output        err;
 
    /* YOUR CODE HERE */
-   wire [127:0] rgrd;
-   reg_16b(writeData, rgrd[15:0], clk, rst);
-   mux8_1_16b(in, read1RegSel, read1Data);
+   parameter REG_SIZE = 16;
+   parameter NUM_REG = 8;
+
+   wire [REG_SIZE * NUM_REG - 1:0] rgrd;
+   wire [NUM_REG - 1:0] write;
+   
+   // Write
+   decoder3_8 DC(.in(writeRegSel), .out(write));
+   assign write[0] = write[0] & writeEn;
+	assign write[1] = write[1] & writeEn;
+	assign write[2] = write[2] & writeEn;
+	assign write[3] = write[3] & writeEn;
+	assign write[4] = write[4] & writeEn;
+	assign write[5] = write[5] & writeEn;
+	assign write[6] = write[6] & writeEn;
+	assign write[7] = write[7] & writeEn;
+
+   reg_16b RG0(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG1(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 2 - 1:REG_SIZE * 1]), .clk(clk), .rst(rst));
+   reg_16b RG2(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG3(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG4(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG5(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG6(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   reg_16b RG7(.write(write), .writeData(writeData), .readData(rgrd[REG_SIZE * 1 - 1:0]), .clk(clk), .rst(rst));
+   
+   // Read 
+   mux8_1_16b MX(.in(rgrd), .s(read1RegSel), .out(read1Data));
 
 
 endmodule

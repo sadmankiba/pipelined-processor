@@ -1,4 +1,5 @@
 __work/
 *.vcd
 *.wlf
+wsrun.log
 transcript
