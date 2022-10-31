@@ -1,5 +1,5 @@
-module data_mem(zero, Branch, branchAddr, pc, memWrite, memRead, ALU_result, writedata, clk, rst, halt,
-           branch_or_pc, readData, ltz, branch_op);
+module data_mem(memWrite, memRead, ALU_result, writedata, readData, zero, Branch, branchAddr, pc, halt,
+           branch_or_pc, ltz, branch_op, clk, rst);
 
   input zero;             //Used for branch logic
   input Branch;           //From control: if branch

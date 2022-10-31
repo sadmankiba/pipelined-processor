@@ -65,10 +65,6 @@ module decode(instruction, writeData, RegWrite, RegDst, clk, rst, pc,
   
   mux2_1_16bit MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(MemWrite), .Out(read1data));
   mux2_1_16bit MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(MemWrite), .Out(read2data));
-
-  //JUMP logic
-  //shift jump digits left 2
-//  shifter_two_bit SHIFT(.In(instruction), .Cnt(toShift), .Op(sll), .Out(temp_jump));
   
   wire jr;
   wire [15:0] jumpAddr1, jumpAddr2;

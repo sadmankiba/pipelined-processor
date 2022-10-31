@@ -1,3 +1,7 @@
 *.img
 *.log
+*.dmem
+*.reg
+dumpfile
+*.out
 loadfile.lst

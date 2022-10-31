@@ -93,12 +93,9 @@ module proc (/*AUTOARG*/
                         .ltz(ltz), .jump_out(jump_out));  
     
     
-    data_mem memory0( //Inputs
-                        .zero(zero), .Branch(Branch), .branchAddr(branch_result), .pc(next_pc), .memWrite(MemWrite), 
-                        .memRead(MemRead), .ALU_result(ALU_result), .writedata(read2data), .clk(clk), .rst(rst), 
-                        .halt(halt), .ltz(ltz), .branch_op(ALU_op[1:0]),
-                        //Outputs
-                        .branch_or_pc(branch_or_pc), .readData(data_mem_out));  
+    data_mem memory0(.memWrite(MemWrite), .memRead(MemRead), .ALU_result(ALU_result), .writedata(read2data), 
+                    .readData(data_mem_out), .zero(zero), .Branch(Branch), .branchAddr(branch_result), .pc(next_pc), 
+                    .halt(halt), .ltz(ltz), .branch_op(ALU_op[1:0]), .branch_or_pc(branch_or_pc), .clk(clk), .rst(rst));  
     
     
     wb wb0 ( //Inputs
