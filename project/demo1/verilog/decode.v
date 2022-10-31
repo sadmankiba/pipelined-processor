@@ -63,8 +63,8 @@ module decode(instruction, writeData, RegWrite, RegDst, clk, rst, pc,
           .clk(clk), .rst(rst), .read1regsel(read2reg), .read2regsel(read1reg), 
           .writeregsel(write_reg), .writedata(writeData1), .write(RegWrite));
   
-  mux2_1_16bit MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(MemWrite), .Out(read1data));
-  mux2_1_16bit MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(MemWrite), .Out(read2data));
+  mux2_1_16b MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(MemWrite), .Out(read1data));
+  mux2_1_16b MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(MemWrite), .Out(read2data));
   
   wire jr;
   wire [15:0] jumpAddr1, jumpAddr2;
@@ -73,7 +73,7 @@ module decode(instruction, writeData, RegWrite, RegDst, clk, rst, pc,
   sign_extend8bit SJUMP8(.in(instruction[7:0]), .out(jumpAddr2));
   
   assign jr = (~instruction[15]) & (~instruction[14]) & instruction[13] & (~instruction[12]) & instruction[11];
-  mux2_1_16bit JADDR(.InB(jumpAddr2), .InA(jumpAddr1), .S(jr|jalr), .Out(jumpAddr));
+  mux2_1_16b JADDR(.InB(jumpAddr2), .InA(jumpAddr1), .S(jr|jalr), .Out(jumpAddr));
 
   //Sign extend Immediate value
   sign_extend8bit EXT8 (.in(instruction[7:0]), .out(imm1));
@@ -81,9 +81,9 @@ module decode(instruction, writeData, RegWrite, RegDst, clk, rst, pc,
   zero_extend8bit Z8EXT(.in(instruction[7:0]), .out(zero_imm1));
   zero_extend5bit Z5EXT(.in(instruction[4:0]), .out(zero_imm2));
 
-  mux2_1_16bit  IMM(.InB(imm2), .InA(imm1), .S(five_bit_imm), .Out(temp_immediate));
-  mux2_1_16bit Z5IM(.InB(zero_imm2), .InA(zero_imm1), .S(five_bit_imm), .Out(temp_zero_imm));
-  mux2_1_16bit ZIMM(.InB(temp_zero_imm), .InA(temp_immediate), .S(ZeroExtend), .Out(immediate));
+  mux2_1_16b  IMM(.InB(imm2), .InA(imm1), .S(five_bit_imm), .Out(temp_immediate));
+  mux2_1_16b Z5IM(.InB(zero_imm2), .InA(zero_imm1), .S(five_bit_imm), .Out(temp_zero_imm));
+  mux2_1_16b ZIMM(.InB(temp_zero_imm), .InA(temp_immediate), .S(ZeroExtend), .Out(immediate));
 
 endmodule
 

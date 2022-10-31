@@ -98,10 +98,8 @@ module proc (/*AUTOARG*/
                     .halt(halt), .ltz(ltz), .branch_op(ALU_op[1:0]), .branch_or_pc(branch_or_pc), .clk(clk), .rst(rst));  
     
     
-    wb wb0 ( //Inputs
-                        .jumpAddr(jump_out), .branch_or_pc(branch_or_pc), .Jump(Jump), .mem_data(data_mem_out), .ALU_result(ALU_result), .MemToReg(MemToReg), 
-                        //Outputs
-                        .pc(wb_pc), .out_data(wb_out)); 
+    wb wb0 (.mem_data(data_mem_out), .ALU_result(ALU_result), .MemToReg(MemToReg), .jumpAddr(jump_out), 
+                    .branch_or_pc(branch_or_pc), .Jump(Jump), .pc(wb_pc), .out_data(wb_out)); 
     
     
     control control0( //Inputs

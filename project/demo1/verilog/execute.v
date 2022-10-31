@@ -63,13 +63,13 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
 
   assign isRORI = ((~instr_op[0]) & instr_op[1] & instr_op[2] & (~instr_op[3]) & instr_op[4]);
 
-  mux2_1_16bit RORI(.InB(immediate), .InA(read1data), .S(isRORI), .Out(rotateVal));
+  mux2_1_16b RORI(.InB(immediate), .InA(read1data), .S(isRORI), .Out(rotateVal));
   inv NREAD1(.In(rotateVal), .sign(1'b1), .Out(nRead1data));
   assign nRead1 = nRead1data + 1;
   assign isRotateRight = ((~alu_op[0]) & alu_op[1] & (~alu_op[2]));  
   assign ror_or_alu_op = (isRotateRight) ? 3'b000 : alu_op;
 
-  mux2_1_16bit ROTATERIGHT(.InB(nRead1), .InA(read1data), .S(isRotateRight), .Out(newRead1data));
+  mux2_1_16b ROTATERIGHT(.InB(nRead1), .InA(read1data), .S(isRotateRight), .Out(newRead1data));
 
   assign isBTR = (instr_op[0] & (~instr_op[1]) & (~instr_op[2]) & instr_op[3] & instr_op[4]);
   assign btr_result = {read2data[0],read2data[1],read2data[2],read2data[3],read2data[4],read2data[5],read2data[6],
@@ -79,19 +79,19 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign isSLBI = ((~instr_op[0]) & instr_op[1] & (~instr_op[2]) & (~instr_op[3]) & instr_op[4]);
   assign shiftBits_SLBI = read2data << 8;
 
-  mux4_1_16bit ALU_IN1(.InD(read2data), .InC(shiftBits_SLBI), .InB(read1data), .InA(read2data), .S({isSLBI, MemWrite}), .Out(alu_in1));
+  mux4_1_16b ALU_IN1(.InD(read2data), .InC(shiftBits_SLBI), .InB(read1data), .InA(read2data), .S({isSLBI, MemWrite}), .Out(alu_in1));
 
   wire [15:0] alu_in2_temp;
-  mux4_1_16bit ALU_IN2(.InD(immediate), .InC(immediate), .InB(read2data), .InA(newRead1data), .S({ALUSrc,MemWrite}), .Out(alu_in2_temp));
+  mux4_1_16b ALU_IN2(.InD(immediate), .InC(immediate), .InB(read2data), .InA(newRead1data), .S({ALUSrc,MemWrite}), .Out(alu_in2_temp));
 
   wire isBranch;
   assign isBranch = ((~instr_op[4]) & instr_op[3] & instr_op[2]);
-  mux2_1_16bit ALU2_BRANCH (.InB(16'h0000), .InA(alu_in2_temp), .S(isBranch), .Out(alu_in2));
+  mux2_1_16b ALU2_BRANCH (.InB(16'h0000), .InA(alu_in2_temp), .S(isBranch), .Out(alu_in2));
   alu ALU(
           .InA(alu_in1), .InB(alu_in2), .Cin(cin), .Oper(ror_or_alu_op), .invA(invA), .invB(invB), .sign(sign), 
           .Out(result), .Zero(zero), .Ofl(alu_ofl), .Ltz(ltz));
 
-  mux4_1_16bit RESULT(.InD(result), .InC(alu_in2), .InB(read1data), .InA(result), .S({passThroughB, passThroughA}), .Out(temp_result));
+  mux4_1_16b RESULT(.InD(result), .InC(alu_in2), .InB(read1data), .InA(result), .S({passThroughB, passThroughA}), .Out(temp_result));
 
   assign seq = ((~instr_op[1]) & (~instr_op[0])) & zero;
   assign slt = ((~instr_op[1]) & instr_op[0]) & ltz;
@@ -101,8 +101,8 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign isSetOP = ((instr_op[2] & instr_op[3]) & instr_op[4]);
   assign set_condition_result = (seq | slt | sle | sco) ? 16'h0001 : 16'h0000;
   
-  mux2_1_16bit SETRESULT(.InB(set_condition_result), .InA(temp_result), .S(isSetOP), .Out(ALU_result_temp));
-  mux2_1_16bit BTRresult(.InB(btr_result), .InA(ALU_result_temp), .S(isBTR), .Out(ALU_result));
+  mux2_1_16b SETRESULT(.InB(set_condition_result), .InA(temp_result), .S(isSetOP), .Out(ALU_result_temp));
+  mux2_1_16b BTRresult(.InB(btr_result), .InA(ALU_result_temp), .S(isBTR), .Out(ALU_result));
 
   
   cla_16b ADD(
@@ -114,7 +114,7 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign jalr = (~instr_op[4]) & (~instr_op[3]) & instr_op[2] & instr_op[1] & instr_op[0];
   assign jr = (~instr_op[4]) & (~instr_op[3]) & instr_op[2] & (~instr_op[1]) & (instr_op[0]);
   assign any_jump = jalr | jr;
-  mux2_1_16bit AIN(.InB(read2data), .InA(pc), .S(jr|jalr), .Out(a_in));
+  mux2_1_16b AIN(.InB(read2data), .InA(pc), .S(jr|jalr), .Out(a_in));
   cla_16b JUMP(.a(a_in), .b(jump_in), .c_in(1'b0), .sign(1'b1), .sum(jump_out), .ofl(jump_ofl));
 
   assign err = (branch_ofl | alu_ofl) & (~(passThroughA | passThroughB));
