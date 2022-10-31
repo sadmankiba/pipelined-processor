@@ -1,223 +1,174 @@
-module control(instruction_op, five_bit_imm,
-               RegDst, Jump, Branch, MemRead, MemToReg, ALU_op, MemWrite,
-               ALUSrc, RegWrite, err, halt, ZeroExtend);
+module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
+               jump, memToReg, regWrite, err, halt, zeroExtend, i1Fmt);
 
-  input [4:0] instruction_op;    //OP Code from instruction fetch
+	input [4:0] opcode;    
 
-  output reg halt;
-  output reg err;
-  output reg RegDst;          // Instruction Decode -> Write register MUX control
-  output reg Jump;            // To jump or not to jump MUX control
-  output reg Branch;          // To branch or not to branch MUX control
-  output reg MemRead;         // To read from data memory or not MUX control
-  output reg MemToReg;        // Data memory or ALU result MUX control
-  output [4:0] ALU_op;    // ALU OP code
-  output reg MemWrite;        // To write to memory or not MUX control
-  output reg ALUSrc;         // Register file data2 or immediate MUX control
-  output reg RegWrite;        // To write to register file or not
-  output reg five_bit_imm;
-  output reg ZeroExtend;
-  assign ALU_op = instruction_op;
+	output reg regDst;          
+	output reg aluSrc;         
+	output [4:0] aluOp;    
+	output reg branch;          
+	output reg memRead;         
+	output reg memWrite;        
+	output reg jump;            
+	output reg memToReg;        
+	output reg regWrite;        
+	output reg err;
+	output reg halt;
+	output reg zeroExtend;
+	output reg i1Fmt;
+	
+	assign aluOp = opcode;
 
-  always @(instruction_op)
-  begin
-    /*Defaults*/
-    RegDst   = 1'b0;
-    Jump     = 1'b0;
-    Branch   = 1'b0;
-    MemRead  = 1'b0;
-    MemToReg = 1'b0;
-    MemWrite = 1'b0;
-    ALUSrc   = 1'b0;
-    RegWrite = 1'b0;
-    halt     = 1'b0;
-    five_bit_imm = 1'b0;
-    ZeroExtend = 1'b0;
-    casex(instruction_op)
-      5'b0_0000: //halt
-        begin
-          halt = 1'b1;
-        end
-      5'b0_0001: //nop
-        begin
+	always @(opcode)
+	begin
+		regDst   = 1'b0;
+		jump     = 1'b0;
+		branch   = 1'b0;
+		memRead  = 1'b0;
+		memToReg = 1'b0;
+		memWrite = 1'b0;
+		aluSrc   = 1'b0;
+		regWrite = 1'b0;
+		halt     = 1'b0;
+		i1Fmt = 1'b0;
+		zeroExtend = 1'b0;
+		casex(opcode)
+			5'b0_0000: 	
+				begin
+					halt = 1'b1;
+				end
+			5'b0_0001: 
+				begin
+				end
+			5'b0_1000: 
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;	
+				end
+			5'b0_1001: 
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;
+				end
+			5'b0_1010: 
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1;
+					regWrite = 1'b1; zeroExtend = 1'b1;
+				end
+			5'b0_1011: 
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1;
+					regWrite = 1'b1; zeroExtend = 1'b1;
+				end
+			5'b1_0100: 
+				begin
+					aluSrc = 1'b1; i1Fmt = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_0101: 
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_0110: 
+				begin
+					i1Fmt = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_0111:
+				begin
+					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_0000:
+				begin
+					aluSrc = 1'b1; i1Fmt = 1'b1;
+					memWrite = 1'b1; memRead = 1'b1; memToReg = 1'b1;
+				end
+			5'b1_0001: 
+				begin
+					memRead = 1'b1; memToReg = 1'b1; i1Fmt = 1'b1;
+					aluSrc = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_0011:
+				begin
+					regWrite = 1'b1; i1Fmt = 1'b1;
+					memWrite = 1'b1; memRead = 1'b1; aluSrc = 1'b1;
+				end
+			5'b1_1001:
+				begin
+					regWrite = 1'b1; regDst = 1'b1;
+				end
+			5'b1_1011: 
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_1010:  
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_1100:
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_1101:
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_1110:
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b1_1111:
+				begin
+					regDst = 1'b1; regWrite = 1'b1;
+				end
+			5'b0_1100: 
+				begin
+					aluSrc = 1'b1; branch = 1'b1;
+				end
+			5'b0_1101: 
+				begin
+					aluSrc = 1'b1; branch = 1'b1;
+				end
+			5'b0_1110: 
+				begin
+					aluSrc = 1'b1; branch = 1'b1;
+				end
+			5'b0_1111:
+				begin
+					aluSrc = 1'b1; branch = 1'b1;
+				end
+			5'b1_1000: 
+				begin
+					regWrite = 1'b1; aluSrc = 1'b1;
+				end
+			5'b1_0010: 
+				begin
+					regWrite = 1'b1; aluSrc = 1'b1; zeroExtend = 1'b1;
+				end
+			5'b0_0100: 
+				begin
+					jump = 1'b1;
+				end
+			5'b0_0101:
+				begin
+					jump = 1'b1; aluSrc = 1'b1;
+				end
+			5'b0_0110: 
+				begin
+					jump = 1'b1; regWrite = 1'b1;
+				end
+			5'b0_0111:
+				begin
+					jump = 1'b1; regWrite = 1'b1; aluSrc = 1'b1;
+				end
+			5'b0_0010:
+				begin
 
-        end
-      5'b0_1000: //ADDI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-          //RegDst = 1'b1;
-        end
-      5'b0_1001: //SUBI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b0_1010: //XORI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-          ZeroExtend = 1'b1;
-        end
-      5'b0_1011: //ANDNI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-          ZeroExtend = 1'b1;
-        end
-      5'b1_0100: //ROLI
-        begin
-          ALUSrc = 1'b1;
-          five_bit_imm = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_0101: //SLLI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_0110: //RORI
-        begin
-          five_bit_imm = 1'b1;
-          //ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_0111: //SRLI
-        begin
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_0000: //ST
-        begin
-          ALUSrc = 1'b1;
-          five_bit_imm = 1'b1;
-          MemWrite = 1'b1;
-          MemRead = 1'b1;
-          MemToReg = 1'b1;
-        end
-      5'b1_0001: //LD
-        begin
-          MemRead = 1'b1;
-          MemToReg = 1'b1;
-          five_bit_imm = 1'b1;
-          ALUSrc = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_0011: //STU
-        begin
-          //RegDst /= 1'b1;
-          RegWrite = 1'b1;
-          five_bit_imm = 1'b1;
-          //MemToReg = 1'b1;
-          MemWrite = 1'b1;
-          MemRead = 1'b1;
-          ALUSrc = 1'b1;
-        end
-      5'b1_1001: //BTR
-        begin
-          RegWrite = 1'b1;
-          RegDst = 1'b1;
-        end
-      5'b1_1011: //ADD, SUB, XOR, ANDN
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_1010: // ROL, SLL, ROR, SRL 
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_1100: //SEQ
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_1101: //SLT
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_1110: //SLE
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b1_1111: //SCO
-        begin
-          RegDst = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b0_1100: //BEQZ
-        begin
-          ALUSrc = 1'b1;
-          Branch = 1'b1;
-        end
-      5'b0_1101: //BNEZ
-        begin
-          ALUSrc = 1'b1;
-          Branch = 1'b1;
-        end
-      5'b0_1110: //BLTZ
-        begin
-          ALUSrc = 1'b1;
-          Branch = 1'b1;
-        end
-      5'b0_1111: //BGEZ
-        begin
-          ALUSrc = 1'b1;
-          Branch = 1'b1;
-        end
-      5'b1_1000: //LBI
-        begin
-          RegWrite = 1'b1;
-          ALUSrc = 1'b1;
-          //RegDst = 1'b1;
-        end
-      5'b1_0010: //SLBI
-        begin
-          RegWrite = 1'b1;
-          ALUSrc = 1'b1;
-          ZeroExtend = 1'b1;
-        end
-      5'b0_0100: //J
-        begin
-          Jump = 1'b1;
-        end
-      5'b0_0101: //JR
-        begin
-          Jump = 1'b1;
-          ALUSrc = 1'b1;
-        end
-      5'b0_0110: //JAL
-        begin
-          Jump = 1'b1;
-          RegWrite = 1'b1;
-        end
-      5'b0_0111: //JALR
-        begin
-          Jump = 1'b1;
-          RegWrite = 1'b1;
-          ALUSrc = 1'b1;
-        end
-      5'b0_0010: //siic RS
-        begin
+				end
+			5'b0_0011: 
+				begin
 
-        end
-      5'b0_0011: //NOP / RTI
-        begin
-
-        end
-      default:
-        begin
-          err = 1'b1; //should never get here. Unknown op code
-        end
-    endcase
-  end
+				end
+			default:
+				begin
+					err = 1'b1; 
+				end
+		endcase
+	end
 endmodule

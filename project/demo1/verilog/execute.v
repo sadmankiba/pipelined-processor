@@ -6,7 +6,7 @@
 */
    
 module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, cin, sign,
-              passThroughA, passThroughB, instr_op, MemWrite, jump_in, jump_out,
+              passThroughA, passThroughB, instr_op, memWrite, jump_in, jump_out,
               ALU_result, branch_result, zero, ltz, err);
    // TODO: Your code here
   input [2:0] alu_op;   
@@ -21,7 +21,7 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   input passThroughA;
   input passThroughB;
   input [4:0] instr_op;
-  input MemWrite;
+  input memWrite;
   input [15:0] jump_in;
   
   output [15:0] jump_out;
@@ -79,10 +79,10 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign isSLBI = ((~instr_op[0]) & instr_op[1] & (~instr_op[2]) & (~instr_op[3]) & instr_op[4]);
   assign shiftBits_SLBI = read2data << 8;
 
-  mux4_1_16b ALU_IN1(.InD(read2data), .InC(shiftBits_SLBI), .InB(read1data), .InA(read2data), .S({isSLBI, MemWrite}), .Out(alu_in1));
+  mux4_1_16b ALU_IN1(.InD(read2data), .InC(shiftBits_SLBI), .InB(read1data), .InA(read2data), .S({isSLBI, memWrite}), .Out(alu_in1));
 
   wire [15:0] alu_in2_temp;
-  mux4_1_16b ALU_IN2(.InD(immediate), .InC(immediate), .InB(read2data), .InA(newRead1data), .S({ALUSrc,MemWrite}), .Out(alu_in2_temp));
+  mux4_1_16b ALU_IN2(.InD(immediate), .InC(immediate), .InB(read2data), .InA(newRead1data), .S({ALUSrc,memWrite}), .Out(alu_in2_temp));
 
   wire isBranch;
   assign isBranch = ((~instr_op[4]) & instr_op[3] & instr_op[2]);
