@@ -4,4 +4,6 @@
 *.reg
 dumpfile
 *.out
+*.ptrace
+*.trace
 loadfile.lst

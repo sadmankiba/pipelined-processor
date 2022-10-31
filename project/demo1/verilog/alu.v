@@ -27,6 +27,17 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
     output                      Ltz ; // Less than 0
 
     /* YOUR CODE HERE */
+    /*
+    Opcode Function Result
+    000 rll Rotate left
+    001 sll Shift left logical
+    010 sra Shift right arithmetic
+    011 srl Shift right logical
+    100 ADD A+B
+    101 OR A OR B
+    110 XOR A XOR B
+    111 AND A AND B
+    */
     wire [15:0] aInv, bInv, A, B;
 	wire [15:0] addOut, orOut, xorOut, andOut, logicalOut, shiftOut;
 	wire aOfl, ltzi;
@@ -46,13 +57,14 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
 	shifter	SFT (.In(A[15:0]), .ShAmt(B[3:0]), .Oper(Oper[1:0]), .Out(shiftOut[15:0]));
 
     // Output Mux
-	mux4_1_16b MXL (.InD(xorOut[15:0]), .InC(orOut[15:0]), .InB(andOut[15:0]), .InA(addOut[15:0]), .S(Oper[1:0]), .Out(logicalOut[15:0]));
+	mux4_1_16b MXL (.InD(andOut[15:0]), .InC(xorOut[15:0]), .InB(orOut[15:0]), 
+        .InA(addOut[15:0]), .S(Oper[1:0]), .Out(logicalOut[15:0]));
 	mux2_1_16b MXOUT(.InB(logicalOut[15:0]), .InA(shiftOut[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
 
 	// Overflow
     wire no0, no1;
-    not1 NT0 (no0, Oper[0]);
-    not1 NT1 (no1, Oper[1]);
+    not1 NT0 (.out(no0), .in1(Oper[0]));
+    not1 NT1 (.out(no1), .in1(Oper[1]));
 	and4 AD1 (Ofl, Oper[2], no1, no0, aOfl);
 
 	// Zero

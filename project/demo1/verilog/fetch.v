@@ -47,7 +47,7 @@ module fetch(pc, clk, rst, instr, next_pc, err);
   dff FIFT(.q(pcCurrent[15]), .d(pc[15]), .clk(clk), .rst(rst));
 
   //add 2 to the get the next pc
-  adder16 ADD(.A(pcCurrent), .B(increment_pc), .Cin(cin), .sign(sign), .Out(next_pc), .Ofl(err));
+  cla_16b ADD(.a(pcCurrent), .b(increment_pc), .c_in(cin), .sign(sign), .sum(next_pc), .ofl(err));
 
   //Get next instruction from instruction memory
   memory2c IMEM(.data_out(instr), .data_in(data_in), .addr(pcCurrent), .enable(enable), .wr(wr), .createdump(dump), .clk(clk), .rst(rst)); 

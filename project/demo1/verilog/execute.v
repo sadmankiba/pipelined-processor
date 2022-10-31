@@ -64,7 +64,7 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign isRORI = ((~instr_op[0]) & instr_op[1] & instr_op[2] & (~instr_op[3]) & instr_op[4]);
 
   mux2_1_16bit RORI(.InB(immediate), .InA(read1data), .S(isRORI), .Out(rotateVal));
-  inverter NREAD1(.In(rotateVal), .sign(1'b1), .Out(nRead1data));
+  inv NREAD1(.In(rotateVal), .sign(1'b1), .Out(nRead1data));
   assign nRead1 = nRead1data + 1;
   assign isRotateRight = ((~alu_op[0]) & alu_op[1] & (~alu_op[2]));  
   assign ror_or_alu_op = (isRotateRight) ? 3'b000 : alu_op;
@@ -105,9 +105,9 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   mux2_1_16bit BTRresult(.InB(btr_result), .InA(ALU_result_temp), .S(isBTR), .Out(ALU_result));
 
   
-  adder16 ADD(
-      .A(pc), .B(immediate), .Cin(cin_for_branch), .sign(sign_branch), 
-              .Out(branch_result), .Ofl(branch_ofl));
+  cla_16b ADD(
+      .a(pc), .b(immediate), .c_in(cin_for_branch), .sign(sign_branch), 
+              .sum(branch_result), .ofl(branch_ofl));
   
   wire [15:0] a_in;
   wire jalr, jr, any_jump;
@@ -115,7 +115,7 @@ module execute(alu_op, ALUSrc, read1data, read2data, immediate, pc, invA, invB, 
   assign jr = (~instr_op[4]) & (~instr_op[3]) & instr_op[2] & (~instr_op[1]) & (instr_op[0]);
   assign any_jump = jalr | jr;
   mux2_1_16bit AIN(.InB(read2data), .InA(pc), .S(jr|jalr), .Out(a_in));
-  adder16 JUMP(.A(a_in), .B(jump_in), .Cin(1'b0), .sign(1'b1), .Out(jump_out), .Ofl(jump_ofl));
+  cla_16b JUMP(.a(a_in), .b(jump_in), .c_in(1'b0), .sign(1'b1), .sum(jump_out), .ofl(jump_ofl));
 
   assign err = (branch_ofl | alu_ofl) & (~(passThroughA | passThroughB));
 
