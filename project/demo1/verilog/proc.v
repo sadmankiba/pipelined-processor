@@ -69,12 +69,12 @@ module proc (/*AUTOARG*/
     wire passB;
 
     
-    fetch FETCH(//Input
+    fetch fetch0(//Input
                         .pc(wb_pc), .clk(clk), .rst(rst), 
                         //Outputs
-                        .next_pc(next_pc), .instruction(instruction), .err(fetch_err));
+                        .next_pc(next_pc), .instr(instruction), .err(fetch_err));
 
-    decode DECODE(//Inputs
+    decode decode0(//Inputs
                         .instruction(instruction), .RegWrite(RegWrite), .RegDst(RegDst), .writeData(wb_out),
                         .clk(clk), .rst(rst), .pc(next_pc[15:0]), .five_bit_imm(five_bit_imm), .ZeroExtend(ZeroExtend),
                         .MemWrite(MemWrite),
@@ -83,7 +83,7 @@ module proc (/*AUTOARG*/
                         .err(decode_err));  
     
     
-    execute EXECUTE ( //Inputs
+    execute exec0 ( //Inputs
                         .alu_op(op_to_alu), .ALUSrc(ALU_Src), .read1data(read1data), .read2data(read2data), 
                         .immediate(immediate), .pc(next_pc), .invA(invA), .invB(invB), .cin(cin), .sign(sign),  
                         .passThroughA(passA), .passThroughB(passB), .instr_op(ALU_op), .MemWrite(MemWrite),
@@ -93,28 +93,28 @@ module proc (/*AUTOARG*/
                         .ltz(ltz), .jump_out(jump_out));  
     
     
-    data_mem MEM    ( //Inputs
-                        .zero(zero), .Branch(Branch), .branchAddr(branch_result), .pc(next_pc), .MemWrite(MemWrite), 
-                        .MemRead(MemRead), .ALU_result(ALU_result), .writedata(read2data), .clk(clk), .rst(rst), 
+    data_mem memory0( //Inputs
+                        .zero(zero), .Branch(Branch), .branchAddr(branch_result), .pc(next_pc), .memWrite(MemWrite), 
+                        .memRead(MemRead), .ALU_result(ALU_result), .writedata(read2data), .clk(clk), .rst(rst), 
                         .halt(halt), .ltz(ltz), .branch_op(ALU_op[1:0]),
                         //Outputs
                         .branch_or_pc(branch_or_pc), .readData(data_mem_out));  
     
     
-    wb WB ( //Inputs
+    wb wb0 ( //Inputs
                         .jumpAddr(jump_out), .branch_or_pc(branch_or_pc), .Jump(Jump), .mem_data(data_mem_out), .ALU_result(ALU_result), .MemToReg(MemToReg), 
                         //Outputs
                         .pc(wb_pc), .out_data(wb_out)); 
     
     
-    control CONTROL ( //Inputs
+    control control0( //Inputs
                         .instruction_op(instruction[15:11]),
                         //Outputs 
                         .RegDst(RegDst), .Jump(Jump), .Branch(Branch), .MemRead(MemRead), .MemToReg(MemToReg), .halt(halt),
                         .ALU_op(ALU_op), .MemWrite(MemWrite), .ALUSrc(ALU_Src), .RegWrite(RegWrite), .err(control_err),
                         .five_bit_imm(five_bit_imm), .ZeroExtend(ZeroExtend));
 
-    alu_control ALU_CTL(//Inputs
+    alu_control actl0(//Inputs
                         .ALU_op(ALU_op), .ALU_funct(instruction[1:0]), 
                         //Outputs
                         .invA(invA), .invB(invB), .op_to_alu(op_to_alu), .cin(cin), .sign(sign), .passA(passA), .passB(passB));

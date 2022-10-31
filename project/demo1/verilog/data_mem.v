@@ -1,14 +1,14 @@
-module data_mem(zero, Branch, branchAddr, pc, MemWrite, MemRead, ALU_result, writedata, clk, rst, halt,
+module data_mem(zero, Branch, branchAddr, pc, memWrite, memRead, ALU_result, writedata, clk, rst, halt,
            branch_or_pc, readData, ltz, branch_op);
 
   input zero;             //Used for branch logic
   input Branch;           //From control: if branch
   input [15:0] branchAddr;//Branch address
   input [15:0] pc;        //PC
-  input MemWrite;         //Write to memory or not. from control
+  input memWrite;         //Write to memory or not. from control
   input [15:0] ALU_result;//ALU unit result
   input [15:0] writedata; //From instruction decode unit
-  input MemRead;          //Read from Mem or not. From control
+  input memRead;          //Read from Mem or not. From control
   input clk, rst;
   input halt;
   input ltz;
@@ -18,15 +18,15 @@ module data_mem(zero, Branch, branchAddr, pc, MemWrite, MemRead, ALU_result, wri
   output [15:0] readData;    //From Memory unit
 
   wire nZero;
-  wire enable;
+  wire memReadorWrite;
   wire isThereABranch, toBranch;
   wire lessThan_or_greatOrEqual, equalZ_or_notEqualZ;
   wire gez; //greater or equal to zero
 
-  wire [15:0] addr, in;
+  wire [15:0] aluResult, writeData;
 
   assign nZero = ~zero;
-  assign enable = (~halt) & MemRead;
+  assign memReadorWrite = (~halt) & memRead;
   assign gez = ~ltz; 
   //JUMP logic
   //Will want to do some sort of jump logic in here...
@@ -40,11 +40,11 @@ module data_mem(zero, Branch, branchAddr, pc, MemWrite, MemRead, ALU_result, wri
   mux2_1_16bit BMUX(.InB(branchAddr), .InA(pc), .S(toBranch), .Out(branch_or_pc));
   //
 
-  mux2_1_16bit STADDR(.InA(writedata), .InB(ALU_result), .S(MemRead), .Out(addr));
-  mux2_1_16bit STIN(.InA(ALU_result), .InB(writedata), .S(MemRead), .Out(in));
+  mux2_1_16bit STADDR(.InA(writedata), .InB(ALU_result), .S(memRead), .Out(aluResult));
+  mux2_1_16bit STIN(.InA(ALU_result), .InB(writedata), .S(memRead), .Out(writeData));
 
   //Data Memory
-  memory2c DMEM(.data_out(readData), .data_in(in), .addr(addr), 
-                .enable(enable), .wr(MemWrite), .createdump(halt), .clk(clk), .rst(rst));  
+  memory2c DMEM(.data_out(readData), .data_in(writeData), .addr(aluResult), 
+                .enable(memReadorWrite), .wr(memWrite), .createdump(halt), .clk(clk), .rst(rst));  
 
 endmodule
