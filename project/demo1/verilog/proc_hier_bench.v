@@ -17,7 +17,7 @@ module proc_hier_bench();
    wire        RegWrite;       /* Whether register file is being written to */
    wire [2:0]  WriteRegister;  /* What register is written */
    wire [15:0] WriteData;      /* Data */
-   wire        memWrite;       /* Similar as above but for memory */
+   wire        MemWrite;       /* Similar as above but for memory */
    wire        MemRead;
    wire [15:0] MemAddress;
    wire [15:0] MemData;
@@ -43,7 +43,7 @@ module proc_hier_bench();
 
    always @ (posedge DUT.c0.clk) begin
       if (!DUT.c0.rst) begin
-         if (Halt || RegWrite || memWrite) begin
+         if (Halt || RegWrite || MemWrite) begin
             inst_count = inst_count + 1;
          end
          $fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %8x I: %8x R: %d %3d %8x M: %d %d %8x %8x",
@@ -54,11 +54,11 @@ module proc_hier_bench();
                   WriteRegister,
                   WriteData,
                   MemRead,
-                  memWrite,
+                  MemWrite,
                   MemAddress,
                   MemData);
          if (RegWrite) begin
-            if (memWrite) begin
+            if (MemWrite) begin
                // stu
                $fdisplay(trace_file,"INUM: %8d PC: 0x%04x REG: %d VALUE: 0x%04x ADDR: 0x%04x VALUE: 0x%04x",
                          (inst_count-1),
@@ -95,7 +95,7 @@ module proc_hier_bench();
             
             $finish;
          end else begin // if (RegWrite)
-            if (memWrite) begin
+            if (MemWrite) begin
                // st
                $fdisplay(trace_file,"INUM: %8d PC: 0x%04x ADDR: 0x%04x VALUE: 0x%04x",
                          (inst_count-1),
@@ -139,7 +139,7 @@ module proc_hier_bench();
    assign MemRead =  DUT.p0.memory0.memRead;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
-   assign memWrite = (DUT.p0.memory0.memReadorWrite & DUT.p0.memory0.memWrite);
+   assign MemWrite = (DUT.p0.memory0.memReadorWrite & DUT.p0.memory0.memWrite);
    // Is memory being written to (1 bit signal)
    
    assign MemAddress = DUT.p0.memory0.aluResult;

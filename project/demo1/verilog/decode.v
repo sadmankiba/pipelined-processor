@@ -4,7 +4,7 @@
    Filename        : decode.v
    Description     : This is the module for the overall decode stage of the processor.
 */
-module decode(instr, writeData, regDst, regWrite, pc, ZeroExtend, memWrite, i1Fmt, clk, rst,
+module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, clk, rst,
                     jumpAddr, read1data, read2data, immVal, err
                     );
    
@@ -14,7 +14,7 @@ module decode(instr, writeData, regDst, regWrite, pc, ZeroExtend, memWrite, i1Fm
     input regDst;             
     input [15:0] writeData;   
     input [15:0] pc;
-    input ZeroExtend;
+    input zeroExt;
     input memWrite;
     input i1Fmt;
     input clk, rst;
@@ -91,6 +91,6 @@ module decode(instr, writeData, regDst, regWrite, pc, ZeroExtend, memWrite, i1Fm
 
     mux2_1_16b  IMM(.InA(immI2), .InB(immI1), .S(i1Fmt), .Out(temp_immediate));
     mux2_1_16b Z5IM(.InA(zero_imm1), .InB(zero_imm2), .S(i1Fmt), .Out(temp_zero_imm));
-    mux2_1_16b ZIMM(.InA(temp_immediate), .InB(temp_zero_imm), .S(ZeroExtend), .Out(immVal));
+    mux2_1_16b ZIMM(.InA(temp_immediate), .InB(temp_zero_imm), .S(zeroExt), .Out(immVal));
 endmodule
 

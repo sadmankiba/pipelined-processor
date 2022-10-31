@@ -1,5 +1,5 @@
 module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
-               jump, memToReg, regWrite, err, halt, zeroExtend, i1Fmt);
+               jump, memToReg, regWrite, err, halt, zeroExt, i1Fmt);
 
 	input [4:0] opcode;    
 
@@ -14,7 +14,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 	output reg regWrite;        
 	output reg err;
 	output reg halt;
-	output reg zeroExtend;
+	output reg zeroExt;
 	output reg i1Fmt;
 	
 	assign aluOp = opcode;
@@ -31,7 +31,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 		regWrite = 1'b0;
 		halt     = 1'b0;
 		i1Fmt = 1'b0;
-		zeroExtend = 1'b0;
+		zeroExt = 1'b0;
 		casex(opcode)
 			5'b0_0000: 	
 				begin
@@ -51,12 +51,12 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 			5'b0_1010: 
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1;
-					regWrite = 1'b1; zeroExtend = 1'b1;
+					regWrite = 1'b1; zeroExt = 1'b1;
 				end
 			5'b0_1011: 
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1;
-					regWrite = 1'b1; zeroExtend = 1'b1;
+					regWrite = 1'b1; zeroExt = 1'b1;
 				end
 			5'b1_0100: 
 				begin
@@ -139,7 +139,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				end
 			5'b1_0010: 
 				begin
-					regWrite = 1'b1; aluSrc = 1'b1; zeroExtend = 1'b1;
+					regWrite = 1'b1; aluSrc = 1'b1; zeroExt = 1'b1;
 				end
 			5'b0_0100: 
 				begin
