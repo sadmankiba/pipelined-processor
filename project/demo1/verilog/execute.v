@@ -92,14 +92,12 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     assign sco = (aluOp[1] & aluOp[0]) & alu_ofl;
     equal #(.INPUT_WIDTH(3)) EQ15(.in1(aluOp[4:2]), .in2(3'b111), .eq(isSetOP));
     assign setInstrVal = (seq | slt | sle | sco) ? 16'h0001 : 16'h0000;
-    mux2_1_16b SETRESULT(.InB(setInstrVal), .InA(temp_result), .S(isSetOP), .Out(aluRes_temp));
+    mux2_1_16b MXST(.InB(setInstrVal), .InA(temp_result), .S(isSetOP), .Out(aluRes_temp));
     
     // Calc btr Instr result
-    assign isBTR = (aluOp[0] & (~aluOp[1]) & (~aluOp[2]) & aluOp[3] & aluOp[4]);
-    assign btr_result = {readData2[0],readData2[1],readData2[2],readData2[3],readData2[4],readData2[5],readData2[6],
-                        readData2[7], readData2[8],readData2[9],readData2[10],readData2[11],readData2[12],
-                        readData2[13],readData2[14],readData2[15]};
-    mux2_1_16b BTRresult(.InB(btr_result), .InA(aluRes_temp), .S(isBTR), .Out(aluRes));    
+    equal #(.INPUT_WIDTH(5)) EQ22(.in1(aluOp), .in2(5'b11001), .eq(isBTR));
+    rev RV(.in(readData2), .out(btr_result));
+    mux2_1_16b MXBT(.InA(aluRes_temp), .InB(btr_result), .S(isBTR), .Out(aluRes));    
     
     // Calc Branch Addr
     cla_16b CLAB(.a(pc), .b(immVal), .c_in(cin_for_branch), .sign(sign_branch), 

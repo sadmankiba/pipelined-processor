@@ -18,150 +18,115 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin, passA, passB
         cin = 1'b0;
         passA = 1'b0;
         passB = 1'b0;
-        casex({aluOp, funct})
-        7'b00000_xx: 
-            begin
-
-            end
         
-        7'b11000_xx: //LBI
-            begin
-            aluControl = 3'b000;
-            passB = 1'b1;
+        casex(aluOp)
+            5'b01000: begin // addi
+                sign = 1'b1; aluControl = 3'b100;
             end
-        7'b11011_00: //ADD
-            begin
-            aluControl = 3'b100;
+            5'b01001: begin // subi
+                invA = 1'b1; cin = 1'b1; aluControl = 3'b100;
             end
-        7'b11011_11: //ANDN
-            begin
-            invB = 1'b1;
-            aluControl = 3'b111;
+            5'b01010: begin // xori
+                aluControl = 3'b110;
             end
-        7'b11011_01: //SUB
-            begin
-            invA = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
+            5'b01011: begin // andni
+                invB = 1'b1; aluControl = 3'b111;
             end
-        7'b11011_10: //XOR
-            begin
-            aluControl = 3'b110;
+            5'b10100: begin // roli
+                aluControl = 3'b000;
             end
-        7'b11100_xx: //SEQ
-            begin
-            invA = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
+            
+            5'b10101: begin // slli
+                aluControl = 3'b001;
             end
-        7'b11101_xx: //SLT
-            begin
-            sign = 1'b1;
-            invB = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
+            
+            5'b10110: begin // rori 
+                aluControl = 3'b010;
             end
-        7'b11110_xx: //SLE
-            begin
-            sign = 1'b1;
-            invB = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
+            5'b10111: begin // srli
+                aluControl = 3'b011;
             end
-        7'b11111_xx: //SCO
-            begin
-            aluControl = 3'b100;
+            5'b10000: begin // st
+                aluControl = 3'b100;
             end
-        7'b10010_xx: //SLBI
-            begin
-            aluControl = 3'b101; //OR
+            5'b10001: begin // ld
+                aluControl = 3'b100;
             end
-        7'b01000_xx: //ADDI
-            begin
-            sign = 1'b1;
-            aluControl = 3'b100;
+            5'b10011: begin // stu
+                aluControl = 3'b100;
             end
-        7'b01001_xx: //SUBI
-            begin
-            invA = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
+            5'b11001: begin // btr
+                aluControl = 3'b100;
             end
-        7'b01010_xx: //XORI
-            begin
-            aluControl = 3'b110;
+            5'b11011: begin  // add, sub, xor, andn
+                case(funct)
+                    2'b00: begin 
+                        aluControl = 3'b100;
+                    end
+                    2'b01: begin
+                        invA = 1'b1;
+                        cin = 1'b1;
+                        aluControl = 3'b100;
+                    end
+                    2'b10: begin 
+                        aluControl = 3'b110;
+                    end
+                    2'b11: begin
+                        invB = 1'b1; aluControl = 3'b111;
+                    end 
+                endcase 
             end
-        7'b01011_xx: //ANDNI
-            begin
-            invB = 1'b1;
-            aluControl = 3'b111;
+            5'b11010: begin // rol, sll, ror, srl
+                case(funct)
+                    2'b00: begin 
+                        aluControl = 3'b000;
+                    end
+                    2'b01: begin
+                        aluControl = 3'b001;
+                    end
+                    2'b10: begin 
+                        aluControl = 3'b010;
+                    end
+                    2'b11: begin
+                        aluControl = 3'b011;
+                    end 
+                endcase
+                
             end
-        7'b11010_00: //ROL
-            begin
-            aluControl = 3'b000;
+            5'b11100: begin   // seq    
+                invA = 1'b1; cin = 1'b1; aluControl = 3'b100;
             end
-        7'b10100_xx: //ROLI
-            begin
-            aluControl = 3'b000;
+            5'b11101: begin // slt
+                sign = 1'b1; invB = 1'b1;
+                cin = 1'b1; aluControl = 3'b100;
             end
-        7'b11010_01: //SLL
-            begin
-            aluControl = 3'b001;
+            5'b11110: begin // sle
+                sign = 1'b1; invB = 1'b1;
+                cin = 1'b1; aluControl = 3'b100;
             end
-        7'b10101_xx: //SLLI
-            begin
-            aluControl = 3'b001;
+            5'b11111: begin // sco
+                aluControl = 3'b100;
             end
-        7'b11010_10: //ROR
-            begin
-            aluControl = 3'b010;
+            5'b01110: begin // bltz
+                sign = 1'b1;
+                invB = 1'b1;
+                cin = 1'b1;
+                aluControl = 3'b100;
             end
-        7'b10110_xx: //RORI
-            begin
-            aluControl = 3'b010;
+            5'b01111: begin // bgez
+                sign = 1'b1;
+                invB = 1'b1;
+                cin = 1'b1;
+                aluControl = 3'b100;
             end
-        7'b11010_11: //SRL
-            begin
-            aluControl = 3'b011;
+            5'b11000: begin    // lbi
+                aluControl = 3'b000;
+                passB = 1'b1;
             end
-        7'b10111_xx: //SRLI
-            begin
-            aluControl = 3'b011;
+            5'b10010: begin // slbi
+                aluControl = 3'b101; 
             end
-        7'b10000_xx: //ST
-            begin
-            aluControl = 3'b100;
-            end
-        7'b10001_xx: //LD
-            begin
-            aluControl = 3'b100;
-            end
-        7'b10011_xx: //STU
-            begin
-            aluControl = 3'b100;
-            end
-        7'b11001_xx: //BTR
-            begin
-            aluControl = 3'b100;
-            end
-        7'b01110_xx: //BLTZ
-            begin
-            sign = 1'b1;
-            invB = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
-            end
-        7'b01111_xx: //BGEZ
-            begin
-            sign = 1'b1;
-            invB = 1'b1;
-            cin = 1'b1;
-            aluControl = 3'b100;
-            end
-
-        default:
-            begin
-
+            default: begin // halt, nop 
             end
         endcase
     end
