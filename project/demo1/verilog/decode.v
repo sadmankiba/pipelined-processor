@@ -57,13 +57,13 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     assign write1_reg = instr[4:2];
 
     // assign isStu = instr[15] & (~instr[14]) & (~instr[13]) & instr[12] & instr[11]; 
-    equal EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
+    equal #(.INPUT_WIDTH(5)) EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
     assign stuReg = readReg1;
 
     // assign jalInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (~instr[11]);
-    equal EQ2(.in1(opcode), .in2(5'b00110), .eq(jalInstr));
+    equal #(.INPUT_WIDTH(5)) EQ2(.in1(opcode), .in2(5'b00110), .eq(jalInstr));
     // assign jalrInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (instr[11]);
-    equal EQ3(.in1(opcode), .in2(5'b00111), .eq(jalrInstr));
+    equal #(.INPUT_WIDTH(5)) EQ3(.in1(opcode), .in2(5'b00111), .eq(jalrInstr));
     assign jmpLnk = jalInstr | jalrInstr;
     
     assign write_reg_temp = (regDst == 1'b0) ? readReg1 : write1_reg;  // I-format2 or R-format writeReg
@@ -72,9 +72,9 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     assign write_reg = (jmpLnk) ? 3'b111 : write_regtemp2; 
     assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
-    rf regFile0(.read1data(read1data_temp), .read2data(read2data_temp), .err(err),
+    regFile regFile0(.read1Data(read1data_temp), .read2Data(read2data_temp), .err(err),
             .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
-            .writeRegSel(write_reg), .writedata(writeDataFinal), .write(regWrite));
+            .writeRegSel(write_reg), .writedata(writeDataFinal), .writeEn(regWrite));
     
     mux2_1_16b MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(memWrite), .Out(read1data));
     mux2_1_16b MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(memWrite), .Out(read2data));

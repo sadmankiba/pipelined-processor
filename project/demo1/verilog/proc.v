@@ -43,7 +43,7 @@ module proc (/*AUTOARG*/
     wire invA, invB, sign, cin, passA, passB;
 
     
-    fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .next_pc(next_pc), .instr(instr), .err(fetch_err));
+    fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .pcOut(next_pc), .instr(instr), .err(fetch_err));
     
     control control0(.opcode(instr[15:11]), .regDst(regDst), .jump(jump), 
                 .branch(branch), .memRead(MemRead), .memToReg(MemToReg), .halt(halt),
@@ -59,9 +59,9 @@ module proc (/*AUTOARG*/
                     .invA(invA), .invB(invB), .aluControl(aluControl), 
                     .cin(cin), .sign(sign), .passA(passA), .passB(passB));
 
-    execute exec0 (.alu_op(aluControl), .ALUSrc(ALU_Src), .read1data(read1data), .read2data(read2data), 
+    execute exec0 (.aluControl(aluControl), .ALUSrc(ALU_Src), .read1data(read1data), .read2data(read2data), 
             .immVal(immVal), .pc(next_pc), .invA(invA), .invB(invB), .cin(cin), .sign(sign),  
-            .passThroughA(passA), .passThroughB(passB), .instr_op(aluOp), .memWrite(memWrite),
+            .passThroughA(passA), .passThroughB(passB), .aluOp(aluOp), .memWrite(memWrite),
             .jump_in(jumpAddr), .aluRes(aluRes), .branch_result(branch_result), .zero(zero), .err(alu_err),
             .ltz(ltz), .jump_out(jump_out));  
     

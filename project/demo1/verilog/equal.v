@@ -7,5 +7,5 @@ module equal(in1, in2, eq);
     wire [INPUT_WIDTH - 1:0] nd;
     assign nd = in1 ^ in2;
     
-    zero #(.INPUT_WIDTH(5)) ZR(.in(nd), .zero(eq));
+    zero #(.INPUT_WIDTH(INPUT_WIDTH)) ZR(.in(nd), .zero(eq));
 endmodule
