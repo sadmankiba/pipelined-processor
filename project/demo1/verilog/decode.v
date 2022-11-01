@@ -30,7 +30,7 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     wire [2:0] readReg1, readReg2, write1_reg;                       
     wire [15:0] read1data_temp, read2data_temp;
     wire [2:0] stuReg, write_regtemp, write_regtemp2;
-    wire [5:0] opcode;
+    wire [4:0] opcode;
     wire isStu;
     wire jalInstr, jalrInstr, jmpLnk;
     wire [15:0]writeDataFinal;
@@ -55,14 +55,12 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     assign readReg1 = instr[10:8];
     assign readReg2 = instr[7:5];
     assign write1_reg = instr[4:2];
-
-    // assign isStu = instr[15] & (~instr[14]) & (~instr[13]) & instr[12] & instr[11]; 
-    equal #(.INPUT_WIDTH(5)) EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
+    
     assign stuReg = readReg1;
+    equal #(.INPUT_WIDTH(5)) EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
+    
 
-    // assign jalInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (~instr[11]);
     equal #(.INPUT_WIDTH(5)) EQ2(.in1(opcode), .in2(5'b00110), .eq(jalInstr));
-    // assign jalrInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (instr[11]);
     equal #(.INPUT_WIDTH(5)) EQ3(.in1(opcode), .in2(5'b00111), .eq(jalrInstr));
     assign jmpLnk = jalInstr | jalrInstr;
     
