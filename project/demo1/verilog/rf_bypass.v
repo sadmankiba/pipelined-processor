@@ -1,6 +1,6 @@
 module rf_bypass (
            // Outputs
-           read1data, read2data, err,
+           readData1, readData2, err,
            // Inputs
            clk, rst, read1RegSel, read2RegSel, writeRegSel, writedata, write
            );
@@ -11,15 +11,15 @@ module rf_bypass (
   input [15:0] writedata;
   input        write;
 
-  output [15:0] read1data;
-  output [15:0] read2data;
+  output [15:0] readData1;
+  output [15:0] readData2;
   output        err;
 
-	wire [15:0] read1datainit, read2datainit;
+	wire [15:0] readData1init, readData2init;
 
-	assign read1data = write && (read1RegSel == writeRegSel) ? writedata : read1datainit;
-	assign read2data = write && (read2RegSel == writeRegSel) ? writedata : read2datainit;
+	assign readData1 = write && (read1RegSel == writeRegSel) ? writedata : readData1init;
+	assign readData2 = write && (read2RegSel == writeRegSel) ? writedata : readData2init;
 
-	rf REG(.read1data(read1datainit), .read2data(read2datainit), .err(err), .clk(clk), .rst(rst), .read1RegSel(read1RegSel), .read2RegSel(read2RegSel), .writeRegSel(writeRegSel), .writedata(writedata), .write(write));
+	rf REG(.readData1(readData1init), .readData2(readData2init), .err(err), .clk(clk), .rst(rst), .read1RegSel(read1RegSel), .read2RegSel(read2RegSel), .writeRegSel(writeRegSel), .writedata(writedata), .write(write));
 
 endmodule

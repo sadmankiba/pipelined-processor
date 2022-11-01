@@ -144,9 +144,6 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin, passA, passB
             begin
             aluControl = 3'b100;
             end
-    ///////////////////////////////////////
-
-        
         7'b01110_xx: //BLTZ
             begin
             sign = 1'b1;

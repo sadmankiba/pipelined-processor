@@ -5,7 +5,7 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, clk, rst,
-                    jumpAddr, read1data, read2data, immVal, err
+                    jumpAddr, readData1, readData2, immVal, err
                     );
    
     // TODO: Your code here
@@ -21,14 +21,14 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
 
     output err;
     output [15:0] jumpAddr;  
-    output [15:0] read1data;
-    output [15:0] read2data;
+    output [15:0] readData1;
+    output [15:0] readData2;
     output [15:0] immVal;
 
     wire [15:0] immI2, immI1, temp_immediate, zero_imm1, zero_imm2, temp_zero_imm;
     wire [2:0] write_reg, write_reg_temp;
     wire [2:0] readReg1, readReg2, write1_reg;                       
-    wire [15:0] read1data_temp, read2data_temp;
+    wire [15:0] readData1_temp, readData2_temp;
     wire [2:0] stuReg, write_regtemp, write_regtemp2;
     wire [4:0] opcode;
     wire isStu;
@@ -70,12 +70,12 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     assign write_reg = (jmpLnk) ? 3'b111 : write_regtemp2; 
     assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
-    regFile regFile0(.read1Data(read1data_temp), .read2Data(read2data_temp), .err(err),
+    regFile regFile0(.read1Data(readData1_temp), .read2Data(readData2_temp), .err(err),
             .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
             .writeRegSel(write_reg), .writedata(writeDataFinal), .writeEn(regWrite));
     
-    mux2_1_16b MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(memWrite), .Out(read1data));
-    mux2_1_16b MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(memWrite), .Out(read2data));
+    mux2_1_16b MEM1(.InB(readData2_temp), .InA(readData1_temp), .S(memWrite), .Out(readData1));
+    mux2_1_16b MEM2(.InB(readData1_temp), .InA(readData2_temp), .S(memWrite), .Out(readData2));
     
     wire jr;
     wire [15:0] jumpAddr1, jumpAddr2;
