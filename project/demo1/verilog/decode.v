@@ -30,9 +30,10 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     wire [2:0] readReg1, readReg2, write1_reg;                       
     wire [15:0] read1data_temp, read2data_temp;
     wire [2:0] stuReg, write_regtemp, write_regtemp2;
+    wire [5:0] opcode;
     wire isStu;
-    wire jal, jalr, jal_or_jalr;
-    wire [15:0]writeData1;
+    wire jalInstr, jalrInstr, jmpLnk;
+    wire [15:0]writeDataFinal;
 
     /*
     Formats:
@@ -50,27 +51,30 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
         5 [opc]. 3 [Rs]. 3 [Rt]. 3 [Rd]. 2 [Ext]
     */
 
+    assign opcode = instr[15:11];
     assign readReg1 = instr[10:8];
     assign readReg2 = instr[7:5];
     assign write1_reg = instr[4:2];
 
-    assign isStu = instr[15] & (~instr[14]) & (~instr[13]) & instr[12] & instr[11]; 
+    // assign isStu = instr[15] & (~instr[14]) & (~instr[13]) & instr[12] & instr[11]; 
+    equal EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
     assign stuReg = readReg1;
 
-    assign jal = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (~instr[11]);
-    assign jalr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (instr[11]);
-    assign jal_or_jalr = jal | jalr;
+    // assign jalInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (~instr[11]);
+    equal EQ2(.in1(opcode), .in2(5'b00110), .eq(jalInstr));
+    // assign jalrInstr = (~instr[15]) & (~instr[14]) & instr[13] & instr[12] & (instr[11]);
+    equal EQ3(.in1(opcode), .in2(5'b00111), .eq(jalrInstr));
+    assign jmpLnk = jalInstr | jalrInstr;
     
     assign write_reg_temp = (regDst == 1'b0) ? readReg1 : write1_reg;  // I-format2 or R-format writeReg
-    assign write_regtemp = (i1Fmt) ? readReg2 : write_reg_temp; // If I-format1 writeReg
+    assign write_regtemp = (i1Fmt) ? readReg2 : write_reg_temp;         // If I-format1 writeReg
     assign write_regtemp2 = (isStu) ? stuReg : write_regtemp;          // If STU writeReg
-    assign write_reg = (jal_or_jalr) ? 3'b111 : write_regtemp2; 
-    assign writeData1 = (jal_or_jalr) ? pc : writeData;
+    assign write_reg = (jmpLnk) ? 3'b111 : write_regtemp2; 
+    assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
-    rf regFile0(
-            .read1data(read1data_temp), .read2data(read2data_temp), .err(err),
-            .clk(clk), .rst(rst), .read1regsel(readReg2), .read2regsel(readReg1), 
-            .writeregsel(write_reg), .writedata(writeData1), .write(regWrite));
+    rf regFile0(.read1data(read1data_temp), .read2data(read2data_temp), .err(err),
+            .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
+            .writeRegSel(write_reg), .writedata(writeDataFinal), .write(regWrite));
     
     mux2_1_16b MEM1(.InB(read2data_temp), .InA(read1data_temp), .S(memWrite), .Out(read1data));
     mux2_1_16b MEM2(.InB(read1data_temp), .InA(read2data_temp), .S(memWrite), .Out(read2data));
@@ -82,7 +86,7 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, 
     sign_ext_8b SJUMP8(.in(instr[7:0]), .out(jumpAddr2));
     
     assign jr = (~instr[15]) & (~instr[14]) & instr[13] & (~instr[12]) & instr[11];
-    mux2_1_16b JADDR(.InB(jumpAddr2), .InA(jumpAddr1), .S(jr|jalr), .Out(jumpAddr));
+    mux2_1_16b JADDR(.InB(jumpAddr2), .InA(jumpAddr1), .S(jr|jalrInstr), .Out(jumpAddr));
     
     sign_ext_8b EXT8 (.in(instr[7:0]), .out(immI2));
     sign_ext_5b EXT5   (.in(instr[4:0]), .out(immI1));

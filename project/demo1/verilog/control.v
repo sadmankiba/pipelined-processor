@@ -3,36 +3,21 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 
 	input [4:0] opcode;    
 
-	output reg regDst;          
-	output reg aluSrc;         
-	output [4:0] aluOp;    
-	output reg branch;          
-	output reg memRead;         
-	output reg memWrite;        
-	output reg jump;            
-	output reg memToReg;        
-	output reg regWrite;        
-	output reg err;
-	output reg halt;
-	output reg zeroExt;
-	output reg i1Fmt;
+	output reg regDst, aluSrc, branch, memRead, memWrite, jump, memToReg, regWrite;         
+	output reg err, halt, zeroExt, i1Fmt;
 	
+	output [4:0] aluOp;    
+	 
 	assign aluOp = opcode;
 
 	always @(opcode)
 	begin
-		regDst   = 1'b0;
-		jump     = 1'b0;
-		branch   = 1'b0;
-		memRead  = 1'b0;
-		memToReg = 1'b0;
-		memWrite = 1'b0;
-		aluSrc   = 1'b0;
-		regWrite = 1'b0;
-		halt     = 1'b0;
-		i1Fmt = 1'b0;
-		zeroExt = 1'b0;
+		regDst   = 1'b0; regWrite = 1'b0; aluSrc   = 1'b0;		
+		memRead  = 1'b0; memWrite = 1'b0; memToReg = 1'b0;
+		i1Fmt = 1'b0; jump     = 1'b0; branch   = 1'b0;
+		halt     = 1'b0; zeroExt = 1'b0;
 		casex(opcode)
+			/* Halt - Nop */
 			5'b0_0000: 	
 				begin
 					halt = 1'b1;
@@ -40,6 +25,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 			5'b0_0001: 
 				begin
 				end
+			/* I-format 1 */
 			5'b0_1000: 
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;	
@@ -89,6 +75,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 					regWrite = 1'b1; i1Fmt = 1'b1;
 					memWrite = 1'b1; memRead = 1'b1; aluSrc = 1'b1;
 				end
+			/* R-format */
 			5'b1_1001:
 				begin
 					regWrite = 1'b1; regDst = 1'b1;
@@ -117,6 +104,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				begin
 					regDst = 1'b1; regWrite = 1'b1;
 				end
+			/* I-format 2 */
 			5'b0_1100: 
 				begin
 					aluSrc = 1'b1; branch = 1'b1;
@@ -141,6 +129,8 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				begin
 					regWrite = 1'b1; aluSrc = 1'b1; zeroExt = 1'b1;
 				end
+
+			/* J-format */
 			5'b0_0100: 
 				begin
 					jump = 1'b1;
@@ -157,10 +147,12 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				begin
 					jump = 1'b1; regWrite = 1'b1; aluSrc = 1'b1;
 				end
+			/* siic */
 			5'b0_0010:
 				begin
 
 				end
+			/* NOP */
 			5'b0_0011: 
 				begin
 
