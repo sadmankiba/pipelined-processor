@@ -6,8 +6,7 @@
 */
    
 module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB, cin, sign,
-              passThroughA, passThroughB, aluOp, memWrite, jumpAddrIn, jumpAddrOut,
-              aluRes, brAddr, zero, ltz, err);
+              passThroughA, passThroughB, aluOp, memWrite, aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input aluSrc;         
@@ -22,18 +21,15 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     input passThroughB;
     input [4:0] aluOp;
     input memWrite;
-    input [15:0] jumpAddrIn;
     
-    output [15:0] jumpAddrOut;
     output [15:0] aluRes; 
-    output [15:0] brAddr; 
     output zero, err, ltz;
 
     wire [15:0] aluInp1, aluInp2, aluSrcInp2;
     wire [1:0] sll;         
     wire toShift;           
-    wire isBranch, brOfl;        
-    wire alu_ofl, jump_ofl;
+    wire isBranch;        
+    wire alu_ofl;
     wire [15:0] aluOutput, temp_result;
     wire isSetOP;           
     wire seq, slt, sle, sco;
@@ -54,9 +50,6 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
 
     wire [15:0] nRead1, rotateVal;
     wire isRORI;
-
-    wire [15:0] a_in;
-    wire jalrInstr, jrInstr;
 
     // Calc Rotate Right result
     equal #(.INPUT_WIDTH(5)) EQ5(.in1(aluOp), .in2(5'b10110), .eq(isRORI));
@@ -97,16 +90,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     rev RV(.in(readData2), .out(btr_result));
     mux2_1_16b MXBT(.InA(aluRes_temp), .InB(btr_result), .S(isBTR), .Out(aluRes));    
     
-    // Calc Branch Addr
-    cla_16b CLAB(.a(pc), .b(immVal), .c_in(1'b0), .sign(1'b0), .sum(brAddr), .ofl(brOfl));
-    
-    // Calculate Jump addr
-    equal #(.INPUT_WIDTH(5)) EQ1(.in1(aluOp), .in2(5'b00111), .eq(jalrInstr));
-    equal #(.INPUT_WIDTH(5)) EQ2(.in1(aluOp), .in2(5'b00101), .eq(jrInstr));
-    mux2_1_16b AIN(.InB(readData2), .InA(pc), .S(jrInstr|jalrInstr), .Out(a_in));
-    cla_16b CLAJ(.a(a_in), .b(jumpAddrIn), .c_in(1'b0), .sign(1'b1), .sum(jumpAddrOut), .ofl(jump_ofl));
-    
     // Error bit
-    assign err = (brOfl | alu_ofl) & (~(passThroughA | passThroughB));
+    assign err = (alu_ofl) & (~(passThroughA | passThroughB));
 
 endmodule

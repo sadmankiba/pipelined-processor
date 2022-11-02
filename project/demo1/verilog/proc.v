@@ -24,9 +24,10 @@ module proc (/*AUTOARG*/
     
     /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
     
+    wire pcErr;
     wire [15:0] wb_out, wb_pc, brPcAddr, data_mem_out;
 
-    wire [15:0] next_pc, instr;
+    wire [15:0] nxtPc, instr;
     wire fetch_err;
 
     wire regDst, jump, branch, MemRead, MemToReg, memWrite, aluSrc, regWrite; 
@@ -36,14 +37,14 @@ module proc (/*AUTOARG*/
     wire errDcd;
     wire [15:0] jumpAddr, readData1, readData2, immVal;
     
-    wire zero, alu_err, ltz;
+    wire zero, aluErr, ltz;
     wire [15:0] aluRes, brAddr, jumpAddrOut;
     
     wire [2:0] aluControl;
     wire invA, invB, sign, cin, passA, passB;
 
     
-    fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .pcOut(next_pc), .instr(instr), .err(fetch_err));
+    fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .pcOut(nxtPc), .instr(instr), .err(fetch_err));
     
     control control0(.opcode(instr[15:11]), .regDst(regDst), .jump(jump), 
                 .branch(branch), .memRead(MemRead), .memToReg(MemToReg), .halt(halt),
@@ -51,25 +52,25 @@ module proc (/*AUTOARG*/
                     .i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
     decode decode0(.instr(instr), .writeData(wb_out), .regDst(regDst), .regWrite(regWrite),
-                .pc(next_pc[15:0]), .zeroExt(zeroExt), .memWrite(memWrite), .i1Fmt(i1Fmt), 
+                .pc(nxtPc), .zeroExt(zeroExt), .memWrite(memWrite), .i1Fmt(i1Fmt), 
                 .clk(clk), .rst(rst), .jumpAddr(jumpAddr), .readData1(readData1), .readData2(readData2), 
                 .immVal(immVal),.err(errDcd));  
     
     alu_control actl0(.aluOp(aluOp), .funct(instr[1:0]), 
                     .invA(invA), .invB(invB), .aluControl(aluControl), 
                     .cin(cin), .sign(sign), .passA(passA), .passB(passB));
-
-    execute exec0 (.aluControl(aluControl), .aluSrc(aluSrc), .readData1(readData1), .readData2(readData2), 
-            .immVal(immVal), .pc(next_pc), .invA(invA), .invB(invB), .cin(cin), .sign(sign),  
-            .passThroughA(passA), .passThroughB(passB), .aluOp(aluOp), .memWrite(memWrite),
-            .jumpAddrIn(jumpAddr), .aluRes(aluRes), .brAddr(brAddr), .zero(zero), .err(alu_err),
-            .ltz(ltz), .jumpAddrOut(jumpAddrOut));  
+    
+    execute exec0 (.readData1(readData1), .readData2(readData2), .immVal(immVal), 
+            .aluControl(aluControl), .aluSrc(aluSrc), .pc(nxtPc), .invA(invA), .invB(invB), 
+            .cin(cin), .sign(sign), .passThroughA(passA), .passThroughB(passB), .aluOp(aluOp), 
+            .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData2), 
                     .readData(data_mem_out), .halt(halt), .clk(clk), .rst(rst));  
 
-    pc_control pcControl0(.zero(zero), .branch(branch), .branchAddr(brAddr), .pc(next_pc),
-                .ltz(ltz), .branch_op(aluOp[1:0]), .brPcAddr(brPcAddr));
+    pc_control pcControl0(.immVal(immVal), .readData2(readData2), .zero(zero), .branch(branch), 
+                .pc(nxtPc), .jumpAddrIn(jumpAddr), .ltz(ltz), .aluOp(aluOp), .jumpAddrOut(jumpAddrOut), 
+                .brPcAddr(brPcAddr), .err(pcErr));
 
     wb wb0 (.aluRes(aluRes), .memData(data_mem_out), .memToReg(MemToReg), .brPcAddr(brPcAddr), 
                     .jumpAddr(jumpAddrOut), .jump(jump), .writeData(wb_out), .pc(wb_pc)); 
