@@ -1,13 +1,9 @@
-module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin, passB);
+module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
     input [4:0] aluOp;
     input [1:0] funct;
 
-    output reg invA;
-    output reg invB;
-    output reg sign;
+    output reg invA, invB, sign, cin;
     output reg [2:0] aluControl; 
-    output reg cin;
-    output reg passB;
 
     always @(*)
     begin
@@ -16,7 +12,6 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin, passB);
         sign = 1'b0;
         aluControl = 3'b000;
         cin = 1'b0;
-        passB = 1'b0;
         
         casex(aluOp)
             5'b01000: begin // addi
@@ -120,7 +115,6 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin, passB);
             end
             5'b11000: begin    // lbi
                 aluControl = 3'b000;
-                passB = 1'b1;
             end
             5'b10010: begin // slbi
                 aluControl = 3'b101; 

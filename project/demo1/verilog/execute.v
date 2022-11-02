@@ -6,13 +6,13 @@
 */
    
 module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin, sign,
-              passThroughB, aluOp, memWrite, aluRes, zero, ltz, err);
+             aluOp, memWrite, aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input aluSrc;         
     input [15:0] readData1, readData2, immVal;       
     input invA, invB;      
-    input cin, sign, passThroughB;
+    input cin, sign;
     input [4:0] aluOp;
     input memWrite;
     
@@ -21,7 +21,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
 
     wire [15:0] aluInp1, aluInp2, aluSrcInp2;
     wire [1:0] sll;         
-    wire toShift, isBranch, alu_ofl;
+    wire toShift, isBranch, aluOvf;
     wire [15:0] aluOutput, temp_result;
     wire isSetOP, seq, slt, sle, sco;
     wire [15:0] setInstrVal; 
@@ -29,7 +29,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     assign sll = 2'b01;
     assign toShift = 1'b1; 
     
-    wire isSLBI;
+    wire isLbi, isSLBI;
     wire [15:0] slbiShftImm;
 
     wire isBTR;
@@ -62,16 +62,16 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     assign ror_or_aluControl = (isRotateRight) ? 3'b000 : aluControl;
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cin), .Oper(ror_or_aluControl), 
             .invA(invA), .invB(invB), .sign(sign), 
-            .Out(aluOutput), .Zero(zero), .Ofl(alu_ofl), .Ltz(ltz));
-
+            .Out(aluOutput), .Zero(zero), .Ofl(aluOvf), .Ltz(ltz));
+    equal #(.INPUT_WIDTH(5)) EQ33(.in1(aluOp), .in2(5'b11000), .eq(isLbi));
     mux2_1_16b MXR(.InA(aluOutput), .InB(aluInp2), 
-        .S(passThroughB), .Out(temp_result));
+        .S(isLbi), .Out(temp_result));
 
     // Whether use set Instr value
     assign seq = ((~aluOp[1]) & (~aluOp[0])) & zero;
     assign slt = ((~aluOp[1]) & aluOp[0]) & ltz;
     assign sle = (aluOp[1] & (~aluOp[0])) & (zero | ltz);
-    assign sco = (aluOp[1] & aluOp[0]) & alu_ofl;
+    assign sco = (aluOp[1] & aluOp[0]) & aluOvf;
     equal #(.INPUT_WIDTH(3)) EQ15(.in1(aluOp[4:2]), .in2(3'b111), .eq(isSetOP));
     assign setInstrVal = (seq | slt | sle | sco) ? 16'h0001 : 16'h0000;
     mux2_1_16b MXST(.InB(setInstrVal), .InA(temp_result), .S(isSetOP), .Out(aluRes_temp));
@@ -82,6 +82,6 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     mux2_1_16b MXBT(.InA(aluRes_temp), .InB(btr_result), .S(isBTR), .Out(aluRes));    
     
     // Error bit
-    assign err = (alu_ofl) & (~passThroughB);
+    assign err = aluOvf;
 
 endmodule
