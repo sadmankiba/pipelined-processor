@@ -1,4 +1,4 @@
-module alu_hier_bench;
+module execute_bench;
 
     // declare constant for size of inputs, outputs (N) and # bits to shift (C)
     parameter OP_WIDTH = 16;
@@ -25,10 +25,30 @@ module alu_hier_bench;
     reg                   ExOfl;
     reg                   ExZero;
     integer               idx;
-   
-    alu_hier #(.OPERAND_WIDTH(OP_WIDTH),
-               .NUM_OPERATIONS(NUM_OPS)) 
-             DUT (.InA(A_pre_inv), 
+
+    reg readData1;
+    reg readData2; 
+    reg immVal; 
+    reg aluControl; 
+    reg aluSrc;
+    reg cin; 
+    reg aluOp, memWrite, aluRes, zero, ltz;
+
+    // clkrst signals
+    wire clk;
+    wire rst;
+    wire err;
+
+    clkrst c0(.clk                       (clk),
+              .rst                       (rst),
+              .err                       (err)
+              );
+
+    assign err = 1'b0;
+    
+    // execute DUT(.readData1(), .readData2(), immVal, aluControl, aluSrc, invA, invB, cin, sign,
+    //          aluOp, memWrite, aluRes, zero, ltz, err);
+    alu_hier DUT (.InA(A_pre_inv), 
                   .InB(B_pre_inv), 
                   .Cin(Cin), 
                   .Oper(Oper), 

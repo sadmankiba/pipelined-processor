@@ -11,7 +11,11 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
     slli, sll               001
     ror, rori               010
     srli, srl               011
+    
     addi, subi, add, sub    100
+    st, ld, stu, lbi
+
+    or, ori, slbi           101
     xori, xor               110
     andni, andn             111
     */
@@ -125,7 +129,7 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
                 aluControl = 3'b100;
             end
             5'b11000: begin    // lbi
-                aluControl = 3'b000;
+                aluControl = 3'b100; /**/
             end
             5'b10010: begin // slbi
                 aluControl = 3'b101; 

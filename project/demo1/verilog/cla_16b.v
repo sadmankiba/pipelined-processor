@@ -13,7 +13,7 @@ module cla_16b(sum, ofl, sign, a, b, c_in);
     output         ofl;
     input [N-1: 0] a, b;
     input          c_in;
-    input          sign;
+    input          sign;  // signed or unsigned op
     wire  [N:0]   c;
     assign c[0] = c_in;
 
@@ -26,7 +26,7 @@ module cla_16b(sum, ofl, sign, a, b, c_in);
 
     // Overflow
     wire cx;
-    xor2 XR(cx, c[15], c[16]);
-    mux2_1 MX(c[16], cx, sign, ofl);
+    xor2 XR(.out(cx), .in1(c[15]), .in2(c[16]));
+    mux2_1 MX(.InA(c[16]), .InB(cx), .S(sign), .Out(ofl));
 
 endmodule

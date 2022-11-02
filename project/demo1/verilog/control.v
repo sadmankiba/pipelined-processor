@@ -25,7 +25,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 			5'b0_0001: 
 				begin
 				end
-			/* I-format 1: roli, slli, rori, srli, st, ld, stu */
+			/* I-format 1: addi, subi, xori, andni*/
 			5'b0_1000: 
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;	
@@ -44,6 +44,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 					i1Fmt = 1'b1; aluSrc = 1'b1;
 					regWrite = 1'b1; zeroExt = 1'b1;
 				end
+			/* I-format 1: roli, slli, rori, srli */
 			5'b1_0100: 
 				begin
 					aluSrc = 1'b1; i1Fmt = 1'b1; regWrite = 1'b1;
@@ -54,12 +55,13 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				end
 			5'b1_0110: 
 				begin
-					i1Fmt = 1'b1; regWrite = 1'b1;
+					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;
 				end
 			5'b1_0111:
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;
 				end
+			/* I-format 1: st, ld, stu */
 			5'b1_0000:
 				begin
 					aluSrc = 1'b1; i1Fmt = 1'b1;
@@ -104,7 +106,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				begin
 					regDst = 1'b1; regWrite = 1'b1;
 				end
-			/* I-format 2 */
+			/* I-format 2: beqz, bnez, bltz, bgez, lbi, slbi */
 			5'b0_1100: 
 				begin
 					aluSrc = 1'b1; branch = 1'b1;
@@ -127,7 +129,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 				end
 			5'b1_0010: 
 				begin
-					regWrite = 1'b1; aluSrc = 1'b1; zeroExt = 1'b1;
+					regWrite = 1'b1; zeroExt = 1'b1; aluSrc = 1'b1; 
 				end
 
 			/* J-format: j, jr, jal, jalr */

@@ -31,7 +31,7 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
     Opcode Function Result
     000 rll Rotate left
     001 sll Shift left logical
-    010 sra Shift right arithmetic
+    010 ror Rotate right
     011 srl Shift right logical
     100 ADD A+B
     101 OR A OR B
@@ -57,9 +57,9 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
 	shifter	SFT (.In(A[15:0]), .ShAmt(B[3:0]), .Oper(Oper[1:0]), .Out(shiftOut[15:0]));
 
     // Output Mux
-	mux4_1_16b MXL (.InD(andOut[15:0]), .InC(xorOut[15:0]), .InB(orOut[15:0]), 
-        .InA(addOut[15:0]), .S(Oper[1:0]), .Out(logicalOut[15:0]));
-	mux2_1_16b MXOUT(.InB(logicalOut[15:0]), .InA(shiftOut[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
+	mux4_1_16b MXL (.InA(addOut[15:0]), .InB(orOut[15:0]), .InC(xorOut[15:0]), .InD(andOut[15:0]),  
+        .S(Oper[1:0]), .Out(logicalOut[15:0]));
+	mux2_1_16b MXOUT(.InA(shiftOut[15:0]), .InB(logicalOut[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
 
 	// Overflow
     wire no0, no1;

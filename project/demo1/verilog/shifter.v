@@ -9,7 +9,7 @@
  */
 module shifter (In, ShAmt, Oper, Out);
     // Opc| 00   01   10   11
-	// Oper | ROL  SLL  SRA  SRL
+	// Oper | ROL  SLL  ROR  SRL
 
     // declare constant for size of inputs, outputs, and # bits to shift
     parameter OPERAND_WIDTH = 16;
@@ -27,13 +27,14 @@ module shifter (In, ShAmt, Oper, Out);
     input [1:0]  Oper;
     output [15:0] Out;
 
-	wire [15:0] eightOut;
-	wire [15:0] fourOut;
-	wire [15:0] twoOut;
+	wire [15:0] eightOut, fourOut, twoOut, oneOut;
 
 	shifter_8b s3(.Out(eightOut),.In(In), .ShAmt(ShAmt[3]), .Oper(Oper));
 	shifter_4b s2 (.Out(fourOut), .In(eightOut),.ShAmt(ShAmt[2]), .Oper(Oper));
 	shifter_2b s1  (.Out(twoOut), .In(fourOut),  .ShAmt(ShAmt[1]), .Oper(Oper));
-    shifter_1b s0  (.Out(Out), .In(twoOut),.ShAmt(ShAmt[0]), .Oper(Oper));
+    shifter_1b s0  (.Out(oneOut), .In(twoOut),.ShAmt(ShAmt[0]), .Oper(Oper));
+
+    // Rotate right
+    assign Out = (Oper == 2'b10)? ((In >> ShAmt) | (In << (16 - ShAmt))): oneOut;
    
 endmodule
