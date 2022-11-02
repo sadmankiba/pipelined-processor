@@ -32,7 +32,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     wire [15:0] aluInp1, aluInp2, aluSrcInp2;
     wire [1:0] sll;         
     wire toShift;           
-    wire cin_for_branch, sign_branch, isBranch, brOfl;        
+    wire isBranch, brOfl;        
     wire alu_ofl, jump_ofl;
     wire [15:0] aluOutput, temp_result;
     wire isSetOP;           
@@ -40,10 +40,8 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     wire [15:0] setInstrVal; 
 
     assign sll = 2'b01;
-    assign toShift = 1'b1;
-    assign cin_for_branch = 1'b0; 
-    assign sign_branch = 1'b0;
-
+    assign toShift = 1'b1; 
+    
     wire isSLBI;
     wire [15:0] slbiShftImm;
 
@@ -100,8 +98,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     mux2_1_16b MXBT(.InA(aluRes_temp), .InB(btr_result), .S(isBTR), .Out(aluRes));    
     
     // Calc Branch Addr
-    cla_16b CLAB(.a(pc), .b(immVal), .c_in(cin_for_branch), .sign(sign_branch), 
-                .sum(brAddr), .ofl(brOfl));
+    cla_16b CLAB(.a(pc), .b(immVal), .c_in(1'b0), .sign(1'b0), .sum(brAddr), .ofl(brOfl));
     
     // Calculate Jump addr
     equal #(.INPUT_WIDTH(5)) EQ1(.in1(aluOp), .in2(5'b00111), .eq(jalrInstr));

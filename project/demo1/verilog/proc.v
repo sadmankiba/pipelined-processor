@@ -24,7 +24,7 @@ module proc (/*AUTOARG*/
     
     /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
     
-    wire [15:0] wb_out, wb_pc, branch_or_pc, data_mem_out;
+    wire [15:0] wb_out, wb_pc, brPcAddr, data_mem_out;
 
     wire [15:0] next_pc, instr;
     wire fetch_err;
@@ -37,7 +37,7 @@ module proc (/*AUTOARG*/
     wire [15:0] jumpAddr, readData1, readData2, immVal;
     
     wire zero, alu_err, ltz;
-    wire [15:0] aluRes, branch_result, jumpAddrOut;
+    wire [15:0] aluRes, brAddr, jumpAddrOut;
     
     wire [2:0] aluControl;
     wire invA, invB, sign, cin, passA, passB;
@@ -62,14 +62,16 @@ module proc (/*AUTOARG*/
     execute exec0 (.aluControl(aluControl), .aluSrc(aluSrc), .readData1(readData1), .readData2(readData2), 
             .immVal(immVal), .pc(next_pc), .invA(invA), .invB(invB), .cin(cin), .sign(sign),  
             .passThroughA(passA), .passThroughB(passB), .aluOp(aluOp), .memWrite(memWrite),
-            .jumpAddrIn(jumpAddr), .aluRes(aluRes), .brAddr(branch_result), .zero(zero), .err(alu_err),
+            .jumpAddrIn(jumpAddr), .aluRes(aluRes), .brAddr(brAddr), .zero(zero), .err(alu_err),
             .ltz(ltz), .jumpAddrOut(jumpAddrOut));  
-    
-    data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData2), 
-                    .readData(data_mem_out), .zero(zero), .branch(branch), .branchAddr(branch_result), .pc(next_pc), 
-                    .halt(halt), .ltz(ltz), .branch_op(aluOp[1:0]), .branch_or_pc(branch_or_pc), .clk(clk), .rst(rst));  
 
-    wb wb0 (.aluRes(aluRes), .memData(data_mem_out), .memToReg(MemToReg), .brPcAddr(branch_or_pc), 
+    data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData2), 
+                    .readData(data_mem_out), .halt(halt), .clk(clk), .rst(rst));  
+
+    pc_control pcControl0(.zero(zero), .branch(branch), .branchAddr(brAddr), .pc(next_pc),
+                .ltz(ltz), .branch_op(aluOp[1:0]), .brPcAddr(brPcAddr));
+
+    wb wb0 (.aluRes(aluRes), .memData(data_mem_out), .memToReg(MemToReg), .brPcAddr(brPcAddr), 
                     .jumpAddr(jumpAddrOut), .jump(jump), .writeData(wb_out), .pc(wb_pc)); 
     
 endmodule // proc

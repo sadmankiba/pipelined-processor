@@ -5,8 +5,7 @@
    Description     : This is the module for the overall decode stage of the processor.
 */
 module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, i1Fmt, clk, rst,
-                    jumpAddr, readData1, readData2, immVal, err
-                    );
+                    jumpAddr, readData1, readData2, immVal, err);
    
     // TODO: Your code here
     input [15:0] instr; 
