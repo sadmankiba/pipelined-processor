@@ -1,4 +1,4 @@
-module data_mem(memWrite, memRead, aluRes, writedata, halt, clk, rst, readData);
+module dmemory(memWrite, memRead, aluRes, writedata, halt, clk, rst, readData);
 
     input memWrite, memRead;
     input [15:0] aluRes, writedata;        
@@ -8,10 +8,9 @@ module data_mem(memWrite, memRead, aluRes, writedata, halt, clk, rst, readData);
     output [15:0] readData;
 
     wire memEnable;
-
     wire [15:0] aluResult, writeData;
 
-    assign memEnable = (~halt) & memRead;
+    assign memEnable = memRead & (~halt);
     
     mux2_1_16b MXAD(.InA(writedata), .InB(aluRes), .S(memRead), .Out(aluResult));
     mux2_1_16b MXW(.InA(aluRes), .InB(writedata), .S(memRead), .Out(writeData));

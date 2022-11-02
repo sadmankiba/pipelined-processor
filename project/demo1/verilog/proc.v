@@ -66,7 +66,7 @@ module proc (/*AUTOARG*/
             .cIn(cIn), .sign(sign), .aluOp(aluOp), 
             .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
-    data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 
+    dmemory memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 
                     .readData(memData), .halt(halt), .clk(clk), .rst(rst));  
 
     pc_control pcControl0(.immVal(immVal), .readData2(readData2), .zero(zero), .branch(branch), 
