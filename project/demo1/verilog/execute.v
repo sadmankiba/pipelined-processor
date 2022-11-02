@@ -23,7 +23,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     wire [1:0] sll;         
     wire toShift, isBranch, aluOvf;
     wire [15:0] aluOutput, temp_result;
-    wire isSetOP, seq, slt, sle, sco;
+    wire isSetOP, setVal;
     wire [15:0] setInstrVal; 
 
     assign sll = 2'b01;
@@ -68,12 +68,11 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
         .S(isLbi), .Out(temp_result));
 
     // Whether use set Instr value
-    assign seq = ((~aluOp[1]) & (~aluOp[0])) & zero;
-    assign slt = ((~aluOp[1]) & aluOp[0]) & ltz;
-    assign sle = (aluOp[1] & (~aluOp[0])) & (zero | ltz);
-    assign sco = (aluOp[1] & aluOp[0]) & aluOvf;
-    equal #(.INPUT_WIDTH(3)) EQ15(.in1(aluOp[4:2]), .in2(3'b111), .eq(isSetOP));
-    assign setInstrVal = (seq | slt | sle | sco) ? 16'h0001 : 16'h0000;
+    equal #(.INPUT_WIDTH(3)) EQ27(.in1(aluOp[4:2]), .in2(3'b111), .eq(isSetOP));
+    mux4_1 MXS(.InA(zero), .InB(ltz), .InC(zero | ltz), .InD(aluOvf), 
+        .S(aluOp[1:0]), .Out(setVal));
+    zero_ext #(.OUTPUT_WIDTH(16)) ZX(.in(setVal), .out(setInstrVal));
+
     mux2_1_16b MXST(.InB(setInstrVal), .InA(temp_result), .S(isSetOP), .Out(aluRes_temp));
     
     // Calc btr Instr result
