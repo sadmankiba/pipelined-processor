@@ -39,27 +39,27 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
     111 AND A AND B
     */
     wire [15:0] aInv, bInv, A, B;
-	wire [15:0] addOut, orOut, xorOut, andOut, logicalOut, shiftOut;
+	wire [15:0] addRes, orRes, xorRes, andRes, logicalRes, shiftRes;
 	wire aOfl, ltzi;
 
-	inv AInv(.In(InA[15:0]), .sign(sign), .Out(aInv[15:0]));
-    inv BInv(.In(InB[15:0]), .sign(sign), .Out(bInv[15:0]));
+	inv AInv(.In(InA), .sign(sign), .Out(aInv));
+    inv BInv(.In(InB), .sign(sign), .Out(bInv));
 
 	// Inversion MUX
-	mux2_1_16b MXA (.InB(aInv[15:0]), .InA(InA[15:0]), .S(invA), .Out(A[15:0]));
-	mux2_1_16b MXB (.InB(bInv[15:0]), .InA(InB[15:0]), .S(invB), .Out(B[15:0]));
+	mux2_1_16b MXA (.InB(aInv), .InA(InA), .S(invA), .Out(A));
+	mux2_1_16b MXB (.InB(bInv), .InA(InB), .S(invB), .Out(B));
 
-    cla_16b CLA (.sum(addOut[15:0]), .ofl(aOfl), .sign(sign), 
-        .a(A[15:0]), .b(B[15:0]), .c_in(Cin));
-	and16   AD (.A(A[15:0]), .B(B[15:0]), .Out(andOut[15:0]));
-	or16    OR (.A(A[15:0]), .B(B[15:0]), .Out(orOut[15:0]));
-	xor16   XR (.A(A[15:0]), .B(B[15:0]), .Out(xorOut[15:0]));
-	shifter	SFT (.In(A[15:0]), .ShAmt(B[3:0]), .Oper(Oper[1:0]), .Out(shiftOut[15:0]));
+    cla_16b CLA (.sum(addRes), .ofl(aOfl), .sign(sign), 
+        .a(A), .b(B), .c_in(Cin));
+	and16   AD (.A(A), .B(B), .Out(andRes));
+	or16    OR (.A(A), .B(B), .Out(orRes));
+	xor16   XR (.A(A), .B(B), .Out(xorRes));
+	shifter	SFT (.In(A), .ShAmt(B[3:0]), .Oper(Oper[1:0]), .Out(shiftRes));
 
     // Output Mux
-	mux4_1_16b MXL (.InA(addOut[15:0]), .InB(orOut[15:0]), .InC(xorOut[15:0]), .InD(andOut[15:0]),  
-        .S(Oper[1:0]), .Out(logicalOut[15:0]));
-	mux2_1_16b MXOUT(.InA(shiftOut[15:0]), .InB(logicalOut[15:0]), .S(Oper[2]), .Out(Out[15:0])); 
+	mux4_1_16b MXL (.InA(addRes), .InB(orRes), .InC(xorRes), .InD(andRes),  
+        .S(Oper[1:0]), .Out(logicalRes));
+	mux2_1_16b MXOUT(.InA(shiftRes), .InB(logicalRes), .S(Oper[2]), .Out(Out)); 
 
 	// Overflow
     wire no0, no1;
@@ -68,7 +68,7 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
 	and4 AD1 (Ofl, Oper[2], no1, no0, aOfl);
 
 	// Zero
-    assign Zero = ~|Out[15:0];
+    assign Zero = ~|Out;
     assign ltzi = (Out[15] == 1) ? 1'b1 : 1'b0;
     assign Ltz = ((Ofl & (Out[15] ^ A[15])) == 1'b1)  ? ~ltzi : ltzi;
     
