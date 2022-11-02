@@ -79,13 +79,12 @@ module decode(instr, writeData, regDst, regWrite, pc, zeroExt, memWrite, jump, a
     sign_ext #(.INPUT_WIDTH(11), .OUTPUT_WIDTH(16)) SXJ1(.in(instr[10:0]), .out(jumpDistJ));
     sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXJ2(.in(instr[7:0]), .out(jumpDistJr));
     
-    mux2_1_16b MXJADR(.InA(jumpDistJ), .InB(jumpDistJr),  
-        .S(jump & aluSrc), .Out(jumpDist));
+    mux2_1_16b MXJADR(.InA(jumpDistJ), .InB(jumpDistJr), .S(jump & aluSrc), .Out(jumpDist));
     
-    sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXI1(.in(instr[7:0]), .out(immI2));
-    sign_ext #(.INPUT_WIDTH(5), .OUTPUT_WIDTH(16)) SXI2(.in(instr[4:0]), .out(immI1));
-    zero_extend5bit ZX1(.in(instr[4:0]), .out(immI1ZExt));
-    zero_extend8bit Zx2(.in(instr[7:0]), .out(immI2ZExt));
+    sign_ext #(.INPUT_WIDTH(5), .OUTPUT_WIDTH(16)) SXI1(.in(instr[4:0]), .out(immI1));
+    sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXI2(.in(instr[7:0]), .out(immI2));
+    zero_ext #(.INPUT_WIDTH(5), .OUTPUT_WIDTH(16)) ZXI1(.in(instr[4:0]), .out(immI1ZExt));
+    zero_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) ZXI2(.in(instr[7:0]), .out(immI2ZExt));
 
     mux2_1_16b  MXIM(.InA(immI2), .InB(immI1), .S(i1Fmt), .Out(temp_immediate));
     mux2_1_16b MXZI2IM(.InA(immI2ZExt), .InB(immI1ZExt), .S(i1Fmt), .Out(immZExt));

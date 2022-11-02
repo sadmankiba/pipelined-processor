@@ -5,7 +5,7 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
    
-module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin, sign,
+module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cIn, sign,
              aluOp, memWrite, aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
@@ -14,7 +14,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     input [15:0] readData2;   // Rs in I1, I2, R-format
     input [15:0] immVal;       
     input invA, invB;      
-    input cin, sign;
+    input cIn, sign;
     input [4:0] aluOp;
     input memWrite;
     
@@ -46,7 +46,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     mux2_1_16b MXALB(.InA(aluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2));
 
     // ALU 
-    alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cin), .Oper(aluControl), 
+    alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cIn), .Oper(aluControl), 
             .invA(invA), .invB(invB), 
             .sign(sign), .Out(aluOut), .Zero(zero), .Ofl(aluOvf), .Ltz(ltz));
 

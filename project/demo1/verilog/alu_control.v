@@ -1,8 +1,8 @@
-module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
+module alu_control(aluOp, funct, invA, invB, sign, cIn, aluControl);
     input [4:0] aluOp;
     input [1:0] funct;
 
-    output reg invA, invB, sign, cin;
+    output reg invA, invB, sign, cIn;
     output reg [2:0] aluControl; 
     /*
     Instr             |     ALU Control
@@ -22,18 +22,16 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
 
     always @(*)
     begin
-        invA = 1'b0;
-        invB = 1'b0;
-        sign = 1'b0;
+        invA = 1'b0; invB = 1'b0;
+        sign = 1'b0; cIn = 1'b0;
         aluControl = 3'b000;
-        cin = 1'b0;
         
-        casex(aluOp)
+        case(aluOp)
             5'b01000: begin // addi
                 sign = 1'b1; aluControl = 3'b100;
             end
             5'b01001: begin // subi
-                invA = 1'b1; cin = 1'b1; aluControl = 3'b100;
+                invA = 1'b1; cIn = 1'b1; aluControl = 3'b100;
             end
             5'b01010: begin // xori
                 aluControl = 3'b110;
@@ -74,7 +72,7 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
                     end
                     2'b01: begin
                         invA = 1'b1;
-                        cin = 1'b1;
+                        cIn = 1'b1;
                         aluControl = 3'b100;
                     end
                     2'b10: begin 
@@ -103,15 +101,15 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
                 
             end
             5'b11100: begin   // seq    
-                invA = 1'b1; cin = 1'b1; aluControl = 3'b100;
+                invA = 1'b1; cIn = 1'b1; aluControl = 3'b100;
             end
             5'b11101: begin // slt
                 sign = 1'b1; invB = 1'b1;
-                cin = 1'b1; aluControl = 3'b100;
+                cIn = 1'b1; aluControl = 3'b100;
             end
             5'b11110: begin // sle
                 sign = 1'b1; invB = 1'b1;
-                cin = 1'b1; aluControl = 3'b100;
+                cIn = 1'b1; aluControl = 3'b100;
             end
             5'b11111: begin // sco
                 aluControl = 3'b100;
@@ -119,13 +117,13 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
             5'b01110: begin // bltz
                 sign = 1'b1;
                 invB = 1'b1;
-                cin = 1'b1;
+                cIn = 1'b1;
                 aluControl = 3'b100;
             end
             5'b01111: begin // bgez
                 sign = 1'b1;
                 invB = 1'b1;
-                cin = 1'b1;
+                cIn = 1'b1;
                 aluControl = 3'b100;
             end
             5'b11000: begin    // lbi

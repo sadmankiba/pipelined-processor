@@ -41,7 +41,7 @@ module proc (/*AUTOARG*/
     wire [15:0] aluRes, brAddr, jumpDistOut;
     
     wire [2:0] aluControl;
-    wire invA, invB, sign, cin, passA, passB;
+    wire invA, invB, sign, cIn, passA, passB;
 
     
     fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .pcOut(nxtPc), .instr(instr), .err(fetch_err));
@@ -59,11 +59,11 @@ module proc (/*AUTOARG*/
     
     alu_control actl0(.aluOp(aluOp), .funct(instr[1:0]), 
                     .invA(invA), .invB(invB), .aluControl(aluControl), 
-                    .cin(cin), .sign(sign));
+                    .cIn(cIn), .sign(sign));
     
     execute exec0 (.readData1(readData1), .readData2(readData2), .immVal(immVal), 
             .aluControl(aluControl), .aluSrc(aluSrc), .invA(invA), .invB(invB), 
-            .cin(cin), .sign(sign), .aluOp(aluOp), 
+            .cIn(cIn), .sign(sign), .aluOp(aluOp), 
             .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 

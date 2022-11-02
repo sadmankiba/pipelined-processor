@@ -22,7 +22,7 @@ module regFile (// Outputs
 	wire [REG_SIZE - 1:0] read0, read1, read2, read3, read4, read5, read6, read7;
 	wire [NUM_REG - 1:0] writeRegNum, write, wEnExt;
 
-	decode3_8 WRITE(.in(writeRegSel[2:0]), .out(writeRegNum[7:0]));	
+	decoder3_8 DCDW(.in(writeRegSel[2:0]), .out(writeRegNum[7:0]));	
 
     // sign_ext #(.INPUT_WIDTH(1), .OUTPUT_WIDTH(8)) SX (.in(writeEN), .out(wEnExt));
     // assign write = writeRegNum & wEnExt;
@@ -44,10 +44,10 @@ module regFile (// Outputs
 	register R6 (.writeData(writedata), .write(write[6]), .clk(clk), .rst(rst), .readReg(read6));
 	register R7 (.writeData(writedata), .write(write[7]), .clk(clk), .rst(rst), .readReg(read7));
 
-	mux8_1_16b READ1(.InA(read0), .InB(read1), .InC(read2), .InD(read3), .InE(read4), 
+	mux8_1_16b MXR1(.InA(read0), .InB(read1), .InC(read2), .InD(read3), .InE(read4), 
         .InF(read5), .InG(read6), .InH(read7), .S(read1RegSel), .Out(read1Data));
 	
-    mux8_1_16b READ2(.InA(read0), .InB(read1), .InC(read2), .InD(read3), .InE(read4), 
+    mux8_1_16b MXR2(.InA(read0), .InB(read1), .InC(read2), .InD(read3), .InE(read4), 
         .InF(read5), .InG(read6), .InH(read7), .S(read2RegSel), .Out(read2Data));
     
 	assign err = 0;
