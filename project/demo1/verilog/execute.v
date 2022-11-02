@@ -5,20 +5,14 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
    
-module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB, cin, sign,
-              passThroughA, passThroughB, aluOp, memWrite, aluRes, zero, ltz, err);
+module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin, sign,
+              passThroughB, aluOp, memWrite, aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input aluSrc;         
-    input [15:0] readData1;
-    input [15:0] readData2;
-    input [15:0] immVal;
-    input [15:0] pc;       
+    input [15:0] readData1, readData2, immVal;       
     input invA, invB;      
-    input cin;
-    input sign;
-    input passThroughA;
-    input passThroughB;
+    input cin, sign, passThroughB;
     input [4:0] aluOp;
     input memWrite;
     
@@ -27,12 +21,9 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
 
     wire [15:0] aluInp1, aluInp2, aluSrcInp2;
     wire [1:0] sll;         
-    wire toShift;           
-    wire isBranch;        
-    wire alu_ofl;
+    wire toShift, isBranch, alu_ofl;
     wire [15:0] aluOutput, temp_result;
-    wire isSetOP;           
-    wire seq, slt, sle, sco;
+    wire isSetOP, seq, slt, sle, sco;
     wire [15:0] setInstrVal; 
 
     assign sll = 2'b01;
@@ -73,8 +64,8 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
             .invA(invA), .invB(invB), .sign(sign), 
             .Out(aluOutput), .Zero(zero), .Ofl(alu_ofl), .Ltz(ltz));
 
-    mux4_1_16b MXR(.InA(aluOutput), .InB(readData1), .InC(aluInp2), .InD(aluOutput), 
-        .S({passThroughB, passThroughA}), .Out(temp_result));
+    mux2_1_16b MXR(.InA(aluOutput), .InB(aluInp2), 
+        .S(passThroughB), .Out(temp_result));
 
     // Whether use set Instr value
     assign seq = ((~aluOp[1]) & (~aluOp[0])) & zero;
@@ -91,6 +82,6 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, pc, invA, invB,
     mux2_1_16b MXBT(.InA(aluRes_temp), .InB(btr_result), .S(isBTR), .Out(aluRes));    
     
     // Error bit
-    assign err = (alu_ofl) & (~(passThroughA | passThroughB));
+    assign err = (alu_ofl) & (~passThroughB);
 
 endmodule

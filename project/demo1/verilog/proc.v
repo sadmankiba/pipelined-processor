@@ -59,11 +59,11 @@ module proc (/*AUTOARG*/
     
     alu_control actl0(.aluOp(aluOp), .funct(instr[1:0]), 
                     .invA(invA), .invB(invB), .aluControl(aluControl), 
-                    .cin(cin), .sign(sign), .passA(passA), .passB(passB));
+                    .cin(cin), .sign(sign), .passB(passB));
     
     execute exec0 (.readData1(readData1), .readData2(readData2), .immVal(immVal), 
-            .aluControl(aluControl), .aluSrc(aluSrc), .pc(nxtPc), .invA(invA), .invB(invB), 
-            .cin(cin), .sign(sign), .passThroughA(passA), .passThroughB(passB), .aluOp(aluOp), 
+            .aluControl(aluControl), .aluSrc(aluSrc), .invA(invA), .invB(invB), 
+            .cin(cin), .sign(sign), .passThroughB(passB), .aluOp(aluOp), 
             .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     data_mem memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData2), 
