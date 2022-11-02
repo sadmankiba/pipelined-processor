@@ -4,6 +4,17 @@ module alu_control(aluOp, funct, invA, invB, sign, aluControl, cin);
 
     output reg invA, invB, sign, cin;
     output reg [2:0] aluControl; 
+    /*
+    Instr             |     ALU Control
+    -----------------------------------
+    roli, rol               000
+    slli, sll               001
+    ror, rori               010
+    srli, srl               011
+    addi, subi, add, sub    100
+    xori, xor               110
+    andni, andn             111
+    */
 
     always @(*)
     begin

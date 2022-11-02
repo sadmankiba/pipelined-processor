@@ -37,21 +37,26 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     
     wire [15:0] nRead1data, newRead1data;
     wire isRotateRight;
+    wire [3:0] rorShAmt;
     wire [2:0] ror_or_aluControl;
 
     wire [15:0] nRead1, rotateVal;
-    wire isRORI;
+    wire isRori;
 
     // Calc Rotate Right result
-    equal #(.INPUT_WIDTH(5)) EQ5(.in1(aluOp), .in2(5'b10110), .eq(isRORI));
-    mux2_1_16b MXRRI(.InA(readData1), .InB(immVal), .S(isRORI), .Out(rotateVal));
-    inv NREAD1(.In(rotateVal), .sign(1'b1), .Out(nRead1data));
+    equal #(.INPUT_WIDTH(5)) EQ1(.in1(aluOp), .in2(5'b10110), .eq(isRori));
+    mux2_1_16b MXRRI(.InA(readData1), .InB(immVal), .S(isRori), .Out(rotateVal));
+    inv INVR(.In(rotateVal), .sign(1'b1), .Out(nRead1data));
     assign nRead1 = nRead1data + 1;  
-    equal #(.INPUT_WIDTH(3)) EQ9(.in1(aluControl[2:0]), .in2(3'b010), .eq(isRotateRight));
-    mux2_1_16b ROTATERIGHT(.InB(nRead1), .InA(readData1), .S(isRotateRight), .Out(newRead1data)); 
+    equal #(.INPUT_WIDTH(3)) EQ2(.in1(aluControl[2:0]), .in2(3'b010), .eq(isRotateRight));
+    mux2_1_16b MXROR(.InA(readData1), .InB(nRead1), .S(isRotateRight), .Out(newRead1data)); 
+
+    // New rotate right
+    // assign rorShAmt = (isRori)? immVal[3:0] : readData2[3:0];
+    // assign rorMux = { readData1[rorShAmt - 1: 0], { (16 - rorShAmt){1'b0} }};
 
     // Calc ALU inps and perform ALU
-    equal #(.INPUT_WIDTH(5)) EQ11(.in1(aluOp), .in2(5'b10010), .eq(isSLBI));
+    equal #(.INPUT_WIDTH(5)) EQ3(.in1(aluOp), .in2(5'b10010), .eq(isSLBI));
     assign slbiShftImm = readData2 << 8;
     mux4_1_16b MXAL1(.InA(readData2), .InB(readData1), .InC(slbiShftImm), .InD(readData2),    
         .S({isSLBI, memWrite}), .Out(aluInp1));
@@ -60,6 +65,7 @@ module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cin
     equal #(.INPUT_WIDTH(3)) EQ10(.in1(aluOp[4:2]), .in2(3'b011), .eq(isBranch));
     mux2_1_16b MXALB(.InA(aluSrcInp2), .InB(16'h0000), .S(isBranch), .Out(aluInp2));
     assign ror_or_aluControl = (isRotateRight) ? 3'b000 : aluControl;
+    
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cin), .Oper(ror_or_aluControl), 
             .invA(invA), .invB(invB), .sign(sign), 
             .Out(aluOutput), .Zero(zero), .Ofl(aluOvf), .Ltz(ltz));
