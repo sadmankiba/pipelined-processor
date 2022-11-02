@@ -1,10 +1,10 @@
 module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
-               jump, memToReg, regWrite, err, halt, zeroExt, i1Fmt);
+               jump, memToReg, regWrite, halt, zeroExt, i1Fmt, err);
 
 	input [4:0] opcode;    
 
 	output reg regDst, aluSrc, branch, memRead, memWrite, jump, memToReg, regWrite;         
-	output reg err, halt, zeroExt, i1Fmt;
+	output reg halt, zeroExt, i1Fmt, err;
 	
 	output [4:0] aluOp;    
 	 
@@ -25,7 +25,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 			5'b0_0001: 
 				begin
 				end
-			/* I-format 1 */
+			/* I-format 1: roli, slli, rori, srli, st, ld, stu */
 			5'b0_1000: 
 				begin
 					i1Fmt = 1'b1; aluSrc = 1'b1; regWrite = 1'b1;	
@@ -130,7 +130,7 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 					regWrite = 1'b1; aluSrc = 1'b1; zeroExt = 1'b1;
 				end
 
-			/* J-format */
+			/* J-format: j, jr, jal, jalr */
 			5'b0_0100: 
 				begin
 					jump = 1'b1;

@@ -52,7 +52,8 @@ module proc (/*AUTOARG*/
                     .i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
     decode decode0(.instr(instr), .writeData(wb_out), .regDst(regDst), .regWrite(regWrite),
-                .pc(nxtPc), .zeroExt(zeroExt), .memWrite(memWrite), .i1Fmt(i1Fmt), 
+                .pc(nxtPc), .zeroExt(zeroExt), .memWrite(memWrite), .i1Fmt(i1Fmt),
+                .jump(jump), .aluSrc(aluSrc),
                 .clk(clk), .rst(rst), .jumpAddr(jumpAddr), .readData1(readData1), .readData2(readData2), 
                 .immVal(immVal),.err(errDcd));  
     
