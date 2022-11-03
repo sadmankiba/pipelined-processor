@@ -42,8 +42,8 @@ module alu (InA, InB, Cin, Oper, invA, invB, sign, Out, Zero, Ofl, Ltz);
 	wire [15:0] addRes, orRes, xorRes, andRes, logicalRes, shiftRes;
 	wire aOfl, ltzi;
 
-	inv AInv(.In(InA), .sign(sign), .Out(aInv));
-    inv BInv(.In(InB), .sign(sign), .Out(bInv));
+    assign aInv = ~InA;
+    assign bInv = ~InB;
 
 	// Inversion MUX
 	mux2_1_16b MXA (.InB(aInv), .InA(InA), .S(invA), .Out(A));

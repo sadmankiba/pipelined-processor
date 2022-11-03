@@ -1,17 +1,13 @@
 module mux4_1(InA, InB, InC, InD, S, Out);
-	input InA;
-	input InB;
-	input InC;
-	input InD;
+	input InA, InB, InC, InD;
 	input [1:0] S;
 	output Out;
 
-	wire low, high;
+	wire mx0, mx1;
 
-	mux2_1 LOW(.InA(InA), .InB(InB), .S(S[0]), .Out(low));
-	mux2_1 HIGH(.InA(InC), .InB(InD), .S(S[0]), .Out(high));
-	
-	mux2_1 TOP(.InA(low), .InB(high), .S(S[1]), .Out(Out));
+	mux2_1 MX0 (.InA(InA), .InB(InB), .S(S[0]), .Out(mx0));
+	mux2_1 MX1 (.InA(InC), .InB(InD), .S(S[0]), .Out(mx1));
+	mux2_1 MX2 (.InA(mx0), .InB(mx1), .S(S[1]), .Out(Out));
 
 endmodule
 

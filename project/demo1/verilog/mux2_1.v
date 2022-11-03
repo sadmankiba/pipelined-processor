@@ -1,17 +1,14 @@
 module mux2_1(InA, InB, S, Out);
-	input InA;
-	input InB;
-	input S;
+	input InA, InB, S;
 	output Out;
 
-	wire notS;
-	wire nandAS, nandBS;
+	wire ns;
+	wire aNdS, bNdS;
 
-	not1 N1(.in1(S), .out(notS));
+	not1 NT(.in1(S), .out(ns));
 	
-	nand2 NA1(.in1(InB), .in2(S), .out(nandBS));
-	nand2 NA2(.in1(InA), .in2(notS), .out(nandAS));
-
-	nand2 NA3(.in1(nandBS), .in2(nandAS), .out(Out));
+	nand2 ND1(.in1(InA), .in2(ns), .out(aNdS));
+	nand2 ND2(.in1(InB), .in2(S), .out(bNdS));
+	nand2 ND3(.in1(bNdS), .in2(aNdS), .out(Out));
 
 endmodule

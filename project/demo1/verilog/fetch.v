@@ -5,7 +5,7 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 
-module fetch(pc, clk, rst, instr, pcOut, err);
+module fetch(pc, clk, rst, pcOut, instr, err);
     // TODO: Your code here
     input [15:0] pc;
     input clk, rst;
@@ -14,7 +14,7 @@ module fetch(pc, clk, rst, instr, pcOut, err);
     output err;
 
     wire [15:0] pcCurrent;  
-    wire enable;
+    wire memEn;
 
     dff DF0(.q(pcCurrent[0]),  .d(pc[0]),  .clk(clk), .rst(rst));
     dff DF1(.q(pcCurrent[1]),  .d(pc[1]),  .clk(clk), .rst(rst));
@@ -36,8 +36,8 @@ module fetch(pc, clk, rst, instr, pcOut, err);
     cla_16b CLA(.a(pcCurrent), .b(16'b0000_0000_0000_0010), .c_in(1'b0), 
             .sign(1'b0), .sum(pcOut), .ofl(err));
 
-    assign enable = ~rst;  
-    memory2c MEMI(.data_out(instr), .data_in(16'b0000_0000_0000_0000), .addr(pcCurrent), .enable(enable), 
+    assign memEn = ~rst;  
+    memory2c MEMI(.data_out(instr), .data_in(16'b0000_0000_0000_0000), .addr(pcCurrent), .enable(memEn), 
             .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst)); 
 
 endmodule
