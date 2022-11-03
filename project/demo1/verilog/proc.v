@@ -25,36 +25,33 @@ module proc (/*AUTOARG*/
     /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
     
     wire pcErr;
-    wire [15:0] writeData, wb_pc, brPcAddr, memData;
+    wire [15:0] writeData, pcFinal, brPcAddr, memData;
 
     wire [15:0] nxtPc, instr;
-    wire fetch_err;
+    wire fetchErr;
+
+    wire [2:0] aluControl;
+    wire invA, invB, sign, cIn;
 
     wire regDst, jump, branch, MemRead, MemToReg, memWrite, aluSrc, regWrite; 
     wire [4:0] aluOp;
-    wire control_err, halt, i1Fmt, zeroExt, alu_ofl;
+    wire cntrlErr, halt, i1Fmt, zeroExt;
 
     wire errDcd;
     wire [15:0] jumpDist, readData1, readData2, immVal;
     
     wire zero, aluErr, ltz;
     wire [15:0] aluRes, brAddr, jumpDistOut;
-    
-    wire [2:0] aluControl;
-    wire invA, invB, sign, cIn, passA, passB;
 
+    fetch fetch0(.pc(pcFinal), .clk(clk), .rst(rst), .instr(instr), .pcOut(nxtPc), .err(fetchErr));
     
-    fetch fetch0(.pc(wb_pc), .clk(clk), .rst(rst), .pcOut(nxtPc), .instr(instr), .err(fetch_err));
-    
-    control control0(.opcode(instr[15:11]), .regDst(regDst), .jump(jump), 
-                .branch(branch), .memRead(MemRead), .memToReg(MemToReg), .halt(halt),
-                .aluOp(aluOp), .memWrite(memWrite), .aluSrc(aluSrc), .regWrite(regWrite), .err(control_err),
-                    .i1Fmt(i1Fmt), .zeroExt(zeroExt));
+    control control0(.opcode(instr[15:11]), .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
+                .branch(branch), .memRead(MemRead), .memWrite(memWrite), .jump(jump), .memToReg(MemToReg), .halt(halt),
+                .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    decode decode0(.instr(instr), .writeData(writeData), .regDst(regDst), .regWrite(regWrite),
-                .pc(nxtPc), .zeroExt(zeroExt), .memWrite(memWrite), .i1Fmt(i1Fmt),
-                .jump(jump), .aluSrc(aluSrc),
-                .clk(clk), .rst(rst), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
+    decode decode0(.instr(instr), .regDst(regDst), .regWrite(regWrite),
+                .writeData(writeData), .pc(nxtPc), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), .memWrite(memWrite), 
+                .jump(jump), .clk(clk), .rst(rst), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
                 .immVal(immVal),.err(errDcd));  
     
     alu_control actl0(.aluOp(aluOp), .funct(instr[1:0]), 
@@ -67,14 +64,14 @@ module proc (/*AUTOARG*/
             .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     dmemory memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 
-                    .readData(memData), .halt(halt), .clk(clk), .rst(rst));  
+                    .halt(halt), .clk(clk), .rst(rst), .readData(memData));  
 
     pc_control pcControl0(.immVal(immVal), .readData2(readData2), .zero(zero), .branch(branch), 
                 .pc(nxtPc), .jumpDistIn(jumpDist), .ltz(ltz), .aluOp(aluOp), .jumpDistOut(jumpDistOut), 
                 .brPcAddr(brPcAddr), .err(pcErr));
 
     wb wb0 (.aluRes(aluRes), .memData(memData), .memToReg(MemToReg), .brPcAddr(brPcAddr), 
-                    .jumpDist(jumpDistOut), .jump(jump), .writeData(writeData), .pc(wb_pc)); 
+                    .jumpDist(jumpDistOut), .jump(jump), .writeData(writeData), .pc(pcFinal)); 
     
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:
