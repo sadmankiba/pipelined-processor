@@ -7,3 +7,4 @@ dumpfile
 *.ptrace
 *.trace
 loadfile.lst
+*.tgz

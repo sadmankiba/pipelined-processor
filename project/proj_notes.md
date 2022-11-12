@@ -24,6 +24,14 @@ cd project/demo1/verilog
 
 Ref: Ian's tutorial video
 
+## Submission
+
+Run vcheck on all.
+
+```
+vcheck-all.sh
+```
+
 ## Additional Running
 
 For debugging, we won't use Modelsim as it will be complex. We can view the waveform from the dump file:
