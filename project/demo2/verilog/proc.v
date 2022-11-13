@@ -43,35 +43,40 @@ module proc (/*AUTOARG*/
     wire zero, aluErr, ltz;
     wire [15:0] aluRes, brAddr, jumpDistOut;
 
-    fetch fetch0(.pc(pcFinal), .clk(clk), .rst(rst), .instr(instr), .pcOut(nxtPc), .err(fetchErr));
+    fetch fetch0(/* input */.pc(pcFinal), .clk(clk), .rst(rst), 
+        /* output */ .instr(instr), .pcOut(nxtPc), .err(fetchErr));
     
-    control control0(.opcode(instr[15:11]), .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
+    control control0(/* input */ .opcode(instr[15:11]), 
+                /* output */ .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
                 .branch(branch), .memRead(MemRead), .memWrite(memWrite), .jump(jump), .memToReg(MemToReg), .halt(halt),
                 .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    decode decode0(.instr(instr), .regDst(regDst), .regWrite(regWrite),
+    decode decode0(/* input */ .instr(instr), .regDst(regDst), .regWrite(regWrite),
                 .writeData(writeData), .pc(nxtPc), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), .memWrite(memWrite), 
-                .jump(jump), .clk(clk), .rst(rst), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
+                .jump(jump), .clk(clk), .rst(rst), 
+                /* output */ .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
                 .immVal(immVal),.err(errDcd));  
     
-    alu_control actl0(.aluOp(aluOp), .funct(instr[1:0]), 
-                    .invA(invA), .invB(invB), .aluControl(aluControl), 
+    alu_control actl0(/* input */ .aluOp(aluOp), .funct(instr[1:0]), 
+                    /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
                     .cIn(cIn), .sign(sign));
     
-    execute exec0 (.readData1(readData1), .readData2(readData2), .immVal(immVal), 
+    execute exec0 (/* input */ .readData1(readData1), .readData2(readData2), .immVal(immVal), 
             .aluControl(aluControl), .aluSrc(aluSrc), .invA(invA), .invB(invB), 
-            .cIn(cIn), .sign(sign), .aluOp(aluOp), 
-            .memWrite(memWrite), .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
+            .cIn(cIn), .sign(sign), .aluOp(aluOp), .memWrite(memWrite), 
+            /* output */ .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
-    dmemory memory0(.memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 
-                    .halt(halt), .clk(clk), .rst(rst), .readData(memData));  
+    dmemory memory0(/* input */ .memWrite(memWrite), .memRead(MemRead), .aluRes(aluRes), .writedata(readData1), 
+                    .halt(halt), .clk(clk), .rst(rst), 
+                    /* output */ .readData(memData));  
 
-    pc_control pcControl0(.immVal(immVal), .readData2(readData2), .zero(zero), .branch(branch), 
-                .pc(nxtPc), .jumpDistIn(jumpDist), .ltz(ltz), .aluOp(aluOp), .jumpDistOut(jumpDistOut), 
-                .brPcAddr(brPcAddr), .err(pcErr));
+    pc_control pcControl0(/*input */ .immVal(immVal), .readData2(readData2), .zero(zero), .branch(branch), 
+                .pc(nxtPc), .jumpDistIn(jumpDist), .ltz(ltz), .aluOp(aluOp), 
+                /* output */ .jumpDistOut(jumpDistOut), .brPcAddr(brPcAddr), .err(pcErr));
 
-    wb wb0 (.aluRes(aluRes), .memData(memData), .memToReg(MemToReg), .brPcAddr(brPcAddr), 
-                    .jumpDist(jumpDistOut), .jump(jump), .writeData(writeData), .pc(pcFinal)); 
+    wb wb0 (/* input */ .aluRes(aluRes), .memData(memData), .memToReg(MemToReg), .brPcAddr(brPcAddr), 
+                .jumpDist(jumpDistOut), .jump(jump), .writeData(writeData), 
+            /* output */ .pc(pcFinal)); 
     
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:
