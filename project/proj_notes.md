@@ -21,6 +21,10 @@ wsrun.pl -list <testdir>/all.list <tb-module-name> *.v
 cd project/demo1/verilog
 /u/s/w/swamit/public/html/courses/cs552/fall2022/handouts/bins/run-phase1-all.sh
 ```
+- Run pipelined version (use -pipe)
+```
+wsrun.pl -pipe -prog /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/inst_tests/lbi_0.asm proc_hier_pbench *.v
+```
 
 Ref: Ian's tutorial video
 
