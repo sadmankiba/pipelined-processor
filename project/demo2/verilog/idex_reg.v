@@ -3,7 +3,7 @@ module idex_reg(clk, rst, pc_in, read1_in, read2_in, imm_in, jumpaddr_in,
                 alu_op_in, alu_src_in, branch_in, mem_read_in, mem_write_in,
                 mem_to_reg_in, reg_write_in, jump_in, halt_in,
                 Rs_in, Rd_in, Rt_in, 
-                zero_control_signals,
+                controlZero,
 
                 read1_out, read2_out, pc_out, imm_out, jumpaddr_out, funct_out,
                 write_reg_out,
@@ -20,7 +20,7 @@ module idex_reg(clk, rst, pc_in, read1_in, read2_in, imm_in, jumpaddr_in,
   input reg_write_in, jump_in, halt_in;
   input [2:0] Rs_in, Rd_in, Rt_in;
   input Rs_valid_in, Rt_valid_in, Rd_valid_in;
-  input zero_control_signals;
+  input controlZero;
 
   output [4:0] alu_op_out;
   output [2:0] write_reg_out;
@@ -49,8 +49,8 @@ module idex_reg(clk, rst, pc_in, read1_in, read2_in, imm_in, jumpaddr_in,
   dff BR_FF       (.q(branch_out),     .d(branch_in),     .clk(clk), .rst(rst));
   dff MEMR_FF     (.q(mem_read_out),   .d(mem_read_in),   .clk(clk), .rst(rst));
   //Signals to be zero'd
-  assign mem_write_in_actual = (zero_control_signals) ? 1'b0 : mem_write_in;
-  assign reg_write_in_actual = (zero_control_signals) ? 1'b0 : reg_write_in;
+  assign mem_write_in_actual = (controlZero) ? 1'b0 : mem_write_in;
+  assign reg_write_in_actual = (controlZero) ? 1'b0 : reg_write_in;
 
   dff MEMW_FF     (.q(mem_write_out),  .d(mem_write_in_actual),  .clk(clk), .rst(rst));
   dff RW_FF       (.q(reg_write_out),  .d(reg_write_in_actual),  .clk(clk), .rst(rst));

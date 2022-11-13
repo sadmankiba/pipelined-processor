@@ -3,7 +3,7 @@ module hazard_detection_unit(
                             Rt_id_ex, Rs_if_id, Rt_if_id,
                             Rt_valid_id_ex, Rs_valid_if_id, Rt_valid_if_id,
 
-                            PCWrite, IF_ID_Write, zero_control_signals
+                            PCWrite, IF_ID_Write, controlZero
                             );
   
   //LOAD USE HAZARD DETECTION SIGNALS//
@@ -13,7 +13,7 @@ module hazard_detection_unit(
   
   output PCWrite; // used to stop pc from changing
   output IF_ID_Write; //used to prevent if_id reg from updating
-  output zero_control_signals; //used to zero the desired control signals
+  output controlZero; //used to zero the desired control signals
   //END - LOAD USE HAZARD DETECTION SIGNALS//
   
   assign loadUse = MemRead_id_ex && 
@@ -22,7 +22,7 @@ module hazard_detection_unit(
 
   assign PCWrite              = (loadUse) ? 1'b0 : 1'b1;
   assign IF_ID_Write          = (loadUse) ? 1'b0 : 1'b1;
-  assign zero_control_signals = (loadUse) ? 1'b1 : 1'b0;
+  assign controlZero = (loadUse) ? 1'b1 : 1'b0;
 
 
 endmodule
