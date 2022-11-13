@@ -2,14 +2,14 @@ module idex_reg(clk, rst, pc_in, read1_in, read2_in, imm_in, jumpaddr_in,
                 instr_in, write_reg_in,
                 alu_op_in, alu_src_in, branch_in, mem_read_in, mem_write_in,
                 mem_to_reg_in, reg_write_in, jump_in, halt_in,
-                Rs_in, Rd_in, Rt_in, Rs_valid_in, Rt_valid_in, Rd_valid_in,
+                Rs_in, Rd_in, Rt_in, 
                 zero_control_signals,
 
                 read1_out, read2_out, pc_out, imm_out, jumpaddr_out, instr_out,
                 write_reg_out,
                 alu_op_out, alu_src_out, branch_out, mem_read_out, mem_write_out,
                 mem_to_reg_out, reg_write_out, jump_out, halt_out,
-                Rs_out, Rd_out, Rt_out, Rs_valid_out, Rt_valid_out, Rd_valid_out);
+                Rs_out, Rd_out, Rt_out);
 
   input clk, rst;
   input [15:0] pc_in, read1_in, read2_in, imm_in, jumpaddr_in;
@@ -63,7 +63,4 @@ module idex_reg(clk, rst, pc_in, read1_in, read2_in, imm_in, jumpaddr_in,
   dff RS [2:0] (.q(Rs_out),       .d(Rs_in),       .clk(clk), .rst(rst));
   dff RT [2:0] (.q(Rt_out),       .d(Rt_in),       .clk(clk), .rst(rst));
   dff RD [2:0] (.q(Rd_out),       .d(Rd_in),       .clk(clk), .rst(rst));
-  dff RS_V     (.q(Rs_valid_out), .d(Rs_valid_in), .clk(clk), .rst(rst));
-  dff RT_V     (.q(Rt_valid_out), .d(Rt_valid_in), .clk(clk), .rst(rst));
-  dff RD_V     (.q(Rd_valid_out), .d(Rd_valid_in), .clk(clk), .rst(rst));
 endmodule

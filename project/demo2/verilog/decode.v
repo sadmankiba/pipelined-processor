@@ -4,7 +4,7 @@
    Filename        : decode.v
    Description     : This is the module for the overall decode stage of the processor.
 */
-module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, memWrite, jump,
+module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, jump,
                 clk, rst, jumpDist, readData1, readData2, immVal, err);
    
     // TODO: Your code here
@@ -17,7 +17,7 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, me
     input regDst, regWrite; 
     input [15:0] writeData;
     input [15:0] pc;
-    input i1Fmt, aluSrc, zeroExt, memWrite, jump;
+    input i1Fmt, aluSrc, zeroExt, jump;
     input clk, rst;
 
     output [15:0] jumpDist;   // Jump distance for 4 jump instructions
@@ -30,7 +30,7 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, me
     wire [4:0] opcode;
     wire [2:0] writeRegRI2I1StuJl, writeRegRI2;
     wire [2:0] writeRegRI2I1, writeRegRI2I1Stu;
-    wire isStu, jalInstr, jalrInstr, jmpLnk, jrInstr, jmpRg;
+    wire isStu, jalInstr, jalrInstr, jmpLnk, jrInstr;
     wire [15:0] writeDataFinal, jumpDistJ, jumpDistJr;
     wire [15:0] immI1, immI2, immSExt, immI2ZExt, immI1ZExt, immZExt;
 
@@ -61,9 +61,7 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, me
     equal #(.INPUT_WIDTH(5)) EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
     equal #(.INPUT_WIDTH(5)) EQ2(.in1(opcode), .in2(5'b00110), .eq(jalInstr));
     equal #(.INPUT_WIDTH(5)) EQ3(.in1(opcode), .in2(5'b00111), .eq(jalrInstr));
-    equal #(.INPUT_WIDTH(5)) EQ4(.in1(opcode), .in2(5'b00101), .eq(jrInstr));
     assign jmpLnk = jalInstr | jalrInstr;
-    assign jmpRg = jrInstr | jalrInstr;
     
     assign writeRegRI2I1Stu = (isStu) ? readReg1 : writeRegRI2I1;          // If STU writeReg
     assign writeRegRI2I1StuJl = (jmpLnk) ? 3'b111 : writeRegRI2I1Stu; 
