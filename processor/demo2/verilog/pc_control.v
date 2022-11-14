@@ -24,7 +24,7 @@ module pc_control(immVal, zero, branch, ltz, readData2, pc, jumpDistIn,
     cla_16b CLAJ(.a(pcOrJReg), .b(jumpDistIn), .c_in(1'b0), .sign(1'b1), 
             .sum(jumpDistOut), .ofl(jmpOfl));
 
-    // Choose between branch and PC address
+    // Choose between branch, PC and Jump address
     assign gez = ~ltz;
     assign notZ = ~zero;
     mux4_1 MXB(.InA(zero), .InB(notZ), .InC(ltz), .InD(gez), .S(brOp), .Out(brCond));
