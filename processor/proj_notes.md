@@ -1,8 +1,15 @@
 # Proj Notes
 
+## Instructions 
+
+### lbi
+
+
+
+## Run and Test Programs
 Assembly files are in dir - /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/*/*.asm. Copied to testprograms/ dir. 
 
-## Running program
+### Running program
 
 - Copy all assembly programs to a test directory.
 - You can run either all programs or a particular program in your processor
@@ -28,7 +35,7 @@ wsrun.pl -pipe -prog /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprogr
 
 Ref: Ian's tutorial video
 
-## Submission
+### Submission
 
 Run vcheck on all.
 
@@ -36,7 +43,7 @@ Run vcheck on all.
 vcheck-all.sh
 ```
 
-## Additional Running
+### Additional Running
 
 For debugging, we won't use Modelsim as it will be complex. We can view the waveform from the dump file:
 ```
@@ -56,8 +63,7 @@ assemble.sh <file>.asm
 ```
 
 
-
-## UWisc Articles
+### UWisc Articles
 [Command-line ModelSim Tutorial](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/vsimCommandLine.html)
 [Using assembler](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/usingAssembler.html) 
 
