@@ -1,15 +1,15 @@
 module pc_control(immVal, zero, branch, ltz, readData2, pc, jumpDistIn, 
-                    aluOp, jumpDistOut, brPcAddr, err);
+                    aluOp, pcFinal, err);
     input zero, branch, ltz;           
     input [15:0] immVal, pc, readData2, jumpDistIn;
     input [4:0] aluOp;
     
-    output [15:0] jumpDistOut, brPcAddr;
+    output [15:0] pcFinal;
     output err;
 
     wire notZ, gez, brCond, branchTake;
     wire brOfl, jrInstr, jalrInstr, jmpOfl;
-    wire [15:0] brAddr, pcOrJReg;
+    wire [15:0] brAddr, pcOrJReg, brPcAddr, jumpDistOut;
     wire [1:0] brOp;
 
     assign brOp = aluOp[1:0];
@@ -30,6 +30,7 @@ module pc_control(immVal, zero, branch, ltz, readData2, pc, jumpDistIn,
     mux4_1 MXB(.InA(zero), .InB(notZ), .InC(ltz), .InD(gez), .S(brOp), .Out(brCond));
     assign branchTake = branch & brCond;
     mux2_1_16b MXBT(.InA(pc), .InB(brAddr), .S(branchTake), .Out(brPcAddr));
+    mux2_1_16b MXA(.InA(brPcAddr), .InB(jumpDistOut), .S(jump), .Out(pcFinal));
 
     assign err = brOfl | jmpOfl;
 endmodule
