@@ -6,7 +6,7 @@
 */
 module decode(/* input */ instr, regDst, regWrite, writeReg, writeData, pc, 
     i1Fmt, aluSrc, zeroExt, jump, clk, rst, 
-    /* output */ jumpDist, readData1, readData2, immVal, writeRegOut, err);
+    /* output */ Rs, Rt, Rd, jumpDist, readData1, readData2, immVal, writeRegOut, err);
    
     // TODO: Your code here
     /*
@@ -26,7 +26,7 @@ module decode(/* input */ instr, regDst, regWrite, writeReg, writeData, pc,
     output [15:0] readData1;  // Rd in I1, Rt in R-format
     output [15:0] readData2;  // Rs in I1, I2, R-format
     output [15:0] immVal;
-    output [2:0] writeRegOut;
+    output [2:0] writeRegOut, Rs, Rt, Rd;
     output err;
 
     wire [2:0] readReg1, readReg2, writeRegR;
@@ -57,6 +57,9 @@ module decode(/* input */ instr, regDst, regWrite, writeReg, writeData, pc,
     assign readReg1 = instr[10:8];    // Rs in I1, I2, R-format
     assign readReg2 = instr[7:5];     // Rd in I1, Rt in R-format
     assign writeRegR = instr[4:2];
+    assign Rs = readReg1;
+    assign Rt = readReg2;
+    assign Rd = writeRegR;
     
     assign writeRegRI2 = (regDst) ? writeRegR: readReg1;            // R-format or I-format2 writeReg
     assign writeRegRI2I1 = (i1Fmt) ? readReg2 : writeRegRI2;         // If I-format1 writeReg
