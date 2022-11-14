@@ -66,5 +66,5 @@ assemble.sh <file>.asm
 ### UWisc Articles
 [Command-line ModelSim Tutorial](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/vsimCommandLine.html)
 [Using assembler](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/usingAssembler.html) 
-
+[Debugging](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/verificationSimulation.html)
 [Test programs](https://pages.cs.wisc.edu/~sinclair/courses/cs552/spring2022/testProgs.html)
