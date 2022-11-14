@@ -70,7 +70,7 @@ module proc (/*AUTOARG*/
 
     wire PCWrite, IF_ID_Write, controlZero;
 
-    fetch fetch0(/* input */.pc(nxtPc), .clk(clk), .rst(rst), 
+    fetch fetch0(/* input */.pc(nxtPcIfId), .clk(clk), .rst(rst), 
         /* output */ .instr(instr), .pcOut(nxtPc), .err(fetchErr));
 
     ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pc_in(nxtPc), .instr_in(instr),  

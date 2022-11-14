@@ -133,7 +133,7 @@ module proc_hier_bench();
    assign WriteRegister = DUT.p0.decode0.regFile0.writeRegSel;
    // The name of the register being written to. (3 bit signal)
 
-   assign WriteData = DUT.p0.decode0.regFile0.writedata;
+   assign WriteData = DUT.p0.decode0.regFile0.writeData;
    // Data being written to the register. (16 bits)
    
    assign MemRead =  DUT.p0.memory0.MemRead;
