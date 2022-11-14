@@ -4,8 +4,9 @@
    Filename        : decode.v
    Description     : This is the module for the overall decode stage of the processor.
 */
-module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, jump,
-                clk, rst, jumpDist, readData1, readData2, immVal, err);
+module decode(/* input */ instr, regDst, regWrite, writeReg, writeData, pc, 
+    i1Fmt, aluSrc, zeroExt, jump, clk, rst, 
+    /* output */ jumpDist, readData1, readData2, immVal, writeRegOut, err);
    
     // TODO: Your code here
     /*
@@ -15,6 +16,7 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, ju
 
     input [15:0] instr; 
     input regDst, regWrite; 
+    input [2:0] writeReg;
     input [15:0] writeData;
     input [15:0] pc;
     input i1Fmt, aluSrc, zeroExt, jump;
@@ -24,6 +26,7 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, ju
     output [15:0] readData1;  // Rd in I1, Rt in R-format
     output [15:0] readData2;  // Rs in I1, I2, R-format
     output [15:0] immVal;
+    output [2:0] writeRegOut;
     output err;
 
     wire [2:0] readReg1, readReg2, writeRegR;
@@ -65,11 +68,12 @@ module decode(instr, regDst, regWrite, writeData, pc, i1Fmt, aluSrc, zeroExt, ju
     
     assign writeRegRI2I1Stu = (isStu) ? readReg1 : writeRegRI2I1;          // If STU writeReg
     assign writeRegRI2I1StuJl = (jmpLnk) ? 3'b111 : writeRegRI2I1Stu; 
+    assign writeRegOut = writeRegRI2I1StuJl;
     assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
-    regFile regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
+    rf_bypass regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
             .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
-            .writeRegSel(writeRegRI2I1StuJl), .writedata(writeDataFinal), .writeEn(regWrite));
+            .writeRegSel(writeReg), .writedata(writeData), .writeEn(regWrite));
     
     sign_ext #(.INPUT_WIDTH(11), .OUTPUT_WIDTH(16)) SXJ1(.in(instr[10:0]), .out(jumpDistJ));
     sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXJ2(.in(instr[7:0]), .out(jumpDistJr));

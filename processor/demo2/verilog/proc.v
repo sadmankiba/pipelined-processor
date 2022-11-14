@@ -34,7 +34,7 @@ module proc (/*AUTOARG*/
     wire errDcd;
     wire [15:0] readData1, readData2, immVal, jumpDist, nxtPcIdEx, 
         readData1IdEx, readData2IdEx, immValIdEx, jumpDistIdEx;
-    wire [2:0] Rs, Rt, Rd, writeReg, RsIdEx, RtIdEx, RdIdEx, writeRegIdEx;
+    wire [2:0] Rs, Rt, Rd, writeRegDcd, RsIdEx, RtIdEx, RdIdEx, writeRegIdEx;
     wire [4:0] aluOpIdEx;
     wire aluSrcIdEx, memReadIdEx, memWriteIdEx, branchIdEx, haltIdEx, memToRegIdEx,
         jumpIdEx, regWriteIdEx; 
@@ -60,7 +60,7 @@ module proc (/*AUTOARG*/
     wire MemToRegMemWb, regWriteMemWb;
     wire [2:0] RsMemWb, RtMemWb, RdMemWb;
     
-    wire [15:0] writeData;
+    wire [15:0] writeDataWb;
 
     //Reg control Outputs
     // wire [2:0] Rs, Rt, Rd;
@@ -70,7 +70,7 @@ module proc (/*AUTOARG*/
 
     wire PCWrite, IF_ID_Write, controlZero;
 
-    fetch fetch0(/* input */.pc(pcFinal), .clk(clk), .rst(rst), 
+    fetch fetch0(/* input */.pc(nxtPc), .clk(clk), .rst(rst), 
         /* output */ .instr(instr), .pcOut(nxtPc), .err(fetchErr));
 
     ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pc_in(nxtPc), .instr_in(instr),  
@@ -81,16 +81,22 @@ module proc (/*AUTOARG*/
         .branch(branch), .memRead(memRead), .memWrite(memWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
         .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
+    // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(memReadIdEx), 
+    //     .RtIdEx(RtIdEx), .Rs_if_id(Rs), .Rt_if_id(Rt),
+    //     /* output */ .PCWrite(PCWrite), .IF_ID_Write(IF_ID_Write), .controlZero(controlZero)
+    //     );
+    assign controlZero = 1'b0;
+
     decode decode0(/* input */ .instr(instrIfId), .regDst(regDst), .regWrite(regWriteMemWb),
-        .writeData(writeData), .pc(nxtPc), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), 
+        .writeReg(writeRegMemWb), .writeData(writeDataWb), .pc(nxtPcIfId), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), 
         .jump(jump), .clk(clk), .rst(rst), 
         /* output */ .Rs(Rs), .Rt(Rt), .Rd(Rd), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
-        .immVal(immVal), .writeReg(writeReg), .err(errDcd));  
+        .immVal(immVal), .writeRegOut(writeRegDcd), .err(errDcd));  
 
     idex_reg idex0 (/* input */
         .clk(clk), .rst(rst), .pc_in(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
         .imm_in(immVal), .jumpaddr_in(jumpDist), .funct_in(instrIfId[1:0]), 
-        .write_reg_in(writeReg),
+        .write_reg_in(writeRegDcd),
         .alu_op_in(aluOp), .alu_src_in(aluSrc), /* EX Control Inputs */
         .branch_in(branch), .mem_read_in(memRead), .mem_write_in(memWrite), .halt_in(halt), //MEM Control Inputs
         .mem_to_reg_in(memToReg), .reg_write_in(RegWrite), .jump_in(Jump), //WB Control Inputs
@@ -111,6 +117,13 @@ module proc (/*AUTOARG*/
     alu_control actl0(/* input */ .aluOp(aluOpIdEx), .funct(functIdEx), 
         /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
         .cIn(cIn), .sign(sign));
+
+    // data_forward_unit FWD(
+    //     /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .RsExMem(RsExMem),  
+    //     .RdExMem(RdExMem), .RdMemWb(RdMemWb),
+    //     .WriteReg_ex_mem(RegWriteExMem), .WriteReg_mem_wb(RegWrite_from_mem_wb),
+    //     .MemRead_ex_mem(MemReadExMem),
+    //     /* output */ .forwardA(forwardA), .forwardB(forwardB));
     
     execute exec0 (/* input */ .readData1(readData1IdEx), .readData2(readData2IdEx), .immVal(immValIdEx), 
         .aluControl(aluControl), .aluSrc(aluSrcIdEx), .invA(invA), .invB(invB), 
@@ -159,19 +172,7 @@ module proc (/*AUTOARG*/
         );
 
     wb wb0 (/* input */ .aluRes(aluResMemWb), .memData(memDataMemWb), .memToReg(MemToRegMemWb), 
-        /* output */.writeData(writeData)); 
+        /* output */.writeData(writeDataWb)); 
     
-    // data_forward_unit FWD(
-    //     /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .RsExMem(RsExMem),  
-    //     .RdExMem(RdExMem), .RdMemWb(RdMemWb),
-    //     .WriteReg_ex_mem(RegWriteExMem), .WriteReg_mem_wb(RegWrite_from_mem_wb),
-    //     .MemRead_ex_mem(MemReadExMem),
-    //     /* output */ .forwardA(forwardA), .forwardB(forwardB));
-
-    // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(memReadIdEx), 
-    //     .RtIdEx(RtIdEx), .Rs_if_id(Rs), .Rt_if_id(Rt),
-    //     /* output */ .PCWrite(PCWrite), .IF_ID_Write(IF_ID_Write), .controlZero(controlZero)
-    //     );
-
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:

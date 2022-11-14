@@ -5,8 +5,8 @@
 
 module dff (q, d, clk, rst);
 
-    output         q;
-    input          d;
+    output         q;   /* old value */ 
+    input          d;   /* new value */
     input          clk;
     input          rst;
 
