@@ -1,13 +1,10 @@
-/*
-rf REG(.read1Data(read1datainit), .read2Data(read2datainit), .err(err), .clk(clk), .rst(rst), .read1RegSel(read1RegSel), .read2RegSel(read2RegSel), .writeRegSel(writeRegSel), .writedata(writedata), .writeEn(writeEn));
-*/
-module rf (read1Data, read2Data, err, clk, rst, read1RegSel, read2RegSel, writeRegSel, writedata, writeEn);
+module rf (read1Data, read2Data, err, clk, rst, read1RegSel, read2RegSel, writeRegSel, writeData, writeEn);
 	input 			 clk;
 		input 			 rst;
 	input [2:0]  read1RegSel;
 	input [2:0]  read2RegSel;
 	input [2:0]  writeRegSel;
-	input [15:0] writedata;
+	input [15:0] writeData;
 	input        writeEn;
 	
 	output [15:0] read1Data;
@@ -30,17 +27,17 @@ module rf (read1Data, read2Data, err, clk, rst, read1RegSel, read2RegSel, writeR
 	assign write_logic[6] = write_sel[6] & writeEn;
 	assign write_logic[7] = write_sel[7] & writeEn;
 
-	//Pass writedata to all of the units. It will be ignored anyways if there is no write
-	// eight_registers REGS(	.clk(clk), .rst(rst), .write(write_logic[7:0]), .writedata(writedata[15:0]),
+	//Pass writeData to all of the units. It will be ignored anyways if there is no write
+	// eight_registers REGS(	.clk(clk), .rst(rst), .write(write_logic[7:0]), .writeData(writeData[15:0]),
 	// 											.read0(read0), .read1(read1), .read2(read2), .read3(read3), .read4(read4), .read5(read5), .read6(read6), .read7(read7));	
-	register R0 (.writeData(writedata), .write(write_logic[0]), .clk(clk), .rst(rst), .readReg(read0));
-	register R1 (.writeData(writedata), .write(write_logic[1]), .clk(clk), .rst(rst), .readReg(read1));
-	register R2 (.writeData(writedata), .write(write_logic[2]), .clk(clk), .rst(rst), .readReg(read2));
-	register R3 (.writeData(writedata), .write(write_logic[3]), .clk(clk), .rst(rst), .readReg(read3));
-	register R4 (.writeData(writedata), .write(write_logic[4]), .clk(clk), .rst(rst), .readReg(read4));
-	register R5 (.writeData(writedata), .write(write_logic[5]), .clk(clk), .rst(rst), .readReg(read5));
-	register R6 (.writeData(writedata), .write(write_logic[6]), .clk(clk), .rst(rst), .readReg(read6));
-	register R7 (.writeData(writedata), .write(write_logic[7]), .clk(clk), .rst(rst), .readReg(read7));
+	register R0 (.writeData(writeData), .write(write_logic[0]), .clk(clk), .rst(rst), .readReg(read0));
+	register R1 (.writeData(writeData), .write(write_logic[1]), .clk(clk), .rst(rst), .readReg(read1));
+	register R2 (.writeData(writeData), .write(write_logic[2]), .clk(clk), .rst(rst), .readReg(read2));
+	register R3 (.writeData(writeData), .write(write_logic[3]), .clk(clk), .rst(rst), .readReg(read3));
+	register R4 (.writeData(writeData), .write(write_logic[4]), .clk(clk), .rst(rst), .readReg(read4));
+	register R5 (.writeData(writeData), .write(write_logic[5]), .clk(clk), .rst(rst), .readReg(read5));
+	register R6 (.writeData(writeData), .write(write_logic[6]), .clk(clk), .rst(rst), .readReg(read6));
+	register R7 (.writeData(writeData), .write(write_logic[7]), .clk(clk), .rst(rst), .readReg(read7));
 
 	//Determine which registers we actually want to read
 	mux8_1_16b READ1(.InH(read7), .InG(read6), .InF(read5), .InE(read4), .InD(read3), .InC(read2), .InB(read1), .InA(read0), .S(read1RegSel[2:0]), .Out(read1Data[15:0]));

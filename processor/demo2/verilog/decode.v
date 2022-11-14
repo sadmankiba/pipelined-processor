@@ -74,9 +74,9 @@ module decode(/* input */ instr, regDst, regWrite, writeReg, writeData, pc,
     assign writeRegOut = writeRegRI2I1StuJl;
     assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
-    rf_bypass regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
+    regFile_bypass regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
             .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
-            .writeRegSel(writeReg), .writedata(writeData), .writeEn(regWrite));
+            .writeRegSel(writeReg), .writeData(writeData), .writeEn(regWrite));
     
     sign_ext #(.INPUT_WIDTH(11), .OUTPUT_WIDTH(16)) SXJ1(.in(instr[10:0]), .out(jumpDistJ));
     sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXJ2(.in(instr[7:0]), .out(jumpDistJr));
