@@ -1,9 +1,9 @@
-module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
+module control(opcode, regDst, aluSrc, aluOp, branch, MemRead, memWrite,
                jump, memToReg, regWrite, halt, zeroExt, i1Fmt, err);
 
 	input [4:0] opcode;    
 
-	output reg regDst, aluSrc, branch, memRead, memWrite, jump, memToReg, regWrite;         
+	output reg regDst, aluSrc, branch, MemRead, memWrite, jump, memToReg, regWrite;         
 	output reg halt, zeroExt, i1Fmt, err;
 	output [4:0] aluOp;    
 	 
@@ -11,10 +11,12 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 
 	always @(opcode)
 	begin
-		regDst   = 1'b0; aluSrc   = 1'b0; regWrite = 1'b0; 		
-		branch   = 1'b0; memRead  = 1'b0; memWrite = 1'b0; 
+		regDst   = 1'b0; /* Whether Write Register is Ins[7:5] or  Ins [4:2] */ 
+		aluSrc   = 1'b0; regWrite = 1'b0; 		
+		branch   = 1'b0; MemRead  = 1'b0; memWrite = 1'b0; 
 		memToReg = 1'b0; jump     = 1'b0; 
-		halt     = 1'b0; zeroExt = 1'b0; i1Fmt = 1'b0; 
+		halt     = 1'b0; zeroExt = 1'b0; 
+		i1Fmt = 1'b0; 
 		case(opcode)
 			/* halt, nop */
 			5'b0_0000: 	
@@ -64,17 +66,17 @@ module control(opcode, regDst, aluSrc, aluOp, branch, memRead, memWrite,
 			5'b1_0000:
 				begin
 					aluSrc = 1'b1; i1Fmt = 1'b1;
-					memWrite = 1'b1; memRead = 1'b1; memToReg = 1'b1;
+					memWrite = 1'b1; MemRead = 1'b1; memToReg = 1'b1;
 				end
 			5'b1_0001: 
 				begin
-					memRead = 1'b1; memToReg = 1'b1; i1Fmt = 1'b1;
+					MemRead = 1'b1; memToReg = 1'b1; i1Fmt = 1'b1;
 					aluSrc = 1'b1; regWrite = 1'b1;
 				end
 			5'b1_0011:
 				begin
 					regWrite = 1'b1; i1Fmt = 1'b1;
-					memWrite = 1'b1; memRead = 1'b1; aluSrc = 1'b1;
+					memWrite = 1'b1; MemRead = 1'b1; aluSrc = 1'b1;
 				end
 			/* R-format */
 			5'b1_1001:

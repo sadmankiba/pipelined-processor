@@ -27,7 +27,7 @@ module proc (/*AUTOARG*/
     wire [15:0] nxtPc, instr, nxtPcIfId, instrIfId;
     wire fetchErr;
 
-    wire regDst, jump, branch, memRead, memToReg, memWrite, aluSrc, regWrite; 
+    wire regDst, jump, branch, MemRead, memToReg, memWrite, aluSrc, regWrite; 
     wire [4:0] aluOp;
     wire cntrlErr, halt, i1Fmt, zeroExt;
 
@@ -36,7 +36,7 @@ module proc (/*AUTOARG*/
         readData1IdEx, readData2IdEx, immValIdEx, jumpDistIdEx;
     wire [2:0] Rs, Rt, Rd, writeRegDcd, RsIdEx, RtIdEx, RdIdEx, writeRegIdEx;
     wire [4:0] aluOpIdEx;
-    wire aluSrcIdEx, memReadIdEx, memWriteIdEx, branchIdEx, haltIdEx, memToRegIdEx,
+    wire aluSrcIdEx, MemReadIdEx, memWriteIdEx, branchIdEx, haltIdEx, memToRegIdEx,
         jumpIdEx, regWriteIdEx; 
     wire [1:0] functIdEx;
 
@@ -78,10 +78,10 @@ module proc (/*AUTOARG*/
     
     control control0(/* input */ .opcode(instrIfId[15:11]), 
         /* output */ .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
-        .branch(branch), .memRead(memRead), .memWrite(memWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
+        .branch(branch), .MemRead(MemRead), .memWrite(memWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
         .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(memReadIdEx), 
+    // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(MemReadIdEx), 
     //     .RtIdEx(RtIdEx), .Rs_if_id(Rs), .Rt_if_id(Rt),
     //     /* output */ .PCWrite(PCWrite), .IF_ID_Write(IF_ID_Write), .controlZero(controlZero)
     //     );
@@ -98,7 +98,7 @@ module proc (/*AUTOARG*/
         .imm_in(immVal), .jumpaddr_in(jumpDist), .funct_in(instrIfId[1:0]), 
         .write_reg_in(writeRegDcd),
         .alu_op_in(aluOp), .alu_src_in(aluSrc), /* EX Control Inputs */
-        .branch_in(branch), .mem_read_in(memRead), .mem_write_in(memWrite), .halt_in(halt), //MEM Control Inputs
+        .branch_in(branch), .mem_read_in(MemRead), .mem_write_in(memWrite), .halt_in(halt), //MEM Control Inputs
         .mem_to_reg_in(memToReg), .reg_write_in(RegWrite), .jump_in(Jump), //WB Control Inputs
         .Rs_in(Rs), .Rt_in(Rt), .Rd_in(Rd), //Register Inputs
         .controlZero(controlZero),
@@ -108,7 +108,7 @@ module proc (/*AUTOARG*/
         .write_reg_out(writeRegIdEx),
         //Control Outputs
         .alu_op_out(aluOpIdEx), .alu_src_out(aluSrcIdEx), 
-        .branch_out(branchIdEx), .mem_read_out(memReadIdEx), .mem_write_out(memWriteIdEx),
+        .branch_out(branchIdEx), .mem_read_out(MemReadIdEx), .mem_write_out(memWriteIdEx),
         .halt_out(haltIdEx),
         .mem_to_reg_out(memToRegIdEx), .reg_write_out(regWriteIdEx), .jump_out(jumpIdEx),
         //Register Outputs
@@ -138,7 +138,7 @@ module proc (/*AUTOARG*/
         .clk(clk), .rst(rst), .alu_result_in(aluRes), .readData1In(readData1IdEx),
         .write_reg_in(writeRegIdEx),
         //Control Inputs
-        .mem_read_in(memReadIdEx), .mem_write_in(memWriteIdEx),
+        .mem_read_in(MemReadIdEx), .mem_write_in(memWriteIdEx),
         .halt_in(haltIdEx),
         .mem_to_reg_in(memToRegIdEx), .reg_write_in(regWriteIdEx), 
         //Register Inputs
@@ -152,7 +152,7 @@ module proc (/*AUTOARG*/
         //Register Outputs
         .Rs_out(RsExMem), .Rt_out(RtExMem), .Rd_out(RdExMem));
 
-    dmemory memory0(/* input */ .memWrite(MemWriteExMem), .memRead(MemReadExMem), .aluRes(aluResExMem), 
+    dmemory memory0(/* input */ .memWrite(MemWriteExMem), .MemRead(MemReadExMem), .aluRes(aluResExMem), 
         .writedata(readData1ExMem), .halt(HaltExMem), .clk(clk), .rst(rst), 
         /* output */ .readData(memData));  
     
@@ -168,8 +168,7 @@ module proc (/*AUTOARG*/
         //Control Outputs
         .mem_to_reg_out(MemToRegMemWb), .reg_write_out(regWriteMemWb),
         //Register Outputs
-        .Rs_out(RsMemWb), .Rt_out(RtMemWb), .Rd_out(RdMemWb), 
-        );
+        .Rs_out(RsMemWb), .Rt_out(RtMemWb), .Rd_out(RdMemWb));
 
     wb wb0 (/* input */ .aluRes(aluResMemWb), .memData(memDataMemWb), .memToReg(MemToRegMemWb), 
         /* output */.writeData(writeDataWb)); 
