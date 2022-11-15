@@ -24,8 +24,11 @@ module proc (/*AUTOARG*/
     
     /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
     
-    wire [15:0] nxtPc, instr, nxtPcIfId, instrIfId;
-    wire fetchErr;
+    wire [15:0] nxtPc, instr;
+    wire validIns, fetchErr;
+
+    wire [15:0] nxtPcIfId, instrIfId;
+    wire validInsIfId;
 
     wire regDst, jump, branch, MemRead, memToReg, memWrite, aluSrc, regWrite; 
     wire [4:0] aluOp;
@@ -71,12 +74,12 @@ module proc (/*AUTOARG*/
     wire PCWrite, IF_ID_Write, controlZero;
 
     fetch fetch0(/* input */.pc(nxtPcIfId), .clk(clk), .rst(rst), 
-        /* output */ .instr(instr), .pcOut(nxtPc), .err(fetchErr));
+        /* output */ .instr(instr), .pcOut(nxtPc), .validIns(validIns), .err(fetchErr));
 
-    ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pc_in(nxtPc), .instr_in(instr),  
-        /* output */ .pc_out(nxtPcIfId), .instr_out(instrIfId));
+    ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pc_in(nxtPc), .instr_in(instr), .validInsIn(validIns), 
+        /* output */ .pc_out(nxtPcIfId), .instr_out(instrIfId), .validInsOut(validInsIfId));
     
-    control control0(/* input */ .opcode(instrIfId[15:11]), 
+    control control0(/* input */ .opcode(instrIfId[15:11]), .validIns(validInsIfId),
         /* output */ .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
         .branch(branch), .MemRead(MemRead), .memWrite(memWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
         .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));

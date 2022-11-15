@@ -1,15 +1,21 @@
-module control(opcode, regDst, aluSrc, aluOp, branch, MemRead, memWrite,
+module control(/* input */ opcode, validIns,
+	/* output */ regDst, aluSrc, aluOp, branch, MemRead, memWrite,
                jump, memToReg, regWrite, halt, zeroExt, i1Fmt, err);
 
-	input [4:0] opcode;    
+	input [4:0] opcode;
+	input validIns;
 
 	output reg regDst, aluSrc, branch, MemRead, memWrite, jump, memToReg, regWrite;         
 	output reg halt, zeroExt, i1Fmt, err;
 	output [4:0] aluOp;    
-	 
-	assign aluOp = opcode;
 
-	always @(opcode)
+	wire newOpc; 
+
+	assign aluOp = opcode;
+	
+	mux2_1 MV [4:0] (.InA(5'b0_0001), .InB(opcode), .S(validIns), .Out(newOpc));
+
+	always @(newOpc)
 	begin
 		regDst   = 1'b0; /* Whether Write Register is Ins[7:5] or  Ins [4:2] */ 
 		aluSrc   = 1'b0; regWrite = 1'b0; 		
@@ -17,11 +23,11 @@ module control(opcode, regDst, aluSrc, aluOp, branch, MemRead, memWrite,
 		memToReg = 1'b0; jump     = 1'b0; 
 		halt     = 1'b0; zeroExt = 1'b0; 
 		i1Fmt = 1'b0; 
-		case(opcode)
+		case(newOpc)
 			/* halt, nop */
 			5'b0_0000: 	
 				begin
-					halt = 1'b1;
+					// halt = 1'b1;
 				end
 			5'b0_0001: 
 				begin
