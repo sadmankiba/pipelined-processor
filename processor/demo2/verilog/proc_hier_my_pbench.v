@@ -75,7 +75,7 @@ module proc_hier_my_pbench();
             ICacheReq_count = ICacheReq_count + 1;      
          end    
 
-         $fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %8x I: %8x R: %d %3d %8x M: %d %d %8x %8x",
+         $fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %8x Ins: %8x R: %d %3d %8x M: %d %d %8x %8x",
                    DUT.c0.cycle_count,
                    PC,
                    Inst,
@@ -86,9 +86,10 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "SIMLOG:: IF/ID: nxtPc: %8x, I: %8x, validIns: %d", 
+         $fdisplay(sim_log_file, "SIMLOG:: IF/ID: nxtPc: %8x I: %8x validIns: %d", 
                   NxtPcIfId, InstrIfId, ValidInsIfId);
-         $fdisplay(sim_log_file, "CONTROL:: RegDst: %d, ALUSrc: %d, Halt: %d", RegDst, ALUSrc, Halt);
+         $fdisplay(sim_log_file, "CONTROL:: newOpc: %5x RegDst: %d ALUSrc: %d Halt: %d", 
+                  NewOpc, RegDst, ALUSrc, Halt);
          if (RegWrite) begin
             $fdisplay(trace_file,"REG: %d VALUE: 0x%04x",
                       WriteRegister,
@@ -151,7 +152,7 @@ module proc_hier_my_pbench();
    assign MemAddress = DUT.p0.aluRes;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
-   assign MemDataIn = DUT.p0.readData1;
+   assign MemDataIn = DUT.p0.readData1ExMem;
    // Data to be written to memory for memory writes (16 bits)
    
    assign MemDataOut = DUT.p0.memData;
@@ -183,6 +184,7 @@ module proc_hier_my_pbench();
    assign InstrIfId = DUT.p0.instrIfId;
    assign ValidInsIfId = DUT.p0.validInsIfId;
 
+   assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.regDst;
    assign ALUSrc = DUT.p0.aluSrc;
    

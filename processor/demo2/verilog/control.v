@@ -9,12 +9,12 @@ module control(/* input */ opcode, validIns,
 	output reg halt, zeroExt, i1Fmt, err;
 	output [4:0] aluOp;    
 
-	wire newOpc; 
+	wire [4:0] newOpc; 
 
-	assign aluOp = opcode;
-	
 	mux2_1 MV [4:0] (.InA(5'b0_0001), .InB(opcode), .S(validIns), .Out(newOpc));
 
+	assign aluOp = newOpc;
+	
 	always @(newOpc)
 	begin
 		regDst   = 1'b0; /* Whether Write Register is Ins[7:5] or  Ins [4:2] */ 
@@ -27,7 +27,7 @@ module control(/* input */ opcode, validIns,
 			/* halt, nop */
 			5'b0_0000: 	
 				begin
-					// halt = 1'b1;
+					halt = 1'b1;
 				end
 			5'b0_0001: 
 				begin
