@@ -35,6 +35,10 @@ module proc_hier_my_pbench();
 
    wire [4:0] NewOpc;
    wire RegDst, ALUSrc;
+   wire [15:0] ReadData1IdEx, ReadData2IdEx, ImmValIdEx;
+   
+   wire [15:0] AluRes, AluInp1, AluInp2;
+   wire [4:0] AluOp;
         
    integer     inst_count;
    integer     trace_file;
@@ -81,7 +85,7 @@ module proc_hier_my_pbench();
             ICacheReq_count = ICacheReq_count + 1;      
          end    
 
-         $fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %8x Ins: %8x R: %d %3d %8x M: %d %d %8x %8x",
+         $fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %4x Ins: %4x R: %d %3d %8x M: %d %d %8x %8x",
                    DUT.c0.cycle_count,
                    PC,
                    Inst,
@@ -92,10 +96,14 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "SIMLOG:: IF/ID: nxtPc: %0x I: %0x validIns: %d", 
+         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d", 
                   NxtPcIfId, InstrIfId, ValidInsIfId);
-         $fdisplay(sim_log_file, "CONTROL:: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
+         $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
+         $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
+                  ReadData1IdEx, ReadData2IdEx, ImmValIdEx);   
+         $fdisplay(sim_log_file, "EXEC: aluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
+                  AluOp, AluInp1, AluInp2, AluRes);   
          if (RegWrite) begin
             $fdisplay(trace_file,"REG: %d VALUE: 0x%04x",
                       WriteRegister,
@@ -155,7 +163,7 @@ module proc_hier_my_pbench();
    assign MemWrite = DUT.p0.memWrite; // & ~DUT.p0.notdonem);
    // Is memory being written to (1 bit signal)
    
-   assign MemAddress = DUT.p0.aluRes;
+   assign MemAddress = DUT.p0.aluResExMem;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
    assign MemDataIn = DUT.p0.readData1ExMem;
@@ -181,7 +189,7 @@ module proc_hier_my_pbench();
    // Signal indicating a valid data cache hit
    // Above assignment is a dummy example
    
-   assign Halt = DUT.p0.halt;
+   assign Halt = DUT.p0.memory0.halt;
    // Processor halted
    
    
@@ -193,6 +201,15 @@ module proc_hier_my_pbench();
    assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.regDst;
    assign ALUSrc = DUT.p0.aluSrc;
+
+   assign ReadData1IdEx = DUT.p0.readData1IdEx;
+   assign ReadData2IdEx = DUT.p0.readData2IdEx;
+   assign ImmValIdEx = DUT.p0.immValIdEx;
+   
+   assign AluOp = DUT.p0.exec0.aluOp;
+   assign AluInp1 = DUT.p0.exec0.aluInp1;
+   assign AluInp2 = DUT.p0.exec0.aluInp2;
+   assign AluRes = DUT.p0.aluRes;
    
 endmodule
 
