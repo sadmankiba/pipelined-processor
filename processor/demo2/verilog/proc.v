@@ -30,7 +30,7 @@ module proc (/*AUTOARG*/
     wire [15:0] nxtPcIfId, instrIfId;
     wire validInsIfId;
 
-    wire regDst, jump, branch, MemRead, memToReg, memWrite, aluSrc, regWrite; 
+    wire regDst, jump, branch, MemRead, memToReg, memWrite, aluSrc, RegWrite; 
     wire [4:0] aluOp;
     wire cntrlErr, halt, i1Fmt, zeroExt;
 
@@ -40,7 +40,7 @@ module proc (/*AUTOARG*/
     wire [2:0] Rs, Rt, Rd, writeRegDcd, RsIdEx, RtIdEx, RdIdEx, writeRegIdEx;
     wire [4:0] aluOpIdEx;
     wire aluSrcIdEx, MemReadIdEx, memWriteIdEx, branchIdEx, haltIdEx, memToRegIdEx,
-        jumpIdEx, regWriteIdEx; 
+        jumpIdEx, RegWriteIdEx; 
     wire [1:0] functIdEx;
 
     wire [2:0] aluControl;
@@ -60,7 +60,7 @@ module proc (/*AUTOARG*/
 
     wire [15:0] memDataMemWb, aluResMemWb;
     wire [2:0] writeRegMemWb;
-    wire MemToRegMemWb, regWriteMemWb;
+    wire MemToRegMemWb, RegWriteMemWb;
     wire [2:0] RsMemWb, RtMemWb, RdMemWb;
     
     wire [15:0] writeDataWb;
@@ -82,7 +82,7 @@ module proc (/*AUTOARG*/
     control control0(/* input */ .opcode(instrIfId[15:11]), .validIns(validInsIfId),
         /* output */ .regDst(regDst), .aluSrc(aluSrc),.aluOp(aluOp), 
         .branch(branch), .MemRead(MemRead), .memWrite(memWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
-        .regWrite(regWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
+        .RegWrite(RegWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
     // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(MemReadIdEx), 
     //     .RtIdEx(RtIdEx), .Rs_if_id(Rs), .Rt_if_id(Rt),
@@ -90,7 +90,7 @@ module proc (/*AUTOARG*/
     //     );
     assign controlZero = 1'b0;
 
-    decode decode0(/* input */ .instr(instrIfId), .regDst(regDst), .regWrite(regWriteMemWb),
+    decode decode0(/* input */ .instr(instrIfId), .regDst(regDst), .RegWrite(RegWriteMemWb),
         .writeReg(writeRegMemWb), .writeData(writeDataWb), .pc(nxtPcIfId), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), 
         .jump(jump), .clk(clk), .rst(rst), 
         /* output */ .Rs(Rs), .Rt(Rt), .Rd(Rd), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
@@ -113,7 +113,7 @@ module proc (/*AUTOARG*/
         .alu_op_out(aluOpIdEx), .alu_src_out(aluSrcIdEx), 
         .branch_out(branchIdEx), .mem_read_out(MemReadIdEx), .mem_write_out(memWriteIdEx),
         .halt_out(haltIdEx),
-        .mem_to_reg_out(memToRegIdEx), .reg_write_out(regWriteIdEx), .jump_out(jumpIdEx),
+        .mem_to_reg_out(memToRegIdEx), .reg_write_out(RegWriteIdEx), .jump_out(jumpIdEx),
         //Register Outputs
         .Rs_out(RsIdEx), .Rt_out(RtIdEx), .Rd_out(RdIdEx));
     
@@ -143,7 +143,7 @@ module proc (/*AUTOARG*/
         //Control Inputs
         .mem_read_in(MemReadIdEx), .mem_write_in(memWriteIdEx),
         .halt_in(haltIdEx),
-        .mem_to_reg_in(memToRegIdEx), .reg_write_in(regWriteIdEx), 
+        .mem_to_reg_in(memToRegIdEx), .reg_write_in(RegWriteIdEx), 
         //Register Inputs
         .Rs_in(RsIdEx), .Rt_in(RtIdEx), .Rd_in(RdIdEx),
         //Outputs
@@ -169,7 +169,7 @@ module proc (/*AUTOARG*/
         //Outputs
         .data_mem_out(memDataMemWb), .alu_result_out(aluResMemWb), .write_reg_out(writeRegMemWb),
         //Control Outputs
-        .mem_to_reg_out(MemToRegMemWb), .reg_write_out(regWriteMemWb),
+        .mem_to_reg_out(MemToRegMemWb), .reg_write_out(RegWriteMemWb),
         //Register Outputs
         .Rs_out(RsMemWb), .Rt_out(RtMemWb), .Rd_out(RdMemWb));
 

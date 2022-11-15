@@ -35,6 +35,7 @@ module proc_hier_my_pbench();
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] Read1DataInit, Read2DataInit;
+   wire WriteEn;
 
    wire [4:0] NewOpc;
    wire RegDst, ALUSrc;
@@ -42,6 +43,9 @@ module proc_hier_my_pbench();
    
    wire [15:0] AluRes, AluInp1, AluInp2;
    wire [4:0] AluOp;
+
+   wire MemToRegExMem, RegWriteExMem;
+   wire MemToRegMemWb, RegWriteMemWb;
         
    integer     inst_count;
    integer     trace_file;
@@ -103,14 +107,18 @@ module proc_hier_my_pbench();
                   NxtPcIfId, InstrIfId, ValidInsIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
-         $fdisplay(sim_log_file, "DECODE: readReg1: %d readReg2: %d", 
-                  ReadReg1, ReadReg2);
+         $fdisplay(sim_log_file, "DECODE: readReg1: %d readReg2: %d writeEn %d writeReg %d writeData %4x", 
+                  ReadReg1, ReadReg2, WriteEn, WriteRegister, WriteData);
          $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
                   Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
                   ReadData1IdEx, ReadData2IdEx, ImmValIdEx);   
          $fdisplay(sim_log_file, "EXEC: aluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
-                  AluOp, AluInp1, AluInp2, AluRes);   
+                  AluOp, AluInp1, AluInp2, AluRes);  
+         $fdisplay(sim_log_file, "EX/MEM: MemtoReg: %d RegWrite: %d", 
+                  MemToRegExMem, RegWriteExMem); 
+         $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d", 
+                  MemToRegMemWb, RegWriteMemWb); 
          if (RegWrite) begin
             $fdisplay(trace_file,"REG: %d VALUE: 0x%04x",
                       WriteRegister,
@@ -155,13 +163,13 @@ module proc_hier_my_pbench();
    assign PC = DUT.p0.nxtPc;
    assign Inst = DUT.p0.instr;
    
-   assign RegWrite = DUT.p0.regWrite;
+   assign RegWrite = DUT.p0.RegWrite;
    // Is register file being written to, one bit signal (1 means yes, 0 means no)
    //    
-   assign WriteRegister = DUT.p0.regDst;
+   assign WriteRegister = DUT.p0.decode0.regFile0.writeRegSel;
    // The name of the register being written to. (3 bit signal)
    
-   assign WriteData = DUT.p0.writeDataWb;
+   assign WriteData = DUT.p0.decode0.regFile0.writeData;
    // Data being written to the register. (16 bits)
    
    assign MemRead =  DUT.p0.MemRead; // & ~DUT.p0.notdonem);
@@ -213,6 +221,7 @@ module proc_hier_my_pbench();
    assign ReadReg2 = DUT.p0.decode0.readReg2;
    assign Read1DataInit = DUT.p0.decode0.regFile0.read1DataInit;
    assign Read2DataInit = DUT.p0.decode0.regFile0.read2DataInit;
+   assign WriteEn = DUT.p0.decode0.regFile0.writeEn;
 
    assign ReadData1IdEx = DUT.p0.readData1IdEx;
    assign ReadData2IdEx = DUT.p0.readData2IdEx;
@@ -222,6 +231,11 @@ module proc_hier_my_pbench();
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.aluRes;
+
+   assign MemToRegExMem = DUT.p0.MemToRegExMem;
+   assign RegWriteExMem = DUT.p0.RegWriteExMem;
+   assign MemToRegMemWb = DUT.p0.MemToRegMemWb;
+   assign RegWriteMemWb = DUT.p0.RegWriteMemWb;
    
 endmodule
 
