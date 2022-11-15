@@ -1,18 +1,12 @@
-module regFile (// Outputs
-                read1Data, read2Data, err,
-                // Inputs
-                clk, rst, read1RegSel, read2RegSel, writeRegSel, writedata, writeEn
-                );
+module regFile (/* input */ clk, rst, read1RegSel, read2RegSel, writeRegSel, writeData, writeEn,
+	/* output */ read1Data, read2Data, err );
 
 	input        clk, rst;
-	input [2:0]  read1RegSel;
-	input [2:0]  read2RegSel;
-	input [2:0]  writeRegSel;
-	input [15:0] writedata;
+	input [2:0]  read1RegSel, read2RegSel, writeRegSel;
+	input [15:0] writeData;
 	input        writeEn;
 
-	output [15:0] read1Data;
-	output [15:0] read2Data;
+	output [15:0] read1Data, read2Data;
 	output        err;
 
 	/* YOUR CODE HERE */
@@ -35,14 +29,14 @@ module regFile (// Outputs
 	assign write[6] = writeRegNum[6] & writeEn;
 	assign write[7] = writeRegNum[7] & writeEn;
 
-	register R0 (.writeData(writedata), .write(write[0]), .clk(clk), .rst(rst), .readReg(read0));
-	register R1 (.writeData(writedata), .write(write[1]), .clk(clk), .rst(rst), .readReg(read1));
-	register R2 (.writeData(writedata), .write(write[2]), .clk(clk), .rst(rst), .readReg(read2));
-	register R3 (.writeData(writedata), .write(write[3]), .clk(clk), .rst(rst), .readReg(read3));
-	register R4 (.writeData(writedata), .write(write[4]), .clk(clk), .rst(rst), .readReg(read4));
-	register R5 (.writeData(writedata), .write(write[5]), .clk(clk), .rst(rst), .readReg(read5));
-	register R6 (.writeData(writedata), .write(write[6]), .clk(clk), .rst(rst), .readReg(read6));
-	register R7 (.writeData(writedata), .write(write[7]), .clk(clk), .rst(rst), .readReg(read7));
+	register R0 (.writeData(writeData), .write(write[0]), .clk(clk), .rst(rst), .readReg(read0));
+	register R1 (.writeData(writeData), .write(write[1]), .clk(clk), .rst(rst), .readReg(read1));
+	register R2 (.writeData(writeData), .write(write[2]), .clk(clk), .rst(rst), .readReg(read2));
+	register R3 (.writeData(writeData), .write(write[3]), .clk(clk), .rst(rst), .readReg(read3));
+	register R4 (.writeData(writeData), .write(write[4]), .clk(clk), .rst(rst), .readReg(read4));
+	register R5 (.writeData(writeData), .write(write[5]), .clk(clk), .rst(rst), .readReg(read5));
+	register R6 (.writeData(writeData), .write(write[6]), .clk(clk), .rst(rst), .readReg(read6));
+	register R7 (.writeData(writeData), .write(write[7]), .clk(clk), .rst(rst), .readReg(read7));
 
 	mux8_1_16b MXR1(.InA(read0), .InB(read1), .InC(read2), .InD(read3), .InE(read4), 
         .InF(read5), .InG(read6), .InH(read7), .S(read1RegSel), .Out(read1Data));

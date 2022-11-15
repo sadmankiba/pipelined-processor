@@ -1,4 +1,5 @@
-module rf (read1Data, read2Data, err, clk, rst, read1RegSel, read2RegSel, writeRegSel, writeData, writeEn);
+module rf (clk, rst, read1RegSel, read2RegSel, writeRegSel, writeData, writeEn,
+			read1Data, read2Data, err);
 	input 			 clk;
 		input 			 rst;
 	input [2:0]  read1RegSel;
@@ -39,11 +40,9 @@ module rf (read1Data, read2Data, err, clk, rst, read1RegSel, read2RegSel, writeR
 	register R6 (.writeData(writeData), .write(write_logic[6]), .clk(clk), .rst(rst), .readReg(read6));
 	register R7 (.writeData(writeData), .write(write_logic[7]), .clk(clk), .rst(rst), .readReg(read7));
 
-	//Determine which registers we actually want to read
 	mux8_1_16b READ1(.InH(read7), .InG(read6), .InF(read5), .InE(read4), .InD(read3), .InC(read2), .InB(read1), .InA(read0), .S(read1RegSel[2:0]), .Out(read1Data[15:0]));
 	mux8_1_16b READ2(.InH(read7), .InG(read6), .InF(read5), .InE(read4), .InD(read3), .InC(read2), .InB(read1), .InA(read0), .S(read2RegSel[2:0]), .Out(read2Data[15:0]));
 	
-	//Don't know what to do with err right now... so assign it 0
 	assign err = 0;
 
 endmodule

@@ -33,6 +33,9 @@ module proc_hier_my_pbench();
    wire  [15:0]   NxtPcIfId, InstrIfId;
    wire     ValidInsIfId;
 
+   wire [2:0] ReadReg1, ReadReg2;
+   wire [15:0] Read1DataInit, Read2DataInit;
+
    wire [4:0] NewOpc;
    wire RegDst, ALUSrc;
    wire [15:0] ReadData1IdEx, ReadData2IdEx, ImmValIdEx;
@@ -100,6 +103,10 @@ module proc_hier_my_pbench();
                   NxtPcIfId, InstrIfId, ValidInsIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
+         $fdisplay(sim_log_file, "DECODE: readReg1: %d readReg2: %d", 
+                  ReadReg1, ReadReg2);
+         $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
+                  Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
                   ReadData1IdEx, ReadData2IdEx, ImmValIdEx);   
          $fdisplay(sim_log_file, "EXEC: aluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
@@ -201,6 +208,11 @@ module proc_hier_my_pbench();
    assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.regDst;
    assign ALUSrc = DUT.p0.aluSrc;
+
+   assign ReadReg1 = DUT.p0.decode0.readReg1;
+   assign ReadReg2 = DUT.p0.decode0.readReg2;
+   assign Read1DataInit = DUT.p0.decode0.regFile0.read1DataInit;
+   assign Read2DataInit = DUT.p0.decode0.regFile0.read2DataInit;
 
    assign ReadData1IdEx = DUT.p0.readData1IdEx;
    assign ReadData2IdEx = DUT.p0.readData2IdEx;
