@@ -29,6 +29,12 @@ module proc_hier_my_pbench();
    
 
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
+   
+   wire  [15:0]   NxtPcIfId, InstrIfId;
+   wire     ValidInsIfId;
+
+   wire [4:0] NewOpc;
+   wire RegDst, ALUSrc;
         
    integer     inst_count;
    integer     trace_file;
@@ -86,9 +92,9 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "SIMLOG:: IF/ID: nxtPc: %8x I: %8x validIns: %d", 
+         $fdisplay(sim_log_file, "SIMLOG:: IF/ID: nxtPc: %0x I: %0x validIns: %d", 
                   NxtPcIfId, InstrIfId, ValidInsIfId);
-         $fdisplay(sim_log_file, "CONTROL:: newOpc: %5x RegDst: %d ALUSrc: %d Halt: %d", 
+         $fdisplay(sim_log_file, "CONTROL:: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
          if (RegWrite) begin
             $fdisplay(trace_file,"REG: %d VALUE: 0x%04x",

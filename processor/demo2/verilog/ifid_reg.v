@@ -10,8 +10,8 @@ module ifid_reg(/*input */ pc_in, instr_in, validInsIn, clk, rst,
   output [15:0] instr_out;
   output validInsOut;
 
-  dff PC_FF [15:0]   (.q(pc_out), .d(pc_in), .clk(clk), .rst(rst));
-  dff INSTR_FF [15:0] (.q(instr_out), .d(instr_in), .clk(clk), .rst(rst));
+  dff RP [15:0]  (.q(pc_out), .d(pc_in), .clk(clk), .rst(rst));
+  dff RI [15:0] (.q(instr_out), .d(instr_in), .clk(clk), .rst(rst));
   dff RV [15:0] (.q(validInsOut), .d(validInsIn), .clk(clk), .rst(rst));
 
 endmodule
