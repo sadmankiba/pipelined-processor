@@ -5,8 +5,9 @@
    Description     : This is the overall module for the execute stage of the processor.
 */
    
-module execute(readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cIn, sign,
-             aluOp, memWrite, aluRes, zero, ltz, err);
+module execute(/* input */ readData1, readData2, immVal, aluControl, aluSrc, invA, invB, cIn, sign,
+             aluOp, memWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb
+             /* output */ aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input aluSrc;         

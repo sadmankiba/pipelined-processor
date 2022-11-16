@@ -121,16 +121,16 @@ module proc (/*AUTOARG*/
         /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
         .cIn(cIn), .sign(sign));
 
-    // data_forward_unit FWD(
-    //     /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .RsExMem(RsExMem),  
-    //     .RdExMem(RdExMem), .RdMemWb(RdMemWb),
-    //     .WriteReg_ex_mem(RegWriteExMem), .WriteReg_mem_wb(RegWrite_from_mem_wb),
-    //     .MemRead_ex_mem(MemReadExMem),
-    //     /* output */ .forwardA(forwardA), .forwardB(forwardB));
+    data_forward_unit FWD(
+        /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .RsExMem(RsExMem), .RdExMem(RdExMem), .RdMemWb(RdMemWb),
+        .RegWriteExMem(RegWriteExMem), .RegWriteMemWb(RegWriteMemWb), .MemReadExMem(MemReadExMem),
+        /* output */ .forwardA(forwardA), .forwardB(forwardB));
     
     execute exec0 (/* input */ .readData1(readData1IdEx), .readData2(readData2IdEx), .immVal(immValIdEx), 
         .aluControl(aluControl), .aluSrc(aluSrcIdEx), .invA(invA), .invB(invB), 
-        .cIn(cIn), .sign(sign), .aluOp(aluOpIdEx), .memWrite(memWriteIdEx), 
+        .cIn(cIn), .sign(sign), .aluOp(aluOpIdEx), .memWrite(memWriteIdEx),
+        .forwardA(forwardA), .forwardB(forwardB), .aluResExMem(aluResExMem), .aluResMemWb(aluResMemWb),
+        .memDataMemWb(memDataMemWb),
         /* output */ .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));
 
     pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData2(readData2IdEx), .zero(zero), .branch(branchIdEx), 
