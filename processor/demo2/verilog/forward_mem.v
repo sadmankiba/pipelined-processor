@@ -1,4 +1,4 @@
-module forward_mem(/* input */ 
+module forward_mem(/* input */ MemWriteExMem, 
     /* output */  );
     
 endmodule

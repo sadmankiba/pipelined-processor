@@ -1,4 +1,4 @@
-module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb,
+module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb, MemReadMemWb,
     MemReadExMem, RsIdEx, RtIdEx, RdExMem, RdMemWb, RsExMem,
     /* output */ forwardA, forwardB );
     /*
@@ -7,7 +7,7 @@ module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb,
     */
    
     input [2:0] RdExMem, RdMemWb, RsIdEx, RtIdEx, RsExMem;
-    input RegWriteExMem, RegWriteMemWb, MemReadExMem;
+    input RegWriteExMem, RegWriteMemWb, MemReadExMem, MemReadMemWb;
     
     output [1:0] forwardA, forwardB;
 

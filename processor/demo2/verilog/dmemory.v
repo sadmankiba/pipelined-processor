@@ -1,6 +1,6 @@
-module dmemory(memWrite, MemRead, aluRes, writedata, halt, clk, rst, readData);
+module dmemory(MemWrite, MemRead, aluRes, writedata, halt, clk, rst, readData);
 
-    input memWrite, MemRead;
+    input MemWrite, MemRead;
     input [15:0] aluRes, writedata;        
     input halt;
     input clk, rst;
@@ -16,5 +16,5 @@ module dmemory(memWrite, MemRead, aluRes, writedata, halt, clk, rst, readData);
     mux2_1_16b MXW(.InA(aluRes), .InB(writedata), .S(MemRead), .Out(writeData));
 
     memory2c MEMD(.data_out(readData), .data_in(writeData), .addr(aluResult), .enable(memEnable), 
-            .wr(memWrite), .createdump(halt), .clk(clk), .rst(rst));  
+            .wr(MemWrite), .createdump(halt), .clk(clk), .rst(rst));  
 endmodule

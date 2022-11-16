@@ -142,7 +142,7 @@ module proc_hier_pbench();
    assign MemRead =  DUT.p0.memory0.MemRead; // & ~DUT.p0.notdonem);
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
-   assign MemWrite = (DUT.p0.memory0.memEnable & DUT.p0.memory0.memWrite); // & ~DUT.p0.notdonem);
+   assign MemWrite = (DUT.p0.memory0.memEnable & DUT.p0.memory0.MemWrite); // & ~DUT.p0.notdonem);
    // Is memory being written to (1 bit signal)
    
    assign MemAddress = DUT.p0.memory0.aluResult;
