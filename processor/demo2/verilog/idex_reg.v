@@ -2,11 +2,11 @@ module idex_reg(/* input */ clk, rst, pc_in, read1_in, read2_in, imm_in, jumpadd
     funct_in, write_reg_in,
     alu_op_in, alu_src_in, branch_in, mem_read_in, mem_write_in,
     mem_to_reg_in, reg_write_in, jump_in, halt_in,
-    Rs_in, Rd_in, Rt_in, controlZero,
+    Rs_in, Rd_in, Rt_in, RsValidIn, RtValidIn, RdValidIn, controlZero,
     /* output */ read1_out, read2_out, pc_out, imm_out, jumpaddr_out, funct_out,
     write_reg_out, alu_op_out, alu_src_out, branch_out, mem_read_out, mem_write_out,
     mem_to_reg_out, reg_write_out, jump_out, halt_out,
-    Rs_out, Rd_out, Rt_out);
+    Rs_out, Rd_out, Rt_out, RsValidOut, RtValidOut, RdValidOut);
 
     input clk, rst;
     input [15:0] pc_in, read1_in, read2_in, imm_in, jumpaddr_in;
@@ -15,7 +15,7 @@ module idex_reg(/* input */ clk, rst, pc_in, read1_in, read2_in, imm_in, jumpadd
     input [1:0] funct_in;
     input alu_src_in, branch_in, mem_read_in, mem_write_in, mem_to_reg_in;
     input reg_write_in, jump_in, halt_in;
-    input [2:0] Rs_in, Rd_in, Rt_in;
+    input [2:0] Rs_in, Rd_in, Rt_in, RsValidIn, RtValidIn, RdValidIn;
     input controlZero;
 
     output [4:0] alu_op_out;
@@ -24,7 +24,7 @@ module idex_reg(/* input */ clk, rst, pc_in, read1_in, read2_in, imm_in, jumpadd
     output alu_src_out, branch_out, mem_read_out, mem_write_out, mem_to_reg_out;
     output reg_write_out, jump_out, halt_out;
     output [15:0] read1_out, read2_out, pc_out, imm_out, jumpaddr_out;
-    output [2:0] Rs_out, Rd_out, Rt_out;
+    output [2:0] Rs_out, Rd_out, Rt_out, RsValidOut, RtValidOut, RdValidOut;
 
     wire mem_write_in_actual, reg_write_in_actual;
 
@@ -55,7 +55,10 @@ module idex_reg(/* input */ clk, rst, pc_in, read1_in, read2_in, imm_in, jumpadd
     dff JUMP_FF     (.q(jump_out),       .d(jump_in),       .clk(clk), .rst(rst));
     dff HALT_FF     (.q(halt_out),       .d(halt_in),       .clk(clk), .rst(rst));
 
-    dff RS [2:0] (.q(Rs_out),       .d(Rs_in),       .clk(clk), .rst(rst));
-    dff RT [2:0] (.q(Rt_out),       .d(Rt_in),       .clk(clk), .rst(rst));
-    dff RD [2:0] (.q(Rd_out),       .d(Rd_in),       .clk(clk), .rst(rst));
+    dff RRS [2:0] (.q(Rs_out), .d(Rs_in), .clk(clk), .rst(rst));
+    dff RRT [2:0] (.q(Rt_out), .d(Rt_in), .clk(clk), .rst(rst));
+    dff RRD [2:0] (.q(Rd_out), .d(Rd_in), .clk(clk), .rst(rst));
+    dff RRSV [2:0] (.q(RsValidOut), .d(RsValidIn), .clk(clk), .rst(rst));
+    dff RRTV [2:0] (.q(RtValidOut), .d(RtValidIn), .clk(clk), .rst(rst));
+    dff RRDV [2:0] (.q(RdValidOut), .d(RdValidIn), .clk(clk), .rst(rst));
 endmodule
