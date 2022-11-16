@@ -72,7 +72,7 @@ module control(/* input */ opcode, validIns,
 			5'b1_0000:
 				begin
 					aluSrc = 1'b1; i1Fmt = 1'b1;
-					memWrite = 1'b1; MemRead = 1'b1; memToReg = 1'b1;
+					memWrite = 1'b1; 
 				end
 			5'b1_0001: 
 				begin
@@ -82,7 +82,7 @@ module control(/* input */ opcode, validIns,
 			5'b1_0011:
 				begin
 					RegWrite = 1'b1; i1Fmt = 1'b1;
-					memWrite = 1'b1; MemRead = 1'b1; aluSrc = 1'b1;
+					memWrite = 1'b1; aluSrc = 1'b1;
 				end
 			/* R-format */
 			5'b1_1001:
