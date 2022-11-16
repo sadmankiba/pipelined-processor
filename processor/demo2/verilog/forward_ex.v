@@ -1,4 +1,4 @@
-module data_forward_unit(/* input */ RegWriteExMem,  RegWriteMemWb,
+module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb,
     MemReadExMem, RsIdEx, RtIdEx, RdExMem, RdMemWb, RsExMem,
     /* output */ forwardA, forwardB );
     /*

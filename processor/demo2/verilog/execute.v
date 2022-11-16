@@ -22,7 +22,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, aluSrc, inv
     output [15:0] aluRes; 
     output zero, err, ltz;
 
-    wire [15:0] aluInp1, aluInp2, aluSrcOut;       
+    wire [15:0] aluInp1Pref, aluInp2Pref, aluInp1, aluInp2, aluSrcOut;       
     wire isBranch, aluOvf;
     wire [15:0] aluOutput, temp_result, aluOut;
     wire isSetOP, setVal;
@@ -39,14 +39,18 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, aluSrc, inv
     equal #(.INPUT_WIDTH(5)) EQ33(.in1(aluOp), .in2(5'b11000), .eq(isLbi));
     assign slbiShftVal = readData2 << 8;
     mux4_1_16b MXSLB(.InA(readData2), .InB(slbiShftVal), .InC(16'h0000), .InD(readData2), // InD never 
-            .S({isLbi, isSlbi}), .Out(aluInp1));
+            .S({isLbi, isSlbi}), .Out(aluInp1Pref));
 
     // Handle alu input for beqz, bnez, bltz, bgez
     mux2_1_16b MXALSRC(.InA(readData1), .InB(immVal), .S(aluSrc), .Out(aluSrcOut));
     equal #(.INPUT_WIDTH(3)) EQ10(.in1(aluOp[4:2]), .in2(3'b011), .eq(isBranch));
-    mux2_1_16b MXALB(.InA(aluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2));
+    mux2_1_16b MXALB(.InA(aluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2Pref));
 
     // ALU 
+    mux4_1_16b MXALI1(InA(aluInp1Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+            .S(forwardA), .Out(aluInp1));
+    mux4_1_16b MXALI1(InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+            .S(forwardB), .Out(aluInp2));        
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cIn), .Oper(aluControl), 
             .invA(invA), .invB(invB), 
             .sign(sign), .Out(aluOut), .Zero(zero), .Ofl(aluOvf), .Ltz(ltz));

@@ -121,7 +121,7 @@ module proc (/*AUTOARG*/
         /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
         .cIn(cIn), .sign(sign));
 
-    data_forward_unit FWD(
+    forward_ex FWD(
         /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .RsExMem(RsExMem), .RdExMem(RdExMem), .RdMemWb(RdMemWb),
         .RegWriteExMem(RegWriteExMem), .RegWriteMemWb(RegWriteMemWb), .MemReadExMem(MemReadExMem),
         /* output */ .forwardA(forwardA), .forwardB(forwardB));
