@@ -163,7 +163,7 @@ module proc_hier_my_pbench();
    assign PC = DUT.p0.nxtPc;
    assign Inst = DUT.p0.instr;
    
-   assign RegWrite = DUT.p0.RegWrite;
+   assign RegWrite = DUT.p0.decode0.RegWrite;
    // Is register file being written to, one bit signal (1 means yes, 0 means no)
    //    
    assign WriteRegister = DUT.p0.decode0.regFile0.writeRegSel;
