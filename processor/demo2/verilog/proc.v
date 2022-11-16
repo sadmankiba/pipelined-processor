@@ -156,9 +156,14 @@ module proc (/*AUTOARG*/
         //Register Outputs
         .Rs_out(RsExMem), .Rt_out(RtExMem), .Rd_out(RdExMem));
 
-    dmemory memory0(/* input */ .MemWrite(MemWriteExMem), .MemRead(MemReadExMem), .aluRes(aluResExMem), 
-        .writedata(readData1ExMem), .halt(HaltExMem), .clk(clk), .rst(rst), 
-        /* output */ .readData(memData));  
+    forward_mem fmem0(/* input */ .MemWriteExMem(MemWriteExMem), .MemReadMemWb(MemReadMemWb), 
+        .RdExMem(RdExMem), .RdMemWb(RdMemWb),
+        /* output */ .forwardC(forwardC));
+
+    dmemory memory0(/* input */ .MemWrite(MemWriteExMem), .MemRead(MemReadExMem), .memAddr(aluResExMem), 
+        .writeData(readData1ExMem), .forwardC(forwardC), .memDataMemWb(memDataMemWb),
+        .halt(HaltExMem), .clk(clk), .rst(rst), 
+        /* output */ .readData(memData));
     
     memwb_reg MEM_WB(/* input */
         .data_mem_in(memData), .alu_result_in(aluResExMem), .write_reg_in(writeRegExMem),

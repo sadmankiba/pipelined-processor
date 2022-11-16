@@ -14,8 +14,9 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, aluSrc, inv
     input [15:0] readData1;   // Rd in I1, Rt in R-format
     input [15:0] readData2;   // Rs in I1, I2, R-format
     input [15:0] immVal;       
-    input invA, invB;      
-    input cIn, sign;
+    input invA, invB, cIn, sign;
+    input forwardA, forwardB;
+    input [15:0] aluResExMem, aluResMemWb, memDataMemWb;
     input [4:0] aluOp;
     input MemWrite;
     

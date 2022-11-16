@@ -145,7 +145,7 @@ module proc_hier_pbench();
    assign MemWrite = (DUT.p0.memory0.memEnable & DUT.p0.memory0.MemWrite); // & ~DUT.p0.notdonem);
    // Is memory being written to (1 bit signal)
    
-   assign MemAddress = DUT.p0.memory0.aluResult;
+   assign MemAddress = DUT.p0.memory0.memAddr;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
    assign MemDataIn = DUT.p0.memory0.writeData;
