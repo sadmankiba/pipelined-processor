@@ -44,7 +44,7 @@ module proc (/*AUTOARG*/
         jumpIdEx, RegWriteIdEx; 
     wire [1:0] functIdEx;
 
-    wire PCWrite, IF_ID_Write, controlZero;
+    wire PCWrite, IfIdWrite, controlZero;
 
     wire [2:0] aluControl;
     wire invA, invB, sign, cIn;    
@@ -80,10 +80,11 @@ module proc (/*AUTOARG*/
         .branch(branch), .MemRead(MemRead), .MemWrite(MemWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
         .RegWrite(RegWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    // hazard_detection_unit HZD(/* input */ .MemRead_id_ex(MemReadIdEx), 
-    //     .RtIdEx(RtIdEx), .Rs_if_id(Rs), .Rt_if_id(Rt),
-    //     /* output */ .PCWrite(PCWrite), .IF_ID_Write(IF_ID_Write), .controlZero(controlZero)
-    //     );
+    hazard_detection_unit hazard0(/* input */ .MemReadIdEx(MemReadIdEx), 
+        .writeRegIdEx(RtIdEx), .RsIfId(Rs), .RtIfId(Rt), 
+        .writeRegValidIdEx(writeRegValidIdEx), .RsValidIfId(RsValidIfId), .RtValidIfId(RtValidIfId),
+        /* output */ .PCWrite(PCWrite), .IfIdWrite(IfIdWrite), .controlZero(controlZero)
+    );
     assign controlZero = 1'b0;
 
     decode decode0(/* input */ .instr(instrIfId), .regDst(regDst), .RegWrite(RegWriteMemWb),
