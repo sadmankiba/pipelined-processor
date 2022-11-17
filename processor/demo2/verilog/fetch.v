@@ -5,22 +5,25 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 
-module fetch(/*input */ lastPcOut, clk, rst, writePc, 
+module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTake, jump,
     /* output */ pcOut, nxtPc, instr, validIns, err);
     
     // TODO: Your code here
-    input [15:0] lastPcOut;
-    input clk, rst, writePc;
+    input [15:0] lastPcOut, brAddr, jumpAddr;
+    input clk, rst, writePc, branchTake, jump;
 
     output [15:0] pcOut, nxtPc, instr;
     output validIns, err;
 
-    wire [15:0] pcIn;
+    wire [15:0] pcIn, brPcAddr, pcFinal;
     wire memEn;
 
-    assign pcIn = writePc? nxtPc: lastPcOut;
+    mux2_1_16b MXBT(.InA(nxtPc), .InB(brAddr), .S(branchTake), .Out(brPcAddr));
+    mux2_1_16b MXA(.InA(brPcAddr), .InB(jumpAddr), .S(jump), .Out(pcFinal));
 
-    dff DF [15:0] (.q(pcOut), .d(nxtPc), .clk(clk), .rst(rst));
+    assign pcIn = writePc? pcFinal: lastPcOut;
+
+    dff DF [15:0] (.q(pcOut), .d(pcIn), .clk(clk), .rst(rst));
 
     cla_16b CLA(.a(pcOut), .b(16'b0000_0000_0000_0010), .c_in(1'b0), 
             .sign(1'b0), .sum(nxtPc), .ofl(err));

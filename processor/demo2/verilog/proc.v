@@ -51,10 +51,9 @@ module proc (/*AUTOARG*/
     wire invA, invB, sign, cIn;    
     
     wire zero, aluErr, ltz;
-    wire [15:0] aluRes, brAddr, jumpDistOut;
+    wire [15:0] aluRes, brAddr, jumpAddr;
 
-    wire pcErr;
-    wire [15:0] pcFinal, brPcAddr;
+    wire branchTake, pcErr;
 
     wire [15:0] aluResExMem, readData1ExMem;
     wire [2:0] writeRegExMem, writeRegValidExMem;
@@ -70,15 +69,16 @@ module proc (/*AUTOARG*/
 
     wire [1:0] forwardA,forwardB;
 
-    fetch fetch0(/* input */ .lastPcOut(pcOut), .clk(clk), .rst(rst), .writePc(writePc),
+    fetch fetch0(/* input */ .lastPcOut(pcOut), .clk(clk), .rst(rst), .writePc(writePc), .brAddr(brAddr), 
+        .jumpAddr(jumpAddr), .branchTake(branchTake), .jump(jumpIdEx),
         /* output */ .pcOut(pcOut), .instr(instr), .nxtPc(nxtPc), .validIns(validIns), .err(fetchErr));
 
     control_reg controlReg0(/*input*/ .opcode(instr[15:11]), 
         /* output */ .Rs(RsIfId), .Rt(RtIfId), .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
 
-    ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pc_in(nxtPc), .instr_in(instr), .validInsIn(validIns), 
-        .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid),
-        /* output */ .pc_out(nxtPcIfId), .instr_out(instrIfId), .validInsOut(validInsIfId)
+    ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pcIn(nxtPc), .instrIn(instr), .validInsIn(validIns), 
+        .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId(writeIfId),
+        /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), .validInsOut(validInsIfId)
         .RsValidOut(RsValidIfId), .RtValidOut(RtValidIfId), .writeRegValidOut(writeRegValidIfId));
     
     control control0(/* input */ .opcode(instrIfId[15:11]), .validIns(validInsIfId),
@@ -102,7 +102,7 @@ module proc (/*AUTOARG*/
     
 
     idex_reg idex0 (/* input */
-        .clk(clk), .rst(rst), .pc_in(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
+        .clk(clk), .rst(rst), .pcIn(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
         .imm_in(immVal), .jumpaddr_in(jumpDist), .funct_in(instrIfId[1:0]), 
         .write_reg_in(writeRegDcd),
         .alu_op_in(aluOp), .alu_src_in(aluSrc), /* EX Control Inputs */
@@ -111,7 +111,7 @@ module proc (/*AUTOARG*/
         .Rs_in(RsIfId), .Rt_in(RtIfId), .RsValidIn(RsValidIfId), .RtValidIn(RtValidIfId), .writeRegValidIn(writeRegValidIfId), 
         .controlZero(controlZero),
         /* output */
-        .pc_out(nxtPcIdEx), .read1_out(readData1IdEx), .read2_out(readData2IdEx), 
+        .pcOut(nxtPcIdEx), .read1_out(readData1IdEx), .read2_out(readData2IdEx), 
         .imm_out(immValIdEx), .jumpaddr_out(jumpDistIdEx), .funct_out(functIdEx), 
         .write_reg_out(writeRegIdEx),
         //Control Outputs
@@ -141,11 +141,11 @@ module proc (/*AUTOARG*/
         .cIn(cIn), .sign(sign), .aluOp(aluOpIdEx), .MemWrite(MemWriteIdEx),
         .forwardA(forwardA), .forwardB(forwardB), .aluResExMem(aluResExMem), .aluResMemWb(aluResMemWb),
         .memDataMemWb(memDataMemWb),
-        /* output */ .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));
+        /* output */ .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData2(readData2IdEx), .zero(zero), .branch(branchIdEx), 
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .aluOp(aluOpIdEx), 
-        /* output */ .pcFinal(pcFinal), .err(pcErr));  
+        /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 
     exmem_reg EX_MEM (/* input */
         .clk(clk), .rst(rst), .alu_result_in(aluRes), .readData1In(readData1IdEx),
