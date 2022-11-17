@@ -1,10 +1,5 @@
 # Proj Notes
 
-## Instructions 
-
-### lbi
-
-
 
 ## Run and Test Programs
 Assembly files are in dir - /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/*/*.asm. Copied to testprograms/ dir. 

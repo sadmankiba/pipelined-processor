@@ -17,7 +17,7 @@ module control(/* input */ opcode, validIns,
 	
 	always @(newOpc)
 	begin
-		regDst   = 1'b0; /* Whether Write Register is Ins[7:5] or  Ins [4:2] */ 
+		regDst   = 1'b0; /* Whether Write Register is Ins[7:5] as in I1 or  Ins [4:2] as in R-format */ 
 		aluSrc   = 1'b0; RegWrite = 1'b0; 		
 		branch   = 1'b0; MemRead  = 1'b0; MemWrite = 1'b0; 
 		memToReg = 1'b0; jump     = 1'b0; 

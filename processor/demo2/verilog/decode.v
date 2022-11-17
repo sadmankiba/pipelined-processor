@@ -45,7 +45,7 @@ module decode(/* input */ instr, regDst, RegWrite, writeReg, writeData, pc,
     I-format 1: addi, subi, xori, st, ld, stu
         15..11. 10..8.  7..5.  4..0.
         5 [opc]. 3 [Rs]. 3 [Rd]. 5 [Imm]
-    I-format 2: beqz, bltz, jr, jalr
+    I-format 2: beqz, bltz, lbi, slbi, jr, jalr
         15..11. 10..8.  7..0.
         5 [opc]. 3 [Rs]. 8 [Imm]
     R-format: add, sub, xor

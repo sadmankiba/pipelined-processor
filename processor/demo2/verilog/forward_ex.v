@@ -1,5 +1,6 @@
-module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb, MemReadMemWb,
-    MemReadExMem, RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb,
+module forward_ex(/* input */ RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb,
+    RsValidIdEx, RtValidIdEx, writeRegValidExMem, writeRegValidMemWb,
+    RegWriteExMem,  RegWriteMemWb, MemReadMemWb, MemReadExMem, 
     /* output */ forwardA, forwardB );
     /*
     forwardA (Rs / ALU inp 1) - 00: Original, 01: Mem.aluRes, 10: Ex.aluRes, 11: Mem.memData 
@@ -7,24 +8,25 @@ module forward_ex(/* input */ RegWriteExMem,  RegWriteMemWb, MemReadMemWb,
     */
    
     input [2:0] RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb;
+    input RsValidIdEx, RtValidIdEx, writeRegValidExMem, writeRegValidMemWb;
     input RegWriteExMem, RegWriteMemWb, MemReadExMem, MemReadMemWb;
     
     output [1:0] forwardA, forwardB;
 
     // EX hazard
     wire exFrwdA, exFrwdB;
-    assign exFrwdA = (RegWriteExMem & (RsIdEx == writeRegExMem) ) ? 1 : 0;
-    assign exFrwdB = (RegWriteExMem & (RtIdEx == writeRegExMem) ) ? 1 : 0;
+    assign exFrwdA = (RegWriteExMem & RsValidIdEx & writeRegValidExMem & (RsIdEx == writeRegExMem) ) ? 1 : 0;
+    assign exFrwdB = (RegWriteExMem & RtValidIdEx & writeRegValidExMem & (RtIdEx == writeRegExMem) ) ? 1 : 0;
     
     // MEM hazard
     wire memFrwdA, memFrwdB;
-    assign memFrwdA = (RegWriteMemWb & (RsIdEx == writeRegMemWb)) ? 1 : 0;
-    assign memFrwdB = (RegWriteMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
+    assign memFrwdA = (RegWriteMemWb & RsValidIdEx & writeRegValidMemWb & (RsIdEx == writeRegMemWb)) ? 1 : 0;
+    assign memFrwdB = (RegWriteMemWb & RtValidIdEx & writeRegValidMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
 
     // Load-use forward
     wire loadUseFrwdA;
-    assign loadUseFrwdA = (MemReadMemWb & (RsIdEx == writeRegMemWb)) ? 1 : 0;
-    assign loadUseFrwdB = (MemReadMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
+    assign loadUseFrwdA = (MemReadMemWb & RsValidIdEx & writeRegValidMemWb & (RsIdEx == writeRegMemWb)) ? 1 : 0;
+    assign loadUseFrwdB = (MemReadMemWb & RtValidIdEx & writeRegValidMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
     
     wire [1:0] forwardAMem, forwardAMemLd, forwardAExMem;
     assign forwardAMem = memFrwdA? 2'b01: 2'b00;

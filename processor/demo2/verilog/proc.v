@@ -93,8 +93,8 @@ module proc (/*AUTOARG*/
         /* output */ .Rs(Rs), .Rt(Rt), .Rd(Rd), .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
         .immVal(immVal), .writeRegOut(writeRegDcd), .err(errDcd));  
 
-    control_reg controlReg0(.instruction(instrIfId), .Rs(Rs), .Rt(Rt), 
-        .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
+    control_reg controlReg0(/*input*/ .opcode(instrIfId[15:11]), 
+        /* output */ .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
 
     idex_reg idex0 (/* input */
         .clk(clk), .rst(rst), .pc_in(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
@@ -158,6 +158,7 @@ module proc (/*AUTOARG*/
 
     forward_mem fmem0(/* input */ .MemWriteExMem(MemWriteExMem), .MemReadMemWb(MemReadMemWb), 
         .writeRegExMem(writeRegExMem), .writeRegMemWb(writeRegMemWb),
+        .writeRegValidExMem(writeRegValidExMem), .writeRegValidMemWb(writeRegValidMemWb),
         /* output */ .forwardC(forwardC));
 
     dmemory memory0(/* input */ .MemWrite(MemWriteExMem), .MemRead(MemReadExMem), .memAddr(aluResExMem), 
