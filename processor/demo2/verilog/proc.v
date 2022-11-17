@@ -45,7 +45,7 @@ module proc (/*AUTOARG*/
         jumpIdEx, RegWriteIdEx; 
     wire [1:0] functIdEx;
 
-    wire writePc, writeIfId, controlZero;
+    wire writePc, writeIfId, controlZeroIdEx;
 
     wire [2:0] aluControl;
     wire invA, invB, sign, cIn;    
@@ -86,20 +86,18 @@ module proc (/*AUTOARG*/
         .branch(branch), .MemRead(MemRead), .MemWrite(MemWrite), .jump(jump), .memToReg(memToReg), .halt(halt),
         .RegWrite(RegWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    hazard_detection_unit hazard0(/* input */ .MemReadIdEx(MemReadIdEx), 
+    hazard_load hazard0(/* input */ .MemReadIdEx(MemReadIdEx), 
         .writeRegIdEx(RtIdEx), .RsIfId(RsIfId), .RtIfId(RtIfId), 
         .writeRegValidIdEx(writeRegValidIdEx), .RsValidIfId(RsValidIfId), .RtValidIfId(RtValidIfId),
-        /* output */ .writePc(writePc), .writeIfId(writeIfId), .controlZero(controlZero)
+        /* output */ .writePc(writePc), .writeIfId(writeIfId), .controlZeroIdEx(controlZeroIdEx)
     );
-    assign controlZero = 1'b0;
+    assign controlZeroIdEx = 1'b0;
 
     decode decode0(/* input */ .instr(instrIfId), .regDst(regDst), .RegWrite(RegWriteMemWb),
         .writeReg(writeRegMemWb), .writeData(writeDataWb), .pc(nxtPcIfId), .i1Fmt(i1Fmt), .aluSrc(aluSrc), .zeroExt(zeroExt), 
         .jump(jump), .clk(clk), .rst(rst), 
         /* output */ .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
         .immVal(immVal), .writeRegOut(writeRegDcd), .err(errDcd));  
-
-    
 
     idex_reg idex0 (/* input */
         .clk(clk), .rst(rst), .pcIn(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
@@ -109,7 +107,7 @@ module proc (/*AUTOARG*/
         .branch_in(branch), .mem_read_in(MemRead), .mem_write_in(MemWrite), .halt_in(halt), //MEM Control Inputs
         .mem_to_reg_in(memToReg), .reg_write_in(RegWrite), .jump_in(Jump), //WB Control Inputs
         .Rs_in(RsIfId), .Rt_in(RtIfId), .RsValidIn(RsValidIfId), .RtValidIn(RtValidIfId), .writeRegValidIn(writeRegValidIfId), 
-        .controlZero(controlZero),
+        .controlZeroIdEx(controlZeroIdEx),
         /* output */
         .pcOut(nxtPcIdEx), .read1_out(readData1IdEx), .read2_out(readData2IdEx), 
         .imm_out(immValIdEx), .jumpaddr_out(jumpDistIdEx), .funct_out(functIdEx), 
