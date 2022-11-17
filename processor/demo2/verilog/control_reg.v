@@ -1,10 +1,10 @@
-module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
+module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, writeRegValid);
   
   input [15:0] instruction;
    
   //Register Identifiers for data hazards
   output reg [2:0] Rs, Rt, Rd;
-  output reg RsValid, RtValid, RdValid;
+  output reg RsValid, RtValid, writeRegValid;
   
   always @(instruction)
   begin
@@ -13,8 +13,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
     RsValid = 1'b0;
     Rt = 3'b000;
     RtValid = 1'b0;
-    Rd = 3'b000;
-    RdValid = 1'b0;
+    writeRegValid = 1'b0;
     casex(instruction[15:11])
       5'b0_00xx: //HALT, NOP, SIIC, NOP/RTI
         begin
@@ -24,16 +23,16 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
         begin
           Rs = instruction[10:8];
           RsValid = 1'b1;
-          Rd = instruction[7:5]; 
-          RdValid = 1'b1;
+           
+          writeRegValid = 1'b1;
         end
 
       5'b1_01xx: //ROLI, SLLI, RORI, SRLI
         begin
           Rs = instruction[10:8];
           RsValid = 1'b1;
-          Rd = instruction[7:5];
-          RdValid = 1'b1;
+          
+          writeRegValid = 1'b1;
         end
 
       5'b1_101x: //ADD, SUB, XOR, ANDN, ROL, SLL, ROR, SRL
@@ -43,7 +42,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rt = instruction[7:5];
           RtValid = 1'b1;
           Rd = instruction[4:2];
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
   
       5'b1_11xx: //SEQ, SLT, SLE, SCO
@@ -53,7 +52,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rt = instruction[7:5];
           RtValid = 1'b1;
           Rd = instruction[4:2];
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
 
       5'b1_1001: // BTR
@@ -61,7 +60,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rs = instruction[10:8];
           Rd = instruction[4:2];
           RsValid = 1'b1;
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
 
       5'b0_1100: //BEQZ, BNEZ, BLTZ, BGEZ
@@ -75,7 +74,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           //Rs = instruction[10:8];
           //RsValid = 1'b1;
           Rd = instruction[10:8];
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
   
       5'b1_0010: //SLBI
@@ -83,7 +82,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rs = instruction[10:8];
           RsValid = 1'b1;
           Rd = instruction[10:8];
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
 
       5'b1_0000: //ST, LD
@@ -92,8 +91,8 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           RsValid = 1'b1;
           Rt = instruction[7:5];
           RtValid = 1'b1;
-          Rd = instruction[7:5];
-          RdValid = 1'b1;
+          
+          writeRegValid = 1'b1;
         end
       5'b1_0001: //ST, LD
         begin
@@ -101,8 +100,8 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           RsValid = 1'b1;
           Rt = instruction[7:5];
           RtValid = 1'b1;
-          Rd = instruction[7:5];
-          RdValid = 1'b1;
+          
+          writeRegValid = 1'b1;
         end
       
       5'b1_0011: //STU
@@ -112,7 +111,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rt = instruction[7:5];
           RtValid = 1'b1;
           Rd = instruction[10:8];
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
         end
 
       5'b0_0100: //J
@@ -126,7 +125,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
       5'b0_0110: //JAL
         begin
           Rd = 3'b111;
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
           Rt = 3'b111;
           RtValid = 1'b1;
         end
@@ -135,7 +134,7 @@ module control_reg(instruction, Rs, Rt, Rd, RsValid, RtValid, RdValid);
           Rs = instruction[10:8];
           RsValid = 1'b1;
           Rd = 3'b111;
-          RdValid = 1'b1;
+          writeRegValid = 1'b1;
           Rt = 3'b111;
           RtValid = 1'b1;
         end
