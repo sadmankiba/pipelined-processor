@@ -32,6 +32,10 @@ Ref: Ian's tutorial video
 
 ### Submission
 
+Verify submission 
+
+Phase 1 - /u/s/w/swamit/public/html/courses/cs552/fall2022/handouts/scripts/project/phase1/verify_submission_format.sh demo1.tgz
+
 Run vcheck on all.
 
 ```

@@ -1,10 +1,18 @@
-module control_reg(/* input */ opcode, 
-    /* output */ RsValid, RtValid, writeRegValid);
+module control_reg(/* input */ instr, 
+    /* output */ Rs, Rt, RsValid, RtValid, writeRegValid);
     
-    input [4:0] opcode;
+    input [15:0] instr;
     
+    output [2:0] Rs, Rt;
     output reg RsValid, RtValid, writeRegValid;
     
+    wire [4:0] opcode;
+
+    assign opcode = instr[15:11];
+
+    assign Rs = instr[10:8];
+    assign Rt = instr[7:5];
+
     always @(opcode)
     begin
         RsValid = 1'b0;
