@@ -70,8 +70,8 @@ module proc (/*AUTOARG*/
 
     wire [1:0] forwardA,forwardB;
 
-    fetch fetch0(/* input */.pc(nxtPc), .clk(clk), .rst(rst), .writePc(writePc),
-        /* output */ .instr(instr), .pcOut(nxtPc), .validIns(validIns), .err(fetchErr));
+    fetch fetch0(/* input */ .lastPcOut(pcOut), .clk(clk), .rst(rst), .writePc(writePc),
+        /* output */ .pcOut(pcOut), .instr(instr), .nxtPc(nxtPc), .validIns(validIns), .err(fetchErr));
 
     control_reg controlReg0(/*input*/ .opcode(instr[15:11]), 
         /* output */ .Rs(RsIfId), .Rt(RtIfId), .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
