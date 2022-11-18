@@ -24,7 +24,7 @@ module forward_ex(/* input */ RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb,
     assign memFrwdB = (RegWriteMemWb & RtValidIdEx & writeRegValidMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
 
     // Load-use forward
-    wire loadUseFrwdA;
+    wire loadUseFrwdA, loadUseFrwdB;
     assign loadUseFrwdA = (MemReadMemWb & RsValidIdEx & writeRegValidMemWb & (RsIdEx == writeRegMemWb)) ? 1 : 0;
     assign loadUseFrwdB = (MemReadMemWb & RtValidIdEx & writeRegValidMemWb & (RtIdEx == writeRegMemWb)) ? 1 : 0;
     

@@ -145,9 +145,9 @@ module proc (/*AUTOARG*/
         /* output */ .flushIf(flushIf), .controlZeroIdEx(controlZeroIdEx), .controlZeroExMem(controlZeroExMem));
 
     exmem_reg EX_MEM (/* input */
-        .clk(clk), .rst(rst), .aluResIn(aluRes), .readData1In(readData1IdEx),
+        .aluResIn(aluRes), .readData1In(readData1IdEx),
         .writeRegIn(writeRegIdEx), .branchTakeIn(branchTake), .JumpIn(JumpIdEx),
-        .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), 
+        .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), .clk(clk), .rst(rst), 
         //Control Inputs
         .MemReadIn(MemReadIdEx), .MemWriteIn(MemWriteIdEx), .halt_in(haltIdEx),
         .MemToRegIn(memToRegIdEx), .RegWriteIn(RegWriteIdEx), 

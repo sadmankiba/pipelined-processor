@@ -44,7 +44,6 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     dff BR_FF       (.q(BranchOut),     .d(BranchIn),     .clk(clk), .rst(rst));
     dff MEMR_FF     (.q(MemReadOut),   .d(MemReadIn),   .clk(clk), .rst(rst));
     
-    //Signals to be zero'd
     assign MemWriteIn_actual = (controlZeroIdEx) ? 1'b0 : MemWriteIn;
     assign RegWriteIn_actual = (controlZeroIdEx) ? 1'b0 : RegWriteIn;
 

@@ -1,8 +1,8 @@
-module exmem_reg (/* input */ clk, rst, aluResIn, 
+module exmem_reg (/* input */ aluResIn, 
     readData1In, writeRegIn, branchTakeIn, JumpIn, 
     brAddrIn, jumpAddrIn,
     MemReadIn, MemWriteIn, halt_in, MemToRegIn, 
-    writeRegValidIn, controlZeroExMem,
+    writeRegValidIn, controlZeroExMem, clk, rst, 
     /* output */ aluResOut, readData1Out, 
     writeRegOut, branchTakeOut, JumpOut, brAddrOut, jumpAddrOut,
     MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut, writeRegValidOut);
