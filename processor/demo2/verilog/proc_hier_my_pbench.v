@@ -31,10 +31,10 @@ module proc_hier_my_pbench();
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
    wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
-   wire     FlushIf, WritePc, ValidInsIfId;
+   wire     FlushIf, WritePc, ValidInsIfId, WriteIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
-   wire [15:0] Read1DataInit, Read2DataInit;
+   wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
    wire WriteEn;
 
    wire [4:0] NewOpc;
@@ -107,12 +107,12 @@ module proc_hier_my_pbench();
                    MemDataIn);
          $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %4x", 
                   PcIn, WritePc);
-         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d", 
-                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf);
+         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d", 
+                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
-         $fdisplay(sim_log_file, "DECODE: readReg1: %d readReg2: %d writeEn %d writeReg %d writeData %4x", 
-                  ReadReg1, ReadReg2, WriteEn, WriteRegister, WriteData);
+         $fdisplay(sim_log_file, "DECODE: I: %4x readReg1: %d readReg2: %d writeEn %d writeReg %d writeData %4x", 
+                  InstrDcd, ReadReg1, ReadReg2, WriteEn, WriteRegister, WriteData);
          // $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
          //          Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
@@ -153,6 +153,7 @@ module proc_hier_my_pbench();
             #5;
             $finish;
          end 
+         $fdisplay(sim_log_file, "");
       end
       
    end
@@ -220,12 +221,14 @@ module proc_hier_my_pbench();
    assign NxtPcIfId = DUT.p0.ifid0.pcIn;
    assign InstrIfId = DUT.p0.ifid0.instrIn;
    assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
+   assign WriteIfId = DUT.p0.ifid0.writeIfId;
    assign FlushIf = DUT.p0.ifid0.flushIf;
 
    assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.RegDst;
    assign ALUSrc = DUT.p0.AluSrc;
 
+   assign InstrDcd = DUT.p0.decode0.instr;
    assign ReadReg1 = DUT.p0.decode0.readReg1;
    assign ReadReg2 = DUT.p0.decode0.readReg2;
    assign Read1DataInit = DUT.p0.decode0.regFile0.read1DataInit;

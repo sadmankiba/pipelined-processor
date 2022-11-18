@@ -13,21 +13,23 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
     output [15:0] pcOut, instrOut;
     output validInsOut, RsValidOut, RtValidOut, writeRegValidOut;
 
-    wire validInsInFinal = flushIf? 1'b0: validInsIn;
+    wire validInsInIntm, validInsInFinal, RsValidInFinal, RtValidInFinal, writeRegValidInFinal;
+    wire [15:0] pcInFinal, writeIfIdFinal;
+    
+    assign validInsInIntm = flushIf? 1'b0: validInsIn;
+    assign pcInFinal = (writeIfId)? pcIn: lastPcOut;
+    assign instrFinal = (writeIfId)? instrIn: lastInstrOut;
+    assign validInsInFinal = (writeIfId)? validInsInIntm: lastValidInsOut;
+    assign RsValidInFinal = (writeIfId)? RsValidIn: lastRsValidOut;
+    assign RtValidInFinal = (writeIfId)? RtValidIn: lastRtValidOut;
+    assign writeRegValidInFinal = (writeIfId)? writeRegValidIn: lastWriteRegValidOut;
 
-    dff RP [15:0]  (.q(pcOut), .d(writeIfId? pcIn: lastPcOut), .clk(clk), .rst(rst));
-    dff RI [15:0] (.q(instrOut), .d(writeIfId? instrIn: lastInstrOut), .clk(clk), .rst(rst));
+    dff RP [15:0]  (.q(pcOut), .d(pcInFinal), .clk(clk), .rst(rst));
+    dff RI [15:0] (.q(instrOut), .d(instrFinal), .clk(clk), .rst(rst));
 
-    dff RIV (.q(validInsOut), .d(writeIfId? validInsInFinal: lastValidInsOut), .clk(clk), .rst(rst));
-    dff RSV (.q(RsValidOut), .d(writeIfId? RsValidIn: lastRsValidOut), .clk(clk), .rst(rst));
-    dff RTV (.q(RtValidOut), .d(writeIfId? RtValidIn: lastRtValidOut), .clk(clk), .rst(rst));
-    dff RWV (.q(writeRegValidOut), .d(writeIfId? writeRegValidIn: lastWriteRegValidOut), .clk(clk), .rst(rst));
-
-    assign lastPcOut = pcOut;
-    assign lastInstrOut = instrOut;
-    assign lastValidInsOut = validInsOut;
-    assign lastRsValidOut = RsValidOut;
-    assign lastRtValidOut = RtValidOut;
-    assign lastWriteRegValidOut = writeRegValidOut;
+    dff RIV (.q(validInsOut), .d(validInsInFinal), .clk(clk), .rst(rst));
+    dff RSV (.q(RsValidOut), .d(RsValidInFinal), .clk(clk), .rst(rst));
+    dff RTV (.q(RtValidOut), .d(RtValidInFinal), .clk(clk), .rst(rst));
+    dff RWV (.q(writeRegValidOut), .d(writeRegValidInFinal), .clk(clk), .rst(rst));
 
 endmodule
