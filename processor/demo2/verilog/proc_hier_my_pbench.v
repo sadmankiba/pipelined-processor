@@ -113,7 +113,7 @@ module proc_hier_my_pbench();
                   Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
                   ReadData1IdEx, ReadData2IdEx, ImmValIdEx);   
-         $fdisplay(sim_log_file, "EXEC: aluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
+         $fdisplay(sim_log_file, "EXEC: AluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
                   AluOp, AluInp1, AluInp2, AluRes);  
          $fdisplay(sim_log_file, "EX/MEM: MemtoReg: %d RegWrite: %d", 
                   MemToRegExMem, RegWriteExMem); 
@@ -214,8 +214,8 @@ module proc_hier_my_pbench();
    assign ValidInsIfId = DUT.p0.validInsIfId;
 
    assign NewOpc = DUT.p0.control0.newOpc;
-   assign RegDst = DUT.p0.regDst;
-   assign ALUSrc = DUT.p0.aluSrc;
+   assign RegDst = DUT.p0.RegDst;
+   assign ALUSrc = DUT.p0.AluSrc;
 
    assign ReadReg1 = DUT.p0.decode0.readReg1;
    assign ReadReg2 = DUT.p0.decode0.readReg2;
@@ -227,7 +227,7 @@ module proc_hier_my_pbench();
    assign ReadData2IdEx = DUT.p0.readData2IdEx;
    assign ImmValIdEx = DUT.p0.immValIdEx;
    
-   assign AluOp = DUT.p0.exec0.aluOp;
+   assign AluOp = DUT.p0.exec0.AluOp;
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.aluRes;

@@ -1,44 +1,44 @@
-module exmem_reg (/* input */ clk, rst, alu_result_in, 
-    readData1In, write_reg_in, brachTakeIn, jumpIn, 
+module exmem_reg (/* input */ clk, rst, aluResIn, 
+    readData1In, writeRegIn, branchTakeIn, JumpIn, 
     brAddrIn, jumpAddrIn,
-    mem_read_in, mem_write_in, halt_in, mem_to_reg_in, 
+    MemReadIn, MemWriteIn, halt_in, MemToRegIn, 
     writeRegValidIn, controlZeroExMem,
-    /* output */ alu_result_out, readData1Out, 
-    write_reg_out, branchTakeOut, jumpOut, brAddrOut, jumpAddrOut,
-    mem_read_out, mem_write_out, halt_out, mem_to_reg_out, reg_write_out, writeRegValidOut);
+    /* output */ aluResOut, readData1Out, 
+    writeRegOut, branchTakeOut, JumpOut, brAddrOut, jumpAddrOut,
+    MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut, writeRegValidOut);
 
     input clk, rst;
-    input [15:0] alu_result_in, readData1In, brAddrIn, jumpAddrIn;
-    input mem_read_in, mem_write_in, halt_in, mem_to_reg_in, reg_write_in;
-    input [2:0] write_reg_in, writeRegValidIn;
+    input [15:0] aluResIn, readData1In, brAddrIn, jumpAddrIn;
+    input MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn;
+    input [2:0] writeRegIn, writeRegValidIn;
     input controlZeroExMem;
 
-    output [15:0] alu_result_out, readData1Out, brAddrOut, jumpAddrOut;
-    output mem_read_out, mem_write_out, halt_out, mem_to_reg_out, reg_write_out;
-    output [2:0] write_reg_out, writeRegValidOut;
+    output [15:0] aluResOut, readData1Out, brAddrOut, jumpAddrOut;
+    output MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut;
+    output [2:0] writeRegOut, writeRegValidOut;
 
     wire MemWriteOutFinal, RegWriteOutFinal;
 
-    dff ALU  [15:0] (.q(alu_result_out),    .d(alu_result_in),    .clk(clk), .rst(rst));
+    dff ALU  [15:0] (.q(aluResOut),    .d(aluResIn),    .clk(clk), .rst(rst));
     dff READ2[15:0] (.q(readData1Out),     .d(readData1In),     .clk(clk), .rst(rst));
 
-    dff WRITE_REG [2:0] (.q(write_reg_out), .d(write_reg_in), .clk(clk), .rst(rst));
+    dff WRITE_REG [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
 
     dff RBA [15:0] (.q(brAddrOut), .d(brAddrIn), .clk(clk), .rst(rst));
     dff RJA [15:0] (.q(jumpAddrOut), .d(jumpAddrIn), .clk(clk), .rst(rst));
 
-    assign MemWriteOutFinal = controlZeroExMem? 1'b0: mem_write_in;
-    assign RegWriteOutFinal = controlZeroExMem? 1'b0: reg_write_in;
+    assign MemWriteOutFinal = controlZeroExMem? 1'b0: MemWriteIn;
+    assign RegWriteOutFinal = controlZeroExMem? 1'b0: RegWriteIn;
 
-    dff MEMW (.q(mem_write_out),  .d(MemWriteOutFinal),  .clk(clk), .rst(rst));
-    dff RWO  (.q(reg_write_out),  .d(RegWriteOutFinal),  .clk(clk), .rst(rst));
+    dff MEMW (.q(MemWriteOut),  .d(MemWriteOutFinal),  .clk(clk), .rst(rst));
+    dff RWO  (.q(RegWriteOut),  .d(RegWriteOutFinal),  .clk(clk), .rst(rst));
     
     dff RB (.q(branchTakeOut),   .d(branchTakeIn),   .clk(clk), .rst(rst));
-    dff RJ (.q(jumpOut),   .d(jumpIn),   .clk(clk), .rst(rst));
-    dff MEMR (.q(mem_read_out),   .d(mem_read_in),   .clk(clk), .rst(rst));
+    dff RJ (.q(JumpOut),   .d(JumpIn),   .clk(clk), .rst(rst));
+    dff MEMR (.q(MemReadOut),   .d(MemReadIn),   .clk(clk), .rst(rst));
     
     dff HALT (.q(halt_out),       .d(halt_in),       .clk(clk), .rst(rst));
-    dff MTR  (.q(mem_to_reg_out), .d(mem_to_reg_in), .clk(clk), .rst(rst));
+    dff MTR  (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
     
     dff RS (.q(writeRegValidOut),       .d(writeRegValidIn),       .clk(clk), .rst(rst));
    

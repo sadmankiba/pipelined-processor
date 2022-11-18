@@ -5,12 +5,12 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 
-module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTake, jump,
+module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTake, Jump,
     /* output */ pcOut, nxtPc, instr, validIns, err);
     
     // TODO: Your code here
     input [15:0] lastPcOut, brAddr, jumpAddr;
-    input clk, rst, writePc, branchTake, jump;
+    input clk, rst, writePc, branchTake, Jump;
 
     output [15:0] pcOut, nxtPc, instr;
     output validIns, err;
@@ -19,7 +19,7 @@ module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTa
     wire memEn;
 
     mux2_1_16b MXBT(.InA(nxtPc), .InB(brAddr), .S(branchTake), .Out(brPcAddr));
-    mux2_1_16b MXA(.InA(brPcAddr), .InB(jumpAddr), .S(jump), .Out(pcFinal));
+    mux2_1_16b MXA(.InA(brPcAddr), .InB(jumpAddr), .S(Jump), .Out(pcFinal));
 
     assign pcIn = writePc? pcFinal: lastPcOut;
 

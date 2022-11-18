@@ -1,5 +1,5 @@
-module alu_control(aluOp, funct, invA, invB, sign, cIn, aluControl);
-    input [4:0] aluOp;
+module alu_control(AluOp, funct, invA, invB, sign, cIn, aluControl);
+    input [4:0] AluOp;
     input [1:0] funct;
 
     output reg invA, invB, sign, cIn;
@@ -26,7 +26,7 @@ module alu_control(aluOp, funct, invA, invB, sign, cIn, aluControl);
         sign = 1'b0; cIn = 1'b0;
         aluControl = 3'b000;
         
-        case(aluOp)
+        case(AluOp)
             5'b01000: begin // addi
                 sign = 1'b1; aluControl = 3'b100;
             end

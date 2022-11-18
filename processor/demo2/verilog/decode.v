@@ -4,25 +4,25 @@
    Filename        : decode.v
    Description     : This is the module for the overall decode stage of the processor.
 */
-module decode(/* input */ instr, regDst, RegWrite, writeReg, writeData, pc, 
-    i1Fmt, aluSrc, zeroExt, jump, clk, rst, 
+module decode(/* input */ instr, RegDst, RegWrite, writeReg, writeData, pc, 
+    i1Fmt, AluSrc, zeroExt, Jump, clk, rst, 
     /* output */ jumpDist, readData1, readData2, immVal, writeRegOut, err);
    
     // TODO: Your code here
     /*
     Decode: From an instruction and control signals, determine rwo register
-    values, immediate value and jump address. 
+    values, immediate value and Jump address. 
     */
 
     input [15:0] instr; 
-    input regDst, RegWrite; 
+    input RegDst, RegWrite; 
     input [2:0] writeReg;
     input [15:0] writeData;
     input [15:0] pc;
-    input i1Fmt, aluSrc, zeroExt, jump;
+    input i1Fmt, AluSrc, zeroExt, Jump;
     input clk, rst;
 
-    output [15:0] jumpDist;   // Jump distance for 4 jump instructions
+    output [15:0] jumpDist;   // Jump distance for 4 Jump instructions
     output [15:0] readData1;  // Rd in I1, Rt in R-format
     output [15:0] readData2;  // Rs in I1, I2, R-format
     output [15:0] immVal;
@@ -58,7 +58,7 @@ module decode(/* input */ instr, regDst, RegWrite, writeReg, writeData, pc,
     assign readReg2 = instr[7:5];     // Rd in I1, Rt in R-format
     assign writeRegR = instr[4:2];
     
-    assign writeRegRI2 = (regDst) ? writeRegR: readReg1;            // R-format or I-format2 writeReg
+    assign writeRegRI2 = (RegDst) ? writeRegR: readReg1;            // R-format or I-format2 writeReg
     assign writeRegRI2I1 = (i1Fmt) ? readReg2 : writeRegRI2;         // If I-format1 writeReg
     
     equal #(.INPUT_WIDTH(5)) EQ1(.in1(opcode), .in2(5'b10011), .eq(isStu));
@@ -77,7 +77,7 @@ module decode(/* input */ instr, regDst, RegWrite, writeReg, writeData, pc,
     
     sign_ext #(.INPUT_WIDTH(11), .OUTPUT_WIDTH(16)) SXJ1(.in(instr[10:0]), .out(jumpDistJ));
     sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXJ2(.in(instr[7:0]), .out(jumpDistJr));
-    mux2_1_16b MXJDR(.InA(jumpDistJ), .InB(jumpDistJr), .S(jump & aluSrc), .Out(jumpDist));
+    mux2_1_16b MXJDR(.InA(jumpDistJ), .InB(jumpDistJr), .S(Jump & AluSrc), .Out(jumpDist));
     
     sign_ext #(.INPUT_WIDTH(5), .OUTPUT_WIDTH(16)) SXI1(.in(instr[4:0]), .out(immI1));
     sign_ext #(.INPUT_WIDTH(8), .OUTPUT_WIDTH(16)) SXI2(.in(instr[7:0]), .out(immI2));

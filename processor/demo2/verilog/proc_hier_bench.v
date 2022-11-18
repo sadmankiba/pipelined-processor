@@ -103,7 +103,7 @@ module proc_hier_bench();
                         MemAddress,
                         MemData);
             end else begin
-               // conditional branch or NOP
+               // conditional Branch or NOP
                // Need better checking in pipelined testbench
                inst_count = inst_count + 1;
                $fdisplay(trace_file, "INUM: %8d PC: 0x%04x",
