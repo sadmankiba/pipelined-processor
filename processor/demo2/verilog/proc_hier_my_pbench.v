@@ -30,8 +30,8 @@ module proc_hier_my_pbench();
 
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
-   wire  [15:0]   NxtPcIfId, InstrIfId;
-   wire     ValidInsIfId;
+   wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
+   wire     FlushIf, WritePc, ValidInsIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] Read1DataInit, Read2DataInit;
@@ -42,8 +42,10 @@ module proc_hier_my_pbench();
    wire [15:0] ReadData1IdEx, ReadData2IdEx, ImmValIdEx;
    
    wire [15:0] AluRes, AluInp1, AluInp2;
+   wire [1:0] ForwardA, ForwardB;
    wire [4:0] AluOp;
 
+   wire ForwardC;
    wire MemToRegExMem, RegWriteExMem;
    wire MemToRegMemWb, RegWriteMemWb;
         
@@ -103,20 +105,24 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d", 
-                  NxtPcIfId, InstrIfId, ValidInsIfId);
+         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %4x", 
+                  PcIn, WritePc);
+         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d", 
+                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
          $fdisplay(sim_log_file, "DECODE: readReg1: %d readReg2: %d writeEn %d writeReg %d writeData %4x", 
                   ReadReg1, ReadReg2, WriteEn, WriteRegister, WriteData);
-         $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
-                  Read1DataInit, Read2DataInit);         
+         // $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
+         //          Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
                   ReadData1IdEx, ReadData2IdEx, ImmValIdEx);   
-         $fdisplay(sim_log_file, "EXEC: AluOp: %5b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
-                  AluOp, AluInp1, AluInp2, AluRes);  
+         $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluRes: %4x", 
+                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluRes);  
          $fdisplay(sim_log_file, "EX/MEM: MemtoReg: %d RegWrite: %d", 
                   MemToRegExMem, RegWriteExMem); 
+         $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d writeData: %4x", 
+                  MemRead, MemWrite, ForwardC, MemDataIn);
          $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d", 
                   MemToRegMemWb, RegWriteMemWb); 
          if (RegWrite) begin
@@ -178,13 +184,13 @@ module proc_hier_my_pbench();
    assign MemWrite = DUT.p0.MemWrite; // & ~DUT.p0.notdonem);
    // Is memory being written to (1 bit signal)
    
-   assign MemAddress = DUT.p0.aluResExMem;
+   assign MemAddress = DUT.p0.memory0.memAddr;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
-   assign MemDataIn = DUT.p0.readData1ExMem;
+   assign MemDataIn = DUT.p0.memory0.writeDataFinal;
    // Data to be written to memory for memory writes (16 bits)
    
-   assign MemDataOut = DUT.p0.memData;
+   assign MemDataOut = DUT.p0.memory0.readData;
    // Data read from memory for memory reads (16 bits)
 
    // new added 05/03
@@ -209,9 +215,12 @@ module proc_hier_my_pbench();
    
    
    /* Add anything else you want here */
-   assign NxtPcIfId = DUT.p0.nxtPcIfId;
-   assign InstrIfId = DUT.p0.instrIfId;
-   assign ValidInsIfId = DUT.p0.validInsIfId;
+   assign PcIn = DUT.p0.fetch0.pcIn;
+   assign WritePc = DUT.p0.fetch0.writePc;
+   assign NxtPcIfId = DUT.p0.ifid0.pcIn;
+   assign InstrIfId = DUT.p0.ifid0.instrIn;
+   assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
+   assign FlushIf = DUT.p0.ifid0.flushIf;
 
    assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.RegDst;
@@ -228,14 +237,17 @@ module proc_hier_my_pbench();
    assign ImmValIdEx = DUT.p0.immValIdEx;
    
    assign AluOp = DUT.p0.exec0.AluOp;
+   assign ForwardA = DUT.p0.exec0.forwardA;
+   assign ForwardB = DUT.p0.exec0.forwardB;
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
-   assign AluRes = DUT.p0.aluRes;
+   assign AluRes = DUT.p0.exmem0.aluResIn;
 
-   assign MemToRegExMem = DUT.p0.MemToRegExMem;
-   assign RegWriteExMem = DUT.p0.RegWriteExMem;
-   assign MemToRegMemWb = DUT.p0.MemToRegMemWb;
-   assign RegWriteMemWb = DUT.p0.RegWriteMemWb;
+   assign ForwardC = DUT.p0.memory0.forwardC;
+   assign MemToRegExMem = DUT.p0.exmem0.MemToRegIn;
+   assign RegWriteExMem = DUT.p0.exmem0.RegWriteIn;
+   assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;
+   assign RegWriteMemWb = DUT.p0.memwb0.RegWriteMemWb;
    
 endmodule
 

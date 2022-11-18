@@ -88,7 +88,7 @@ module proc (/*AUTOARG*/
         .Branch(Branch), .MemRead(MemRead), .MemWrite(MemWrite), .Jump(Jump), .memToReg(memToReg), .halt(halt),
         .RegWrite(RegWrite), .err(cntrlErr),.i1Fmt(i1Fmt), .zeroExt(zeroExt));
 
-    hazard_load hazard0(/* input */ .MemReadIdEx(MemReadIdEx), 
+    hazard_load hzdLoad0(/* input */ .MemReadIdEx(MemReadIdEx), 
         .writeRegIdEx(writeRegIdEx), .RsIfId(RsIfId), .RtIfId(RtIfId), 
         .writeRegValidIdEx(writeRegValidIdEx), .RsValidIfId(RsValidIfId), .RtValidIfId(RtValidIfId),
         /* output */ .writePc(writePc), .writeIfId(writeIfId), .controlZeroIdEx(controlZeroIdEx)
@@ -141,10 +141,10 @@ module proc (/*AUTOARG*/
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .AluOp(AluOpIdEx), 
         /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 
-    hazard_Branch hb0(/*input*/ .branchTake(branchTakeExMem), .Jump(JumpExMem),
+    hazard_Branch hzdBr0(/*input*/ .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .flushIf(flushIf), .controlZeroIdEx(controlZeroIdEx), .controlZeroExMem(controlZeroExMem));
 
-    exmem_reg EX_MEM (/* input */
+    exmem_reg exmem0 (/* input */
         .aluResIn(aluRes), .readData1In(readData1IdEx),
         .writeRegIn(writeRegIdEx), .branchTakeIn(branchTake), .JumpIn(JumpIdEx),
         .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), .clk(clk), .rst(rst), 
@@ -170,7 +170,7 @@ module proc (/*AUTOARG*/
         .halt(HaltExMem), .clk(clk), .rst(rst), 
         /* output */ .readData(memData));
     
-    memwb_reg MEM_WB(/* input */
+    memwb_reg memwb0(/* input */
         .data_mem_in(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
         //Control Inputs
         .MemToRegIn(MemToRegExMem), .RegWriteIn(RegWriteExMem), .MemReadIn(MemReadExMem),
