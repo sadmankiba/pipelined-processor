@@ -14,9 +14,9 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     input [2:0] writeRegIn;
     input [1:0] funct_in;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
-        RegWriteIn, JumpIn, halt_in;
-    input [2:0] Rs_in, Rt_in, RsValidIn, RtValidIn, writeRegValidIn;
-    input controlZeroIdEx;
+        RegWriteIn, JumpIn, halt_in, controlZeroIdEx;
+    input [2:0] Rs_in, Rt_in;
+    input RsValidIn, RtValidIn, writeRegValidIn;
 
     output [4:0] AluOpOut;
     output [2:0] writeRegOut;
@@ -24,7 +24,8 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     output AluSrcOut, BranchOut, MemReadOut, MemWriteOut, MemToRegOut, 
         RegWriteOut, JumpOut, halt_out;
     output [15:0] read1_out, read2_out, pcOut, imm_out, jumpDistOut;
-    output [2:0] Rs_out, Rt_out, RsValidOut, RtValidOut, writeRegValidOut;
+    output [2:0] Rs_out, Rt_out;
+    output RsValidOut, RtValidOut, writeRegValidOut;
 
     wire MemWriteIn_actual, RegWriteIn_actual;
 

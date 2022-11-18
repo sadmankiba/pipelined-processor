@@ -247,7 +247,7 @@ module proc_hier_my_pbench();
    assign MemToRegExMem = DUT.p0.exmem0.MemToRegIn;
    assign RegWriteExMem = DUT.p0.exmem0.RegWriteIn;
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;
-   assign RegWriteMemWb = DUT.p0.memwb0.RegWriteMemWb;
+   assign RegWriteMemWb = DUT.p0.memwb0.RegWriteIn;
    
 endmodule
 

@@ -15,7 +15,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     input [15:0] readData2;   // Rs in I1, I2, R-format
     input [15:0] immVal;       
     input invA, invB, cIn, sign;
-    input forwardA, forwardB;
+    input [1:0] forwardA, forwardB;
     input [15:0] aluResExMem, aluResMemWb, memDataMemWb;
     input [4:0] AluOp;
     input MemWrite;
@@ -50,7 +50,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     // ALU 
     mux4_1_16b MXALI1(.InA(aluInp1Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
             .S(forwardA), .Out(aluInp1));
-    mux4_1_16b MXALI1(.InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+    mux4_1_16b MXALI2(.InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
             .S(forwardB), .Out(aluInp2));        
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cIn), .Oper(aluControl), 
             .invA(invA), .invB(invB), 

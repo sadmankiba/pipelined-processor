@@ -2,7 +2,8 @@
 module forward_mem(/* input */ MemWriteExMem, MemReadMemWb, writeRegExMem, writeRegMemWb,
     writeRegValidExMem, writeRegValidMemWb,
     /* output */ forwardC);
-    input MemWriteExMem, MemReadMemWb, writeRegExMem, writeRegMemWb, writeRegValidExMem, writeRegValidMemWb;
+    input MemWriteExMem, MemReadMemWb, writeRegValidExMem, writeRegValidMemWb;
+    input [2:0] writeRegExMem, writeRegMemWb;
     output forwardC;
 
     assign forwardC = (MemWriteExMem & MemReadMemWb & writeRegValidExMem & writeRegValidMemWb &

@@ -8,13 +8,13 @@ module memwb_reg(/*input*/ data_mem_in,
     input [15:0]data_mem_in, aluResIn;
     input [2:0] writeRegIn;
     input MemToRegIn, RegWriteIn, MemReadIn;
-    input [2:0] writeRegValidIn;
+    input  writeRegValidIn;
     input clk, rst;
 
     output [15:0] data_mem_out, aluResOut;
     output [2:0] writeRegOut;
     output MemToRegOut, RegWriteOut, MemReadOut;
-    output [2:0] writeRegValidOut;
+    output writeRegValidOut;
 
     dff DMEM [15:0](.q(data_mem_out),     .d(data_mem_in),     .clk(clk), .rst(rst));
     dff ALUR [15:0](.q(aluResOut),   .d(aluResIn),   .clk(clk), .rst(rst));

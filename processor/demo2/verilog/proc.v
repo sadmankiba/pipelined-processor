@@ -24,7 +24,7 @@ module proc (/*AUTOARG*/
     
     /* your code here -- should include instantiations of fetch, decode, execute, mem and wb modules */
     
-    wire [15:0] nxtPc, instr;
+    wire [15:0] nxtPc, instr, pcOut;
     wire validIns, fetchErr;
 
     wire [15:0] nxtPcIfId, instrIfId;
@@ -56,15 +56,15 @@ module proc (/*AUTOARG*/
     wire branchTake, pcErr, flushIf, controlZeroExMem;
 
     wire [15:0] aluResExMem, readData1ExMem, brAddrExMem, jumpAddrExMem;
-    wire [2:0] writeRegExMem, writeRegValidExMem;
+    wire [2:0] writeRegExMem;
     wire MemReadExMem, MemWriteExMem, HaltExMem, MemToRegExMem, 
-        RegWriteExMem, branchTakeExMem, JumpExMem;
+        RegWriteExMem, branchTakeExMem, JumpExMem, writeRegValidExMem;
 
     wire [15:0] memData;
 
     wire [15:0] memDataMemWb, aluResMemWb;
-    wire [2:0] writeRegMemWb, writeRegValidMemWb;
-    wire MemToRegMemWb, RegWriteMemWb, MemReadMemWb;
+    wire [2:0] writeRegMemWb;
+    wire MemToRegMemWb, RegWriteMemWb, MemReadMemWb, writeRegValidMemWb;
     
     wire [15:0] writeDataWb;
 
@@ -74,12 +74,15 @@ module proc (/*AUTOARG*/
         .jumpAddr(jumpAddrExMem), .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .pcOut(pcOut), .instr(instr), .nxtPc(nxtPc), .validIns(validIns), .err(fetchErr));
 
-    control_reg controlReg0(/*input*/ .opcode(instr[15:11]), 
+    control_reg controlReg0(/*input*/ .instr(instr), 
         /* output */ .Rs(RsIfId), .Rt(RtIfId), .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
 
-    ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pcIn(nxtPc), .instrIn(instr), .validInsIn(validIns), 
+    ifid_reg ifid0(/* input */ .lastPcOut(nxtPcIfId), .lastInstrOut(instrIfId), 
+        .lastValidInsOut(validInsIfId), .lastRsValidOut(RsValidIfId), 
+        .lastRtValidOut(RtValidIfId), .lastWriteRegValidOut(writeRegValidIfId), 
+        .pcIn(nxtPc), .instrIn(instr), .validInsIn(validIns), 
         .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId(writeIfId),
-        .flushIf(flushIf),
+        .flushIf(flushIf), .clk(clk), .rst(rst), 
         /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), .validInsOut(validInsIfId),
         .RsValidOut(RsValidIfId), .RtValidOut(RtValidIfId), .writeRegValidOut(writeRegValidIfId));
     
@@ -122,9 +125,9 @@ module proc (/*AUTOARG*/
         /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
         .cIn(cIn), .sign(sign));
 
-    forward_ex FWD(
-        /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .writeRegExMem(RdExMem), 
-        .writeRegMemWb(RdMemWb), .RsValidIdEx(RsValidIdEx), .RtValidIdEx(RtValidIdEx),
+    forward_ex fex0(
+        /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .writeRegExMem(writeRegExMem), 
+        .writeRegMemWb(writeRegMemWb), .RsValidIdEx(RsValidIdEx), .RtValidIdEx(RtValidIdEx),
         .writeRegValidExMem(writeRegValidExMem), .writeRegValidMemWb(writeRegValidMemWb),
         .RegWriteExMem(RegWriteExMem), .RegWriteMemWb(RegWriteMemWb), .MemReadExMem(MemReadExMem),
         .MemReadMemWb(MemReadMemWb),
@@ -141,7 +144,7 @@ module proc (/*AUTOARG*/
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .AluOp(AluOpIdEx), 
         /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 
-    hazard_Branch hzdBr0(/*input*/ .branchTake(branchTakeExMem), .Jump(JumpExMem),
+    hazard_pc hzdBr0(/*input*/ .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .flushIf(flushIf), .controlZeroIdEx(controlZeroIdEx), .controlZeroExMem(controlZeroExMem));
 
     exmem_reg exmem0 (/* input */
