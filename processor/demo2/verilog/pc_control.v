@@ -1,4 +1,4 @@
-module pc_control(/* input */ immVal, zero, Branch, ltz, readData2, pc, jumpDistIn, AluOp
+module pc_control(/* input */ immVal, zero, Branch, ltz, readData2, pc, jumpDistIn, AluOp,
         /* output */ brAddr, jumpAddr, branchTake, err);
     input zero, Branch, ltz;           
     input [15:0] immVal, pc, readData2, jumpDistIn;
@@ -7,7 +7,7 @@ module pc_control(/* input */ immVal, zero, Branch, ltz, readData2, pc, jumpDist
     output [15:0] brAddr, jumpAddr;
     output branchTake, err;
 
-    wire notZ, gez, brCond, ;
+    wire notZ, gez, brCond;
     wire brOfl, jrInstr, jalrInstr, jmpOfl;
     wire [15:0] pcOrJReg;
     wire [1:0] brOp;

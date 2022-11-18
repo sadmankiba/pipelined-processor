@@ -80,7 +80,7 @@ module proc (/*AUTOARG*/
     ifid_reg ifid0(/* input */ .clk(clk), .rst(rst), .pcIn(nxtPc), .instrIn(instr), .validInsIn(validIns), 
         .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId(writeIfId),
         .flushIf(flushIf),
-        /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), .validInsOut(validInsIfId)
+        /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), .validInsOut(validInsIfId),
         .RsValidOut(RsValidIfId), .RtValidOut(RtValidIfId), .writeRegValidOut(writeRegValidIfId));
     
     control control0(/* input */ .opcode(instrIfId[15:11]), .validIns(validInsIfId),

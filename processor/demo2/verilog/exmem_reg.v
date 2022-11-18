@@ -1,7 +1,7 @@
 module exmem_reg (/* input */ aluResIn, 
     readData1In, writeRegIn, branchTakeIn, JumpIn, 
     brAddrIn, jumpAddrIn,
-    MemReadIn, MemWriteIn, halt_in, MemToRegIn, 
+    MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn,
     writeRegValidIn, controlZeroExMem, clk, rst, 
     /* output */ aluResOut, readData1Out, 
     writeRegOut, branchTakeOut, JumpOut, brAddrOut, jumpAddrOut,
@@ -9,12 +9,12 @@ module exmem_reg (/* input */ aluResIn,
 
     input clk, rst;
     input [15:0] aluResIn, readData1In, brAddrIn, jumpAddrIn;
-    input MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn;
+    input branchTakeIn, JumpIn, MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn;
     input [2:0] writeRegIn, writeRegValidIn;
     input controlZeroExMem;
 
     output [15:0] aluResOut, readData1Out, brAddrOut, jumpAddrOut;
-    output MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut;
+    output branchTakeOut, JumpOut, MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut;
     output [2:0] writeRegOut, writeRegValidOut;
 
     wire MemWriteOutFinal, RegWriteOutFinal;

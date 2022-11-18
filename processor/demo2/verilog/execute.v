@@ -6,7 +6,7 @@
 */
    
 module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, invA, invB, cIn, sign,
-             AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb
+             AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb,
              /* output */ aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
@@ -48,9 +48,9 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     mux2_1_16b MXALB(.InA(AluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2Pref));
 
     // ALU 
-    mux4_1_16b MXALI1(InA(aluInp1Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+    mux4_1_16b MXALI1(.InA(aluInp1Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
             .S(forwardA), .Out(aluInp1));
-    mux4_1_16b MXALI1(InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+    mux4_1_16b MXALI1(.InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
             .S(forwardB), .Out(aluInp2));        
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cIn), .Oper(aluControl), 
             .invA(invA), .invB(invB), 

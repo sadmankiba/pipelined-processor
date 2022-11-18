@@ -1,4 +1,5 @@
-module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValidOut, lastRtValidOut, lastWriteRegValidOut
+module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValidOut, 
+    lastRtValidOut, lastWriteRegValidOut,
     pcIn, instrIn, validInsIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf,
     writeIfId, clk, rst, 
     /* output */ pcOut, instrOut, validInsOut, RsValidOut, RtValidOut, writeRegValidOut);
@@ -17,10 +18,10 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
     dff RP [15:0]  (.q(pcOut), .d(writeIfId? pcIn: lastPcOut), .clk(clk), .rst(rst));
     dff RI [15:0] (.q(instrOut), .d(writeIfId? instrIn: lastInstrOut), .clk(clk), .rst(rst));
 
-    dff RV (.q(validInsOut), .d(writeIfId? validInsInFinal: lastValidInsOut), .clk(clk), .rst(rst));
-    dff RV (.q(RsValidOut), .d(writeIfId? RsValidIn: lastRsValidOut), .clk(clk), .rst(rst));
-    dff RV (.q(RtValidOut), .d(writeIfId? RtValidIn: lastRtValidOut), .clk(clk), .rst(rst));
-    dff RV (.q(writeRegValidOut), .d(writeIfId? writeRegValidIn: lastWriteRegValidOut), .clk(clk), .rst(rst));
+    dff RIV (.q(validInsOut), .d(writeIfId? validInsInFinal: lastValidInsOut), .clk(clk), .rst(rst));
+    dff RSV (.q(RsValidOut), .d(writeIfId? RsValidIn: lastRsValidOut), .clk(clk), .rst(rst));
+    dff RTV (.q(RtValidOut), .d(writeIfId? RtValidIn: lastRtValidOut), .clk(clk), .rst(rst));
+    dff RWV (.q(writeRegValidOut), .d(writeIfId? writeRegValidIn: lastWriteRegValidOut), .clk(clk), .rst(rst));
 
     assign lastPcOut = pcOut;
     assign lastInstrOut = instrOut;

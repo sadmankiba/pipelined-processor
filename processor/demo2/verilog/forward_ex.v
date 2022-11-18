@@ -36,7 +36,7 @@ module forward_ex(/* input */ RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb,
 
     wire [1:0] forwardBMem, forwardBMemLd, forwardBExMem;
     assign forwardBMem = memFrwdB? 2'b01: 2'b00;
-    assign forwardBMemLd = loadUseFrwdB? 2'b11: forwardBLdUse;
+    assign forwardBMemLd = loadUseFrwdB? 2'b11: forwardBMem;
     assign forwardBExMem = exFrwdB? 2'b10: forwardBMemLd;
     assign forwardB = forwardBExMem;
 
