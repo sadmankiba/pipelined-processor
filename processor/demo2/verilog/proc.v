@@ -125,6 +125,13 @@ module proc (/*AUTOARG*/
         /* output */ .invA(invA), .invB(invB), .aluControl(aluControl), 
         .cIn(cIn), .sign(sign));
 
+    // forward_ex fex0(
+    //     /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .writeRegExMem(writeRegIdEx), 
+    //     .writeRegMemWb(writeRegExMem), .RsValidIdEx(RsValidIfId), .RtValidIdEx(RtValidIfId),
+    //     .writeRegValidExMem(writeRegValidIdEx), .writeRegValidMemWb(writeRegValidExMem),
+    //     .RegWriteExMem(RegWriteIdEx), .RegWriteMemWb(RegWriteExMem), .MemReadExMem(MemReadIdEx),
+    //     .MemReadMemWb(MemReadExMem),
+    //     /* output */ .forwardA(forwardA), .forwardB(forwardB));
     forward_ex fex0(
         /* input */ .RsIdEx(RsIdEx), .RtIdEx(RtIdEx), .writeRegExMem(writeRegExMem), 
         .writeRegMemWb(writeRegMemWb), .RsValidIdEx(RsValidIdEx), .RtValidIdEx(RtValidIdEx),
@@ -163,6 +170,10 @@ module proc (/*AUTOARG*/
         .MemToRegOut(MemToRegExMem), .RegWriteOut(RegWriteExMem), 
         .writeRegValidOut(writeRegValidExMem));
 
+    // forward_mem fmem0(/* input */ .MemWriteExMem(MemWriteIdEx), .MemReadMemWb(MemReadExMem), 
+    //     .writeRegExMem(writeRegIdEx), .writeRegMemWb(writeRegExMem),
+    //     .writeRegValidExMem(writeRegValidIdEx), .writeRegValidMemWb(writeRegValidExMem),
+    //     /* output */ .forwardC(forwardC));
     forward_mem fmem0(/* input */ .MemWriteExMem(MemWriteExMem), .MemReadMemWb(MemReadMemWb), 
         .writeRegExMem(writeRegExMem), .writeRegMemWb(writeRegMemWb),
         .writeRegValidExMem(writeRegValidExMem), .writeRegValidMemWb(writeRegValidMemWb),
