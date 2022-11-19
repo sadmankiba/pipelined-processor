@@ -42,10 +42,11 @@ module proc_hier_my_pbench();
    wire [15:0] ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx;
    
    wire [15:0] AluRes, AluInp1, AluInp2;
+   wire [2:0] AluControl;
    wire [1:0] ForwardA, ForwardB;
    wire [4:0] AluOp;
 
-   wire ForwardC, IsHzdPc, ControlZeroIdExHzd;
+   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeInExMem;
    wire [15:0] MemWriteDataExMem;
    wire MemWriteInExMem, MemToRegExMem, RegWriteInExMem, ControlZeroExMem;
    wire MemToRegMemWb, RegWriteMemWb;
@@ -120,10 +121,11 @@ module proc_hier_my_pbench();
          $fdisplay(sim_log_file, "ID/EX: rD1: %4x rD2: %4x imV: %4x, ctrl01: %d ctrl02: %d RgW: %d MmW: %d", 
                   ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx,
                   ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, MemWriteInIdEx);   
-         $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x",
-                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2);  
-         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d", 
-                  AluRes, MemWriteInExMem, MemWriteDataExMem, MemToRegExMem, RegWriteInExMem, ControlZeroExMem); 
+         $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluCtrl: %3b",
+                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);  
+         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d ", 
+                  AluRes, BranchTakeInExMem, MemWriteInExMem, MemWriteDataExMem, 
+                  MemToRegExMem, RegWriteInExMem, ControlZeroExMem); 
          $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x", 
                   MemRead, MemWrite, ForwardC, MemAddress, MemDataIn);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
@@ -256,10 +258,12 @@ module proc_hier_my_pbench();
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.exmem0.aluResIn;
+   assign AluControl = DUT.p0.exec0.aluControl;
 
    assign ForwardC = DUT.p0.memory0.forwardC;
    assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign ControlZeroIdExHzd = DUT.p0.hzdBr0.controlZeroIdEx;
+   assign BranchTakeInExMem = DUT.p0.exmem0.branchTakeIn;
    assign MemWriteDataExMem = DUT.p0.exmem0.memWriteDataIn;
    assign ControlZeroExMem = DUT.p0.exmem0.controlZeroExMem;
    assign MemWriteInExMem = DUT.p0.exmem0.MemWriteInFinal;

@@ -110,7 +110,7 @@ module proc (/*AUTOARG*/
         .imm_in(immVal), .jumpDistIn(jumpDist), .funct_in(instrIfId[1:0]), 
         .writeRegIn(writeRegDcd),
         /* control */ .AluOpIn(AluOp), .AluSrcIn(AluSrc), 
-        .BranchIn(Branch), .MemReadIn(MemRead), .MemWriteIn(MemWrite), .halt_in(halt), 
+        .BranchIn(Branch), .MemReadIn(MemRead), .MemWriteIn(MemWrite), .HaltIn(halt), 
         .MemToRegIn(memToReg), .RegWriteIn(RegWrite), .JumpIn(Jump), .controlZeroIdEx1(controlZeroIdEx1),
         .controlZeroIdEx2(controlZeroIdEx2),
         /* register */ .RsIn(RsIfId), .RtIn(RtIfId), .RsValidIn(RsValidIfId), .RtValidIn(RtValidIfId), 
@@ -120,7 +120,7 @@ module proc (/*AUTOARG*/
         .writeRegOut(writeRegIdEx),
         /* control */ .AluOpOut(AluOpIdEx), .AluSrcOut(AluSrcIdEx), 
         .BranchOut(BranchIdEx), .MemReadOut(MemReadIdEx), .MemWriteOut(MemWriteIdEx),
-        .halt_out(haltIdEx), .MemToRegOut(memToRegIdEx), .RegWriteOut(RegWriteIdEx), .JumpOut(JumpIdEx),
+        .HaltOut(haltIdEx), .MemToRegOut(memToRegIdEx), .RegWriteOut(RegWriteIdEx), .JumpOut(JumpIdEx),
         /* register */ .RsOut(RsIdEx), .RtOut(RtIdEx), .RsValidOut(RsValidIdEx), 
         .RtValidOut(RtValidIdEx), .writeRegValidOut(writeRegValidIdEx));
     
@@ -155,14 +155,14 @@ module proc (/*AUTOARG*/
         .writeRegIn(writeRegIdEx), .branchTakeIn(branchTake), .JumpIn(JumpIdEx),
         .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), .clk(clk), .rst(rst), 
         //Control Inputs
-        .MemReadIn(MemReadIdEx), .MemWriteIn(MemWriteIdEx), .halt_in(haltIdEx),
+        .MemReadIn(MemReadIdEx), .MemWriteIn(MemWriteIdEx), .HaltIn(haltIdEx),
         .MemToRegIn(memToRegIdEx), .RegWriteIn(RegWriteIdEx), 
         .writeRegValidIn(writeRegValidIdEx), .controlZeroExMem(controlZeroExMem),
         //Outputs
         .aluResOut(aluResExMem), .memWriteDataOut(memWriteDataExMem), .writeRegOut(writeRegExMem),
         .branchTakeOut(branchTakeExMem), .JumpOut(JumpExMem), .brAddrOut(brAddrExMem), .jumpAddrOut(jumpAddrExMem),
         //Control Outputs
-        .MemReadOut(MemReadExMem), .MemWriteOut(MemWriteExMem), .halt_out(HaltExMem),
+        .MemReadOut(MemReadExMem), .MemWriteOut(MemWriteExMem), .HaltOut(HaltExMem),
         .MemToRegOut(MemToRegExMem), .RegWriteOut(RegWriteExMem), 
         .writeRegValidOut(writeRegValidExMem));
    
