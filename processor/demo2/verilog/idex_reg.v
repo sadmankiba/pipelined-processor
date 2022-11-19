@@ -2,7 +2,7 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     funct_in, writeRegIn,
     AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
     MemToRegIn, RegWriteIn, JumpIn, halt_in,
-    RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx,
+    RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx1, controlZeroIdEx2,
     /* output */ read1_out, read2_out, pcOut, imm_out, jumpDistOut, funct_out,
     writeRegOut, AluOpOut, AluSrcOut, BranchOut, MemReadOut, MemWriteOut,
     MemToRegOut, RegWriteOut, JumpOut, halt_out,
@@ -14,7 +14,7 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     input [2:0] writeRegIn;
     input [1:0] funct_in;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
-        RegWriteIn, JumpIn, halt_in, controlZeroIdEx;
+        RegWriteIn, JumpIn, halt_in, controlZeroIdEx1, controlZeroIdEx2;
     input [2:0] RsIn, RtIn;
     input RsValidIn, RtValidIn, writeRegValidIn;
 
@@ -27,7 +27,7 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     output [2:0] RsOut, RtOut;
     output RsValidOut, RtValidOut, writeRegValidOut;
 
-    wire MemWriteIn_actual, RegWriteIn_actual;
+    wire MemWriteInFinal, RegWriteInFinal;
 
     dff PC_FF    [15:0] (.q(pcOut),        .d(pcIn),        .clk(clk), .rst(rst));
     dff READ1_FF [15:0] (.q(read1_out),     .d(read1_in),     .clk(clk), .rst(rst));
@@ -45,11 +45,11 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     dff BR_FF       (.q(BranchOut),     .d(BranchIn),     .clk(clk), .rst(rst));
     dff MEMR_FF     (.q(MemReadOut),   .d(MemReadIn),   .clk(clk), .rst(rst));
     
-    assign MemWriteIn_actual = (controlZeroIdEx) ? 1'b0 : MemWriteIn;
-    assign RegWriteIn_actual = (controlZeroIdEx) ? 1'b0 : RegWriteIn;
+    assign MemWriteInFinal = (controlZeroIdEx1 | controlZeroIdEx2) ? 1'b0 : MemWriteIn;
+    assign RegWriteInFinal = (controlZeroIdEx1 | controlZeroIdEx2) ? 1'b0 : RegWriteIn;
 
-    dff MEMW_FF     (.q(MemWriteOut),  .d(MemWriteIn_actual),  .clk(clk), .rst(rst));
-    dff RW_FF       (.q(RegWriteOut),  .d(RegWriteIn_actual),  .clk(clk), .rst(rst));
+    dff MEMW_FF     (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));
+    dff RW_FF       (.q(RegWriteOut),  .d(RegWriteInFinal),  .clk(clk), .rst(rst));
 
     dff MEMTR_FF    (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
     dff JUMP_FF     (.q(JumpOut),       .d(JumpIn),       .clk(clk), .rst(rst));

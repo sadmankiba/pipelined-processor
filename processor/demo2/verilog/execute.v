@@ -6,7 +6,7 @@
 */
    
 module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, invA, invB, cIn, sign,
-             AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb, pc,
+             AluOp, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb, pc,
              /* output */ aluRes, memWriteData, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
@@ -18,7 +18,6 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     input [1:0] forwardA, forwardB;
     input [15:0] aluResExMem, aluResMemWb, memDataMemWb, pc;
     input [4:0] AluOp;
-    input MemWrite;
     
     output [15:0] aluRes, memWriteData; 
     output zero, err, ltz;

@@ -10,7 +10,7 @@ module exmem_reg (/* input */ aluResIn,
     input clk, rst;
     input [15:0] aluResIn, memWriteDataIn, brAddrIn, jumpAddrIn;
     input branchTakeIn, JumpIn, MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn;
-    input [2:0] writeRegIn;q
+    input [2:0] writeRegIn;
     input controlZeroExMem, writeRegValidIn;
 
     output [15:0] aluResOut, memWriteDataOut, brAddrOut, jumpAddrOut;
@@ -18,7 +18,7 @@ module exmem_reg (/* input */ aluResIn,
     output [2:0] writeRegOut;
     output writeRegValidOut;
 
-    wire MemWriteOutFinal, RegWriteOutFinal;
+    wire MemWriteInFinal, RegWriteInFinal;
 
     dff ALU  [15:0] (.q(aluResOut),    .d(aluResIn),    .clk(clk), .rst(rst));
     dff READ2[15:0] (.q(memWriteDataOut),     .d(memWriteDataIn),     .clk(clk), .rst(rst));
@@ -28,11 +28,11 @@ module exmem_reg (/* input */ aluResIn,
     dff RBA [15:0] (.q(brAddrOut), .d(brAddrIn), .clk(clk), .rst(rst));
     dff RJA [15:0] (.q(jumpAddrOut), .d(jumpAddrIn), .clk(clk), .rst(rst));
 
-    assign MemWriteOutFinal = controlZeroExMem? 1'b0: MemWriteIn;
-    assign RegWriteOutFinal = controlZeroExMem? 1'b0: RegWriteIn;
+    assign MemWriteInFinal = controlZeroExMem? 1'b0: MemWriteIn;
+    assign RegWriteInFinal = controlZeroExMem? 1'b0: RegWriteIn;
 
-    dff MEMW (.q(MemWriteOut),  .d(MemWriteOutFinal),  .clk(clk), .rst(rst));
-    dff RWO  (.q(RegWriteOut),  .d(RegWriteOutFinal),  .clk(clk), .rst(rst));
+    dff MEMW (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));
+    dff RWO  (.q(RegWriteOut),  .d(RegWriteInFinal),  .clk(clk), .rst(rst));
     
     dff RB (.q(branchTakeOut),   .d(branchTakeIn),   .clk(clk), .rst(rst));
     dff RJ (.q(JumpOut),   .d(JumpIn),   .clk(clk), .rst(rst));
