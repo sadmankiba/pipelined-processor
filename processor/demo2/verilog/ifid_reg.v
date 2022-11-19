@@ -14,7 +14,7 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
     output validInsOut, RsValidOut, RtValidOut, writeRegValidOut;
 
     wire validInsInIntm, validInsInFinal, RsValidInFinal, RtValidInFinal, writeRegValidInFinal;
-    wire [15:0] pcInFinal, writeIfIdFinal;
+    wire [15:0] pcInFinal, instrFinal;
     
     assign validInsInIntm = flushIf? 1'b0: validInsIn;
     assign pcInFinal = (writeIfId)? pcIn: lastPcOut;

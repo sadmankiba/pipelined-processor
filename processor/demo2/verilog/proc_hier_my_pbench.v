@@ -105,7 +105,7 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %4x", 
+         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %d", 
                   PcIn, WritePc);
          $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d", 
                   NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId);
@@ -219,7 +219,7 @@ module proc_hier_my_pbench();
    assign PcIn = DUT.p0.fetch0.pcIn;
    assign WritePc = DUT.p0.fetch0.writePc;
    assign NxtPcIfId = DUT.p0.ifid0.pcIn;
-   assign InstrIfId = DUT.p0.ifid0.instrIn;
+   assign InstrIfId = DUT.p0.ifid0.instrFinal;
    assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
    assign WriteIfId = DUT.p0.ifid0.writeIfId;
    assign FlushIf = DUT.p0.ifid0.flushIf;
