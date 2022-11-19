@@ -137,7 +137,7 @@ module proc (/*AUTOARG*/
         .aluControl(aluControl), .AluSrc(AluSrcIdEx), .invA(invA), .invB(invB), 
         .cIn(cIn), .sign(sign), .AluOp(AluOpIdEx), .MemWrite(MemWriteIdEx),
         .forwardA(forwardA), .forwardB(forwardB), .aluResExMem(aluResExMem), .aluResMemWb(aluResMemWb),
-        .memDataMemWb(memDataMemWb),
+        .memDataMemWb(memDataMemWb), .pc(nxtPcIdEx),
         /* output */ .aluRes(aluRes), .zero(zero), .ltz(ltz), .err(aluErr));  
 
     pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData2(readData2IdEx), .zero(zero), .Branch(BranchIdEx), 

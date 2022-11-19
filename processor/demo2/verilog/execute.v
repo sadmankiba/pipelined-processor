@@ -6,7 +6,7 @@
 */
    
 module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, invA, invB, cIn, sign,
-             AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb,
+             AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb, pc,
              /* output */ aluRes, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
@@ -16,7 +16,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     input [15:0] immVal;       
     input invA, invB, cIn, sign;
     input [1:0] forwardA, forwardB;
-    input [15:0] aluResExMem, aluResMemWb, memDataMemWb;
+    input [15:0] aluResExMem, aluResMemWb, memDataMemWb, pc;
     input [4:0] AluOp;
     input MemWrite;
     
@@ -32,8 +32,8 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     wire isLbi, isSlbi;
     wire [15:0] slbiShftVal;
 
-    wire isBtr;
-    wire [15:0] btrOut, aluOutSet;
+    wire isBtr, jalInstr, jalrInstr;
+    wire [15:0] btrOut, aluOutSet, aluOutSetBtr;
     
     // Handle alu input for slbi and lbi
     equal #(.INPUT_WIDTH(5)) EQ3(.in1(AluOp), .in2(5'b10010), .eq(isSlbi));
@@ -66,7 +66,14 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     // Calc btr Instr result
     equal #(.INPUT_WIDTH(5)) EQ22(.in1(AluOp), .in2(5'b11001), .eq(isBtr));
     rev RV(.in(readData2), .out(btrOut));
-    mux2_1_16b MXBT(.InA(aluOutSet), .InB(btrOut), .S(isBtr), .Out(aluRes));    
+    mux2_1_16b MXBT(.InA(aluOutSet), .InB(btrOut), .S(isBtr), .Out(aluOutSetBtr));
+
+    // Calc PC + 2 for jmpLnk
+    equal #(.INPUT_WIDTH(5)) EQ2(.in1(AluOp), .in2(5'b00110), .eq(jalInstr));
+    equal #(.INPUT_WIDTH(5)) EQ3(.in1(AluOp), .in2(5'b00111), .eq(jalrInstr));
+    assign jmpLnk = jalInstr | jalrInstr; 
+
+    assign aluRes = (jmpLnk) ? pc : aluOutSetBtr; 
     
     // Error bit
     assign err = aluOvf;

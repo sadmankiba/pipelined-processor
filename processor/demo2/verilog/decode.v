@@ -34,7 +34,7 @@ module decode(/* input */ instr, RegDst, RegWrite, writeReg, writeData, pc,
     wire [2:0] writeRegRI2I1StuJl, writeRegRI2;
     wire [2:0] writeRegRI2I1, writeRegRI2I1Stu;
     wire isStu, jalInstr, jalrInstr, jmpLnk, jrInstr;
-    wire [15:0] writeDataFinal, jumpDistJ, jumpDistJr;
+    wire [15:0] jumpDistJ, jumpDistJr;
     wire [15:0] immI1, immI2, immSExt, immI2ZExt, immI1ZExt, immZExt;
 
     /*
@@ -69,7 +69,6 @@ module decode(/* input */ instr, RegDst, RegWrite, writeReg, writeData, pc,
     assign writeRegRI2I1Stu = (isStu) ? readReg1 : writeRegRI2I1;          // If STU writeReg
     assign writeRegRI2I1StuJl = (jmpLnk) ? 3'b111 : writeRegRI2I1Stu; 
     assign writeRegOut = writeRegRI2I1StuJl;
-    assign writeDataFinal = (jmpLnk) ? pc : writeData;
     
     regFile_bypass regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
             .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
