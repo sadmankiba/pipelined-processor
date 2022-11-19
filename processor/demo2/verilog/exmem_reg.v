@@ -1,19 +1,19 @@
 module exmem_reg (/* input */ aluResIn, 
-    readData1In, writeRegIn, branchTakeIn, JumpIn, 
+    memWriteDataIn, writeRegIn, branchTakeIn, JumpIn, 
     brAddrIn, jumpAddrIn,
     MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn,
     writeRegValidIn, controlZeroExMem, clk, rst, 
-    /* output */ aluResOut, readData1Out, 
+    /* output */ aluResOut, memWriteDataOut, 
     writeRegOut, branchTakeOut, JumpOut, brAddrOut, jumpAddrOut,
     MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut, writeRegValidOut);
 
     input clk, rst;
-    input [15:0] aluResIn, readData1In, brAddrIn, jumpAddrIn;
+    input [15:0] aluResIn, memWriteDataIn, brAddrIn, jumpAddrIn;
     input branchTakeIn, JumpIn, MemReadIn, MemWriteIn, halt_in, MemToRegIn, RegWriteIn;
-    input [2:0] writeRegIn;
+    input [2:0] writeRegIn;q
     input controlZeroExMem, writeRegValidIn;
 
-    output [15:0] aluResOut, readData1Out, brAddrOut, jumpAddrOut;
+    output [15:0] aluResOut, memWriteDataOut, brAddrOut, jumpAddrOut;
     output branchTakeOut, JumpOut, MemReadOut, MemWriteOut, halt_out, MemToRegOut, RegWriteOut;
     output [2:0] writeRegOut;
     output writeRegValidOut;
@@ -21,7 +21,7 @@ module exmem_reg (/* input */ aluResIn,
     wire MemWriteOutFinal, RegWriteOutFinal;
 
     dff ALU  [15:0] (.q(aluResOut),    .d(aluResIn),    .clk(clk), .rst(rst));
-    dff READ2[15:0] (.q(readData1Out),     .d(readData1In),     .clk(clk), .rst(rst));
+    dff READ2[15:0] (.q(memWriteDataOut),     .d(memWriteDataIn),     .clk(clk), .rst(rst));
 
     dff WRITE_REG [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
 

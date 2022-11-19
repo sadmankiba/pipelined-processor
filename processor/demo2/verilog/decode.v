@@ -23,8 +23,8 @@ module decode(/* input */ instr, RegDst, RegWrite, writeReg, writeData, pc,
     input clk, rst;
 
     output [15:0] jumpDist;   // Jump distance for 4 Jump instructions
-    output [15:0] readData1;  // Rd in I1, Rt in R-format
-    output [15:0] readData2;  // Rs in I1, I2, R-format
+    output [15:0] readData1;  // Rs in I1, I2, R-format
+    output [15:0] readData2;  // Rd in I1, Rt in R-format
     output [15:0] immVal;
     output [2:0] writeRegOut;
     output err;
@@ -71,7 +71,7 @@ module decode(/* input */ instr, RegDst, RegWrite, writeReg, writeData, pc,
     assign writeRegOut = writeRegRI2I1StuJl;
     
     regFile_bypass regFile0(.read1Data(readData1), .read2Data(readData2), .err(err),
-            .clk(clk), .rst(rst), .read1RegSel(readReg2), .read2RegSel(readReg1), 
+            .clk(clk), .rst(rst), .read1RegSel(readReg1), .read2RegSel(readReg2), 
             .writeRegSel(writeReg), .writeData(writeData), .writeEn(RegWrite));
     
     sign_ext #(.INPUT_WIDTH(11), .OUTPUT_WIDTH(16)) SXJ1(.in(instr[10:0]), .out(jumpDistJ));

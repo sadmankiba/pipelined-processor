@@ -7,12 +7,12 @@
    
 module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, invA, invB, cIn, sign,
              AluOp, MemWrite, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb, pc,
-             /* output */ aluRes, zero, ltz, err);
+             /* output */ aluRes, memWriteData, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input AluSrc;         
-    input [15:0] readData1;   // Rd in I1, Rt in R-format
-    input [15:0] readData2;   // Rs in I1, I2, R-format
+    input [15:0] readData1;   // Rs in I1, I2, R-format
+    input [15:0] readData2;   // Rd in I1, Rt in R-format
     input [15:0] immVal;       
     input invA, invB, cIn, sign;
     input [1:0] forwardA, forwardB;
@@ -20,10 +20,10 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     input [4:0] AluOp;
     input MemWrite;
     
-    output [15:0] aluRes; 
+    output [15:0] aluRes, memWriteData; 
     output zero, err, ltz;
 
-    wire [15:0] aluInp1Pref, aluInp2Pref, aluInp1, aluInp2, AluSrcOut;       
+    wire [15:0] readData1f, readData2f, aluInp1, aluInp2, AluSrcOut;       
     wire isBranch, aluOvf;
     wire [15:0] aluOutput, temp_result, aluOut;
     wire isSetOP, setVal;
@@ -35,26 +35,28 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     wire isBtr, jalInstr, jalrInstr;
     wire [15:0] btrOut, aluOutSet, aluOutSetBtr;
     
-    // Handle alu input for slbi and lbi
+    /* Calc AluInp1. Handle alu input for slbi and lbi */
+     mux4_1_16b MXR1(.InA(readData1), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+            .S(forwardA), .Out(readData1f));
     equal #(.INPUT_WIDTH(5)) EQ3(.in1(AluOp), .in2(5'b10010), .eq(isSlbi));
     equal #(.INPUT_WIDTH(5)) EQ33(.in1(AluOp), .in2(5'b11000), .eq(isLbi));
-    assign slbiShftVal = readData2 << 8;
-    mux4_1_16b MXSLB(.InA(readData2), .InB(slbiShftVal), .InC(16'h0000), .InD(readData2), // InD never 
-            .S({isLbi, isSlbi}), .Out(aluInp1Pref));
+    assign slbiShftVal = readData1f << 8;
+    mux4_1_16b MXSLB(.InA(readData1f), .InB(slbiShftVal), .InC(16'h0000), .InD(16'hffff), // InD never 
+            .S({isLbi, isSlbi}), .Out(aluInp1));
 
-    // Handle alu input for beqz, bnez, bltz, bgez
-    mux2_1_16b MXALSRC(.InA(readData1), .InB(immVal), .S(AluSrc), .Out(AluSrcOut));
+    /* Calc AluInp2. Handle alu input for beqz, bnez, bltz, bgez */
+    // For st and stu, forwardB means forwarding for MemWriteData, not AluInp2
+    mux4_1_16b MXALI2(.InA(readData2), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
+            .S(forwardB), .Out(readData2f));
+    mux2_1_16b MXALSRC(.InA(readData2f), .InB(immVal), .S(AluSrc), .Out(AluSrcOut));
     equal #(.INPUT_WIDTH(3)) EQ10(.in1(AluOp[4:2]), .in2(3'b011), .eq(isBranch));
-    mux2_1_16b MXALB(.InA(AluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2Pref));
+    mux2_1_16b MXALB(.InA(AluSrcOut), .InB(16'h0000), .S(isBranch), .Out(aluInp2));
 
-    // ALU 
-    mux4_1_16b MXALI1(.InA(aluInp1Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
-            .S(forwardA), .Out(aluInp1));
-    mux4_1_16b MXALI2(.InA(aluInp2Pref), .InB(aluResMemWb), .InC(aluResExMem), .InD(memDataMemWb),  
-            .S(forwardB), .Out(aluInp2));        
+    /* ALU and MemWriteData */
     alu ALU(.InA(aluInp1), .InB(aluInp2), .Cin(cIn), .Oper(aluControl), 
             .invA(invA), .invB(invB), 
             .sign(sign), .Out(aluOut), .Zero(zero), .Ofl(aluOvf), .Ltz(ltz));
+    assign memWriteData = readData2f;
 
     // Whether use set Instr value
     equal #(.INPUT_WIDTH(3)) EQ27(.in1(AluOp[4:2]), .in2(3'b111), .eq(isSetOP));
@@ -65,7 +67,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     
     // Calc btr Instr result
     equal #(.INPUT_WIDTH(5)) EQ22(.in1(AluOp), .in2(5'b11001), .eq(isBtr));
-    rev RV(.in(readData2), .out(btrOut));
+    rev RV(.in(readData1), .out(btrOut));
     mux2_1_16b MXBT(.InA(aluOutSet), .InB(btrOut), .S(isBtr), .Out(aluOutSetBtr));
 
     // Calc PC + 2 for jmpLnk
