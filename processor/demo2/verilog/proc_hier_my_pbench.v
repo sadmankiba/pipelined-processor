@@ -38,13 +38,16 @@ module proc_hier_my_pbench();
    wire WriteEn, IsHzdLd;
 
    wire [4:0] NewOpc;
-   wire RegDst, ALUSrc, ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, MemWriteInIdEx;
+   wire RegDst, ALUSrc, ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, 
+      RsValidInIdEx, MemWriteInIdEx;
    wire [15:0] ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx;
+   wire [2:0] RsInIdEx;
    
    wire [15:0] AluRes, AluInp1, AluInp2;
    wire [2:0] AluControl;
    wire [1:0] ForwardA, ForwardB;
    wire [4:0] AluOp;
+   wire MemForwardA;
 
    wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeInExMem;
    wire [15:0] MemWriteDataExMem;
@@ -118,11 +121,12 @@ module proc_hier_my_pbench();
          $fdisplay(sim_log_file, "HZDLD: isHzd: %d", IsHzdLd);
          // $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
          //          Read1DataInit, Read2DataInit);         
-         $fdisplay(sim_log_file, "ID/EX: rD1: %4x rD2: %4x imV: %4x, ctrl01: %d ctrl02: %d RgW: %d MmW: %d", 
+         $fdisplay(sim_log_file, "ID/EX: rD1: %4x rD2: %4x imV: %4x, ctrl01: %d ctrl02: %d RgW: %d MmW: %d Rs: %d RsValid: %d", 
                   ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx,
-                  ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, MemWriteInIdEx);   
+                  ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, MemWriteInIdEx, RsInIdEx, RsValidInIdEx);   
          $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluCtrl: %3b",
-                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);  
+                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);
+         $fdisplay(sim_log_file, "FWDX: mmFwA: %d", MemForwardA);  
          $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d ", 
                   AluRes, BranchTakeInExMem, MemWriteInExMem, MemWriteDataExMem, 
                   MemToRegExMem, RegWriteInExMem, ControlZeroExMem); 
@@ -246,6 +250,8 @@ module proc_hier_my_pbench();
 
    assign ReadData1InIdEx = DUT.p0.idex0.read1_in;
    assign ReadData2InIdEx = DUT.p0.idex0.read2_in;
+   assign RsInIdEx = DUT.p0.idex0.RsIn;
+   assign RsValidInIdEx = DUT.p0.idex0.RsValidIn;
    assign ImmValInIdEx = DUT.p0.idex0.imm_in;
    assign ControlZeroIdEx1 = DUT.p0.idex0.controlZeroIdEx1;
    assign ControlZeroIdEx2 = DUT.p0.idex0.controlZeroIdEx2;
@@ -259,6 +265,7 @@ module proc_hier_my_pbench();
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.exmem0.aluResIn;
    assign AluControl = DUT.p0.exec0.aluControl;
+   assign MemForwardA = DUT.p0.fex0.memFrwdA;
 
    assign ForwardC = DUT.p0.memory0.forwardC;
    assign IsHzdPc = DUT.p0.hzdBr0.isHazard;

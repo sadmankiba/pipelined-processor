@@ -33,7 +33,7 @@ module exmem_reg (/* input */ aluResIn,
     assign RegWriteInFinal = controlZeroExMem? 1'b0: RegWriteIn;
     assign HaltInFinal = controlZeroExMem? 1'b0: HaltIn;
     assign branchTakeInFinal = controlZeroExMem? 1'b0: branchTakeIn;
-    assign JumpInFinal = controlZeroExMem? 1'b0: jumpIn;
+    assign JumpInFinal = controlZeroExMem? 1'b0: JumpIn;
     assign MemReadInFinal = controlZeroExMem? 1'b0: MemReadIn;
 
     dff MEMW (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));

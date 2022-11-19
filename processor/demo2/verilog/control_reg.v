@@ -55,7 +55,7 @@ module control_reg(/* input */ instr,
             writeRegValid = 1'b1;
             end
 
-        5'b0_1100: //BEQZ, BNEZ, BLTZ, BGEZ
+        5'b0_11xx: //BEQZ, BNEZ, BLTZ, BGEZ
             begin
             RsValid = 1'b1;
             end
