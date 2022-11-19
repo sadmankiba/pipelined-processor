@@ -35,7 +35,7 @@ module proc_hier_my_pbench();
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
-   wire WriteEn;
+   wire WriteEn, IsHzdLd;
 
    wire [4:0] NewOpc;
    wire RegDst, ALUSrc;
@@ -45,7 +45,7 @@ module proc_hier_my_pbench();
    wire [1:0] ForwardA, ForwardB;
    wire [4:0] AluOp;
 
-   wire ForwardC;
+   wire ForwardC, IsHzdPc;
    wire MemToRegExMem, RegWriteExMem;
    wire MemToRegMemWb, RegWriteMemWb;
         
@@ -111,8 +111,9 @@ module proc_hier_my_pbench();
                   NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
                   NewOpc, RegDst, ALUSrc, Halt);
-         $fdisplay(sim_log_file, "DECODE: I: %4x readReg1: %d readReg2: %d writeEn %d writeReg %d writeData %4x", 
-                  InstrDcd, ReadReg1, ReadReg2, WriteEn, WriteRegister, WriteData);
+         $fdisplay(sim_log_file, "DECODE: I: %4x readReg1: %d readReg2: %d", 
+                  InstrDcd, ReadReg1, ReadReg2);
+         $fdisplay(sim_log_file, "HZDLD: isHzd: %d", IsHzdLd);
          // $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
          //          Read1DataInit, Read2DataInit);         
          $fdisplay(sim_log_file, "ID/EX: readData1: %4x readData2: %4x immVal: %4x", 
@@ -123,10 +124,13 @@ module proc_hier_my_pbench();
                   MemToRegExMem, RegWriteExMem); 
          $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x", 
                   MemRead, MemWrite, ForwardC, MemAddress, MemDataIn);
+         $fdisplay(sim_log_file, "HZDPC: isHzd: %d", IsHzdPc);
          $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d", 
                   MemToRegMemWb, RegWriteMemWb); 
+         $fdisplay(sim_log_file, "WB: RegWrite %d writeReg %d writeData %4x writeEn %d", 
+                   RegWrite, WriteRegister, WriteData, WriteEn);
          if (RegWrite) begin
-            $fdisplay(trace_file,"REG: %d VALUE: 0x%04x",
+            $fdisplay(trace_file,"REG: %d VALUE: 0x%04x", 
                       WriteRegister,
                       WriteData );            
          end
@@ -234,6 +238,7 @@ module proc_hier_my_pbench();
    assign Read1DataInit = DUT.p0.decode0.regFile0.read1DataInit;
    assign Read2DataInit = DUT.p0.decode0.regFile0.read2DataInit;
    assign WriteEn = DUT.p0.decode0.regFile0.writeEn;
+   assign IsHzdLd = DUT.p0.hzdLoad0.isHazard;
 
    assign ReadData1InIdEx = DUT.p0.idex0.read1_in;
    assign ReadData2InIdEx = DUT.p0.idex0.read2_in;
@@ -247,6 +252,7 @@ module proc_hier_my_pbench();
    assign AluRes = DUT.p0.exmem0.aluResIn;
 
    assign ForwardC = DUT.p0.memory0.forwardC;
+   assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign MemToRegExMem = DUT.p0.exmem0.MemToRegIn;
    assign RegWriteExMem = DUT.p0.exmem0.RegWriteIn;
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;

@@ -2,11 +2,11 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     funct_in, writeRegIn,
     AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
     MemToRegIn, RegWriteIn, JumpIn, halt_in,
-    Rs_in, Rt_in, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx,
+    RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx,
     /* output */ read1_out, read2_out, pcOut, imm_out, jumpDistOut, funct_out,
     writeRegOut, AluOpOut, AluSrcOut, BranchOut, MemReadOut, MemWriteOut,
     MemToRegOut, RegWriteOut, JumpOut, halt_out,
-    Rs_out, Rt_out, RsValidOut, RtValidOut, writeRegValidOut);
+    RsOut, RtOut, RsValidOut, RtValidOut, writeRegValidOut);
 
     input clk, rst;
     input [15:0] pcIn, read1_in, read2_in, imm_in, jumpDistIn;
@@ -15,7 +15,7 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     input [1:0] funct_in;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
         RegWriteIn, JumpIn, halt_in, controlZeroIdEx;
-    input [2:0] Rs_in, Rt_in;
+    input [2:0] RsIn, RtIn;
     input RsValidIn, RtValidIn, writeRegValidIn;
 
     output [4:0] AluOpOut;
@@ -24,7 +24,7 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     output AluSrcOut, BranchOut, MemReadOut, MemWriteOut, MemToRegOut, 
         RegWriteOut, JumpOut, halt_out;
     output [15:0] read1_out, read2_out, pcOut, imm_out, jumpDistOut;
-    output [2:0] Rs_out, Rt_out;
+    output [2:0] RsOut, RtOut;
     output RsValidOut, RtValidOut, writeRegValidOut;
 
     wire MemWriteIn_actual, RegWriteIn_actual;
@@ -55,8 +55,8 @@ module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDist
     dff JUMP_FF     (.q(JumpOut),       .d(JumpIn),       .clk(clk), .rst(rst));
     dff HALT_FF     (.q(halt_out),       .d(halt_in),       .clk(clk), .rst(rst));
 
-    dff RRS [2:0] (.q(Rs_out), .d(Rs_in), .clk(clk), .rst(rst));
-    dff RRT [2:0] (.q(Rt_out), .d(Rt_in), .clk(clk), .rst(rst));
+    dff RRS [2:0] (.q(RsOut), .d(RsIn), .clk(clk), .rst(rst));
+    dff RRT [2:0] (.q(RtOut), .d(RtIn), .clk(clk), .rst(rst));
     dff RRSV  (.q(RsValidOut), .d(RsValidIn), .clk(clk), .rst(rst));
     dff RRTV  (.q(RtValidOut), .d(RtValidIn), .clk(clk), .rst(rst));
     dff RRDV (.q(writeRegValidOut), .d(writeRegValidIn), .clk(clk), .rst(rst));

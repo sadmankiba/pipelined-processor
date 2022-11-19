@@ -1,16 +1,18 @@
 module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValidOut, 
     lastRtValidOut, lastWriteRegValidOut,
-    pcIn, instrIn, validInsIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf,
+    pcIn, instrIn, validInsIn, RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf,
     writeIfId, clk, rst, 
-    /* output */ pcOut, instrOut, validInsOut, RsValidOut, RtValidOut, writeRegValidOut);
+    /* output */ pcOut, instrOut, RsOut, RtOut, validInsOut, RsValidOut, RtValidOut, writeRegValidOut);
 
     input [15:0] lastPcOut, lastInstrOut;
     input lastValidInsOut, lastRsValidOut, lastRtValidOut, lastWriteRegValidOut;
     input [15:0] pcIn, instrIn;
+    input [2:0] RsIn, RtIn;
     input validInsIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf, writeIfId;
     input clk, rst;
 
     output [15:0] pcOut, instrOut;
+    output [2:0] RsOut, RtOut;
     output validInsOut, RsValidOut, RtValidOut, writeRegValidOut;
 
     wire validInsInIntm, validInsInFinal, RsValidInFinal, RtValidInFinal, writeRegValidInFinal;
@@ -26,6 +28,9 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
 
     dff RP [15:0]  (.q(pcOut), .d(pcInFinal), .clk(clk), .rst(rst));
     dff RI [15:0] (.q(instrOut), .d(instrFinal), .clk(clk), .rst(rst));
+
+    dff RRS [2:0] (.q(RsOut), .d(RsIn), .clk(clk), .rst(rst));
+    dff RRT [2:0] (.q(RtOut), .d(RtIn), .clk(clk), .rst(rst));
 
     dff RIV (.q(validInsOut), .d(validInsInFinal), .clk(clk), .rst(rst));
     dff RSV (.q(RsValidOut), .d(RsValidInFinal), .clk(clk), .rst(rst));
