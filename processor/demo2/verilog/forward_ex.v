@@ -3,8 +3,8 @@ module forward_ex(/* input */ RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb,
     RegWriteExMem,  RegWriteMemWb, MemReadMemWb, MemReadExMem, 
     /* output */ forwardA, forwardB );
     /*
-    forwardA (Rs / ALU inp 1) - 00: Original, 01: Mem.aluRes, 10: Ex.aluRes, 11: Mem.memData 
-    forwardB (Rt / ALU inp 2) - 00: Original, 01: Mem.aluRes, 10: Ex.aluRes, 11: Mem.memData  
+    forwardA (Rs / ALU inp 1) - 00: Original, 01: MemWb.aluRes, 10: ExMem.aluRes, 11: MemWb.memData 
+    forwardB (Rt / ALU inp 2) - 00: Original, 01: MemWb.aluRes, 10: ExMem.aluRes, 11: Mem.memData  
     */
    
     input [2:0] RsIdEx, RtIdEx, writeRegExMem, writeRegMemWb;

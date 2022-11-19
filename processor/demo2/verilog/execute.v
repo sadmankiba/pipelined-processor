@@ -70,7 +70,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
 
     // Calc PC + 2 for jmpLnk
     equal #(.INPUT_WIDTH(5)) EQ2(.in1(AluOp), .in2(5'b00110), .eq(jalInstr));
-    equal #(.INPUT_WIDTH(5)) EQ3(.in1(AluOp), .in2(5'b00111), .eq(jalrInstr));
+    equal #(.INPUT_WIDTH(5)) EQ30(.in1(AluOp), .in2(5'b00111), .eq(jalrInstr));
     assign jmpLnk = jalInstr | jalrInstr; 
 
     assign aluRes = (jmpLnk) ? pc : aluOutSetBtr; 

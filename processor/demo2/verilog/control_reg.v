@@ -70,31 +70,22 @@ module control_reg(/* input */ instr,
             RsValid = 1'b1; writeRegValid = 1'b1;
             end
 
-        5'b1_0000: //ST, LD
+        5'b1_0000: // ST
             begin
-            
             RsValid = 1'b1;
-            
-            RtValid = 1'b1;
-            
-            writeRegValid = 1'b1;
+            // although store dont writeReg, this is set for ease of forwardC
+            writeRegValid = 1'b1; 
             end
-        5'b1_0001: //ST, LD
+        5'b1_0001: // LD
             begin
-            
             RsValid = 1'b1;
-            
-            RtValid = 1'b1;
-            
             writeRegValid = 1'b1;
             end
         
         5'b1_0011: //STU
             begin
-            
             RsValid = 1'b1;
-            
-            RtValid = 1'b1;
+            // set for same as ST
             writeRegValid = 1'b1;
             end
 
