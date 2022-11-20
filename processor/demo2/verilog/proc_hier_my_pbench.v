@@ -50,9 +50,13 @@ module proc_hier_my_pbench();
    wire MemForwardA;
 
    wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeInExMem;
+   wire [2:0] RtExMem;
    wire [15:0] MemWriteDataExMem;
-   wire MemWriteInExMem, MemToRegExMem, RegWriteInExMem, ControlZeroExMem;
-   wire MemToRegMemWb, RegWriteMemWb;
+   wire MemWriteInExMem, MemToRegExMem, RegWriteInExMem, 
+      ControlZeroExMem, RtValidExMem;
+
+   wire [2:0] WriteRegMemWb;
+   wire MemToRegMemWb, RegWriteMemWb, WriteRegValidMemWb;
         
    integer     inst_count;
    integer     trace_file;
@@ -127,14 +131,14 @@ module proc_hier_my_pbench();
          $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluCtrl: %3b",
                   AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);
          $fdisplay(sim_log_file, "FWDX: mmFwA: %d", MemForwardA);  
-         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d ", 
+         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d Rt: %d RtV: %d", 
                   AluRes, BranchTakeInExMem, MemWriteInExMem, MemWriteDataExMem, 
-                  MemToRegExMem, RegWriteInExMem, ControlZeroExMem); 
+                  MemToRegExMem, RegWriteInExMem, ControlZeroExMem, RtExMem, RtValidExMem); 
          $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x", 
                   MemRead, MemWrite, ForwardC, MemAddress, MemDataIn);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
-         $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d", 
-                  MemToRegMemWb, RegWriteMemWb); 
+         $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d, writeRegMemWb: %d writeRegValidMemWb: %d", 
+                  MemToRegMemWb, RegWriteMemWb, WriteRegMemWb, WriteRegValidMemWb); 
          $fdisplay(sim_log_file, "WB: RegWrite %d writeReg %d writeData %4x writeEn %d", 
                    RegWrite, WriteRegister, WriteData, WriteEn);
          if (RegWrite) begin
@@ -264,6 +268,8 @@ module proc_hier_my_pbench();
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.exmem0.aluResIn;
+   assign RtExMem = DUT.p0.exmem0.RtOut;
+   assign RtValidExMem = DUT.p0.exmem0.RtValidOut;
    assign AluControl = DUT.p0.exec0.aluControl;
    assign MemForwardA = DUT.p0.fex0.memFrwdA;
 
@@ -276,9 +282,12 @@ module proc_hier_my_pbench();
    assign MemWriteInExMem = DUT.p0.exmem0.MemWriteInFinal;
    assign MemToRegExMem = DUT.p0.exmem0.MemToRegIn;
    assign RegWriteInExMem = DUT.p0.exmem0.RegWriteInFinal;
+
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;
    assign RegWriteMemWb = DUT.p0.memwb0.RegWriteIn;
-   
+   assign WriteRegMemWb = DUT.p0.memwb0.writeRegOut;
+   assign WriteRegValidMemWb = DUT.p0.memwb0.writeRegValidOut;
+
 endmodule
 
 // DUMMY LINE FOR REV CONTROL :0:

@@ -79,7 +79,8 @@ module proc (/*AUTOARG*/
     control_reg controlReg0(/*input*/ .instr(instr), 
         /* output */ .Rs(Rs), .Rt(Rt), .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
 
-    ifid_reg ifid0(/* input */ .lastPcOut(nxtPcIfId), .lastInstrOut(instrIfId), 
+    ifid_reg ifid0(/* input */ .lastPcOut(nxtPcIfId), .lastInstrOut(instrIfId),
+        .lastRsIn(RsIfId), .lastRtIn(RtIfId), 
         .lastValidInsOut(validInsIfId), .lastRsValidOut(RsValidIfId), 
         .lastRtValidOut(RtValidIfId), .lastWriteRegValidOut(writeRegValidIfId), 
         .pcIn(nxtPc), .instrIn(instr), .RsIn(Rs), .RtIn(Rt), .validInsIn(validIns), 

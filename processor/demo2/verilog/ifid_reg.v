@@ -1,5 +1,5 @@
-module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValidOut, 
-    lastRtValidOut, lastWriteRegValidOut,
+module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastRsIn, lastRtIn, 
+    lastValidInsOut, lastRsValidOut, lastRtValidOut, lastWriteRegValidOut,
     pcIn, instrIn, validInsIn, RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf,
     writeIfId, clk, rst, 
     /* output */ pcOut, instrOut, RsOut, RtOut, validInsOut, RsValidOut, RtValidOut, writeRegValidOut);
@@ -7,7 +7,7 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
     input [15:0] lastPcOut, lastInstrOut;
     input lastValidInsOut, lastRsValidOut, lastRtValidOut, lastWriteRegValidOut;
     input [15:0] pcIn, instrIn;
-    input [2:0] RsIn, RtIn;
+    input [2:0] RsIn, RtIn, lastRsIn, lastRtIn;
     input validInsIn, RsValidIn, RtValidIn, writeRegValidIn, flushIf, writeIfId;
     input clk, rst;
 
@@ -17,6 +17,7 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
 
     wire validInsInIntm, validInsInFinal, RsValidInFinal, RtValidInFinal, writeRegValidInFinal;
     wire [15:0] pcInFinal, instrFinal;
+    wire [2:0] RsInFinal, RtInFinal;
     
     assign validInsInIntm = flushIf? 1'b0: validInsIn;
     assign pcInFinal = (writeIfId)? pcIn: lastPcOut;
@@ -25,12 +26,14 @@ module ifid_reg(/*input */ lastPcOut, lastInstrOut, lastValidInsOut, lastRsValid
     assign RsValidInFinal = (writeIfId)? RsValidIn: lastRsValidOut;
     assign RtValidInFinal = (writeIfId)? RtValidIn: lastRtValidOut;
     assign writeRegValidInFinal = (writeIfId)? writeRegValidIn: lastWriteRegValidOut;
+    assign RsInFinal = (writeIfId)? RsIn: lastRsIn;
+    assign RtInFinal = (writeIfId)? RtIn: lastRtIn;
 
     dff RP [15:0]  (.q(pcOut), .d(pcInFinal), .clk(clk), .rst(rst));
     dff RI [15:0] (.q(instrOut), .d(instrFinal), .clk(clk), .rst(rst));
 
-    dff RRS [2:0] (.q(RsOut), .d(RsIn), .clk(clk), .rst(rst));
-    dff RRT [2:0] (.q(RtOut), .d(RtIn), .clk(clk), .rst(rst));
+    dff RRS [2:0] (.q(RsOut), .d(RsInFinal), .clk(clk), .rst(rst));
+    dff RRT [2:0] (.q(RtOut), .d(RtInFinal), .clk(clk), .rst(rst));
 
     dff RIV (.q(validInsOut), .d(validInsInFinal), .clk(clk), .rst(rst));
     dff RSV (.q(RsValidOut), .d(RsValidInFinal), .clk(clk), .rst(rst));
