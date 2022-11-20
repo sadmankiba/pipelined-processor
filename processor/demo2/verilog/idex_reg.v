@@ -1,48 +1,44 @@
-module idex_reg(/* input */ clk, rst, pcIn, read1_in, read2_in, imm_in, jumpDistIn,
-    funct_in, writeRegIn,
+module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, jumpDistIn,
+    functIn, writeRegIn,
     AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
     MemToRegIn, RegWriteIn, JumpIn, HaltIn,
     RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx1, controlZeroIdEx2,
-    /* output */ read1_out, read2_out, pcOut, imm_out, jumpDistOut, funct_out,
+    /* output */ readData1Out, readData2Out, pcOut, immValOut, jumpDistOut, functOut,
     writeRegOut, AluOpOut, AluSrcOut, BranchOut, MemReadOut, MemWriteOut,
     MemToRegOut, RegWriteOut, JumpOut, HaltOut,
     RsOut, RtOut, RsValidOut, RtValidOut, writeRegValidOut);
 
-    input clk, rst;
-    input [15:0] pcIn, read1_in, read2_in, imm_in, jumpDistIn;
+    input [15:0] pcIn, readData1In, readData2In, immValIn, jumpDistIn;
     input [4:0] AluOpIn;
     input [2:0] writeRegIn;
-    input [1:0] funct_in;
+    input [1:0] functIn;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
         RegWriteIn, JumpIn, HaltIn, controlZeroIdEx1, controlZeroIdEx2;
     input [2:0] RsIn, RtIn;
     input RsValidIn, RtValidIn, writeRegValidIn;
+    input clk, rst;
 
     output [4:0] AluOpOut;
     output [2:0] writeRegOut;
-    output [1:0] funct_out;
+    output [1:0] functOut;
     output AluSrcOut, BranchOut, MemReadOut, MemWriteOut, MemToRegOut, 
         RegWriteOut, JumpOut, HaltOut;
-    output [15:0] read1_out, read2_out, pcOut, imm_out, jumpDistOut;
+    output [15:0] readData1Out, readData2Out, pcOut, immValOut, jumpDistOut;
     output [2:0] RsOut, RtOut;
     output RsValidOut, RtValidOut, writeRegValidOut;
 
     wire controlZero, MemWriteInFinal, RegWriteInFinal, HaltInFinal, 
         BranchInFinal, JumpInFinal, MemReadInFinal;
 
-    dff PC_FF    [15:0] (.q(pcOut),        .d(pcIn),        .clk(clk), .rst(rst));
-    dff READ1_FF [15:0] (.q(read1_out),     .d(read1_in),     .clk(clk), .rst(rst));
-    dff READ2_FF [15:0] (.q(read2_out),     .d(read2_in),     .clk(clk), .rst(rst));
-    dff IMM_FF   [15:0] (.q(imm_out),       .d(imm_in),       .clk(clk), .rst(rst));
-    dff JUMPA_FF [15:0] (.q(jumpDistOut),  .d(jumpDistIn),  .clk(clk), .rst(rst));
-
-    dff OP_FF [4:0] (.q(AluOpOut),     .d(AluOpIn),     .clk(clk), .rst(rst));
-    
-    dff WRITE_REG [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
-
-    dff INSTR [1:0] (.q(funct_out), .d(funct_in), .clk(clk), .rst(rst));
-
-    dff SRC_FF      (.q(AluSrcOut),    .d(AluSrcIn),    .clk(clk), .rst(rst));
+    dff RAO [4:0] (.q(AluOpOut),     .d(AluOpIn),     .clk(clk), .rst(rst));
+    dff RWR [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
+    dff RI [1:0] (.q(functOut), .d(functIn), .clk(clk), .rst(rst));
+    dff RAS (.q(AluSrcOut),    .d(AluSrcIn),    .clk(clk), .rst(rst));
+    dff RPC [15:0] (.q(pcOut),        .d(pcIn),        .clk(clk), .rst(rst));
+    dff RD1 [15:0] (.q(readData1Out),     .d(readData1In),     .clk(clk), .rst(rst));
+    dff RD2 [15:0] (.q(readData2Out),     .d(readData2In),     .clk(clk), .rst(rst));
+    dff RIM   [15:0] (.q(immValOut),       .d(immValIn),       .clk(clk), .rst(rst));
+    dff RJD [15:0] (.q(jumpDistOut),  .d(jumpDistIn),  .clk(clk), .rst(rst));
     
     assign controlZero = (controlZeroIdEx1 | controlZeroIdEx2);
     assign MemWriteInFinal = (controlZero) ? 1'b0 : MemWriteIn;

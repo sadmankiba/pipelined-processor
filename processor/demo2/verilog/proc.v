@@ -107,9 +107,8 @@ module proc (/*AUTOARG*/
         /* output */ .jumpDist(jumpDist), .readData1(readData1), .readData2(readData2), 
         .immVal(immVal), .writeRegOut(writeRegDcd), .err(errDcd));  
 
-    idex_reg idex0 (/* input */
-        .clk(clk), .rst(rst), .pcIn(nxtPcIfId), .read1_in(readData1), .read2_in(readData2), 
-        .imm_in(immVal), .jumpDistIn(jumpDist), .funct_in(instrIfId[1:0]), 
+    idex_reg idex0 (/* input */ .pcIn(nxtPcIfId), .readData1In(readData1), .readData2In(readData2), 
+        .immValIn(immVal), .jumpDistIn(jumpDist), .functIn(instrIfId[1:0]), 
         .writeRegIn(writeRegDcd),
         /* control */ .AluOpIn(AluOp), .AluSrcIn(AluSrc), 
         .BranchIn(Branch), .MemReadIn(MemRead), .MemWriteIn(MemWrite), .HaltIn(halt), 
@@ -117,8 +116,9 @@ module proc (/*AUTOARG*/
         .controlZeroIdEx2(controlZeroIdEx2),
         /* register */ .RsIn(RsIfId), .RtIn(RtIfId), .RsValidIn(RsValidIfId), .RtValidIn(RtValidIfId), 
         .writeRegValidIn(writeRegValidIfId), 
-        /* output */ .pcOut(nxtPcIdEx), .read1_out(readData1IdEx), .read2_out(readData2IdEx), 
-        .imm_out(immValIdEx), .jumpDistOut(jumpDistIdEx), .funct_out(functIdEx), 
+        .clk(clk), .rst(rst), 
+        /* output */ .pcOut(nxtPcIdEx), .readData1Out(readData1IdEx), .readData2Out(readData2IdEx), 
+        .immValOut(immValIdEx), .jumpDistOut(jumpDistIdEx), .functOut(functIdEx), 
         .writeRegOut(writeRegIdEx),
         /* control */ .AluOpOut(AluOpIdEx), .AluSrcOut(AluSrcIdEx), 
         .BranchOut(BranchIdEx), .MemReadOut(MemReadIdEx), .MemWriteOut(MemWriteIdEx),
@@ -183,12 +183,12 @@ module proc (/*AUTOARG*/
         /* output */ .readData(memData));
     
     memwb_reg memwb0(/* input */
-        .data_mem_in(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
+        .memDataIn(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
         //Control Inputs
         .MemToRegIn(MemToRegExMem), .RegWriteIn(RegWriteExMem), .MemReadIn(MemReadExMem),
         .writeRegValidIn(writeRegValidExMem), .clk(clk), .rst(rst),
         //Outputs
-        .data_mem_out(memDataMemWb), .aluResOut(aluResMemWb), .writeRegOut(writeRegMemWb),
+        .memDataOut(memDataMemWb), .aluResOut(aluResMemWb), .writeRegOut(writeRegMemWb),
         //Control Outputs
         .MemToRegOut(MemToRegMemWb), .RegWriteOut(RegWriteMemWb), .MemReadOut(MemReadMemWb),
         .writeRegValidOut(writeRegValidMemWb));

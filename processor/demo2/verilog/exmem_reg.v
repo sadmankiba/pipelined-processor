@@ -9,13 +9,13 @@ module exmem_reg (/* input */ aluResIn,
 
     input clk, rst;
     input [15:0] aluResIn, memWriteDataIn, brAddrIn, jumpAddrIn;
-    input branchTakeIn, JumpIn, MemReadIn, MemWriteIn, HaltIn, MemToRegIn, RegWriteIn;
+    input MemReadIn, MemWriteIn, HaltIn, branchTakeIn, JumpIn, MemToRegIn, RegWriteIn;
     input [2:0] writeRegIn, RtIn;
     input controlZeroExMem, writeRegValidIn, RtValidIn;
 
     output [15:0] aluResOut, memWriteDataOut, brAddrOut, jumpAddrOut;
-    output branchTakeOut, JumpOut, MemReadOut, MemWriteOut, HaltOut, MemToRegOut, RegWriteOut;
     output [2:0] writeRegOut, RtOut;
+    output branchTakeOut, JumpOut, MemReadOut, MemWriteOut, HaltOut, MemToRegOut, RegWriteOut;
     output writeRegValidOut, RtValidOut;
 
     wire MemWriteInFinal, RegWriteInFinal, HaltInFinal, 
@@ -37,15 +37,15 @@ module exmem_reg (/* input */ aluResIn,
     assign JumpInFinal = controlZeroExMem? 1'b0: JumpIn;
     assign MemReadInFinal = controlZeroExMem? 1'b0: MemReadIn;
 
-    dff MEMW (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));
+    dff RMW (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));
     dff RWO  (.q(RegWriteOut),  .d(RegWriteInFinal),  .clk(clk), .rst(rst));
     
     dff RB (.q(branchTakeOut),   .d(branchTakeInFinal),   .clk(clk), .rst(rst));
     dff RJ (.q(JumpOut),   .d(JumpInFinal),   .clk(clk), .rst(rst));
-    dff MEMR (.q(MemReadOut),   .d(MemReadInFinal),   .clk(clk), .rst(rst));
+    dff RMR (.q(MemReadOut),   .d(MemReadInFinal),   .clk(clk), .rst(rst));
     
-    dff HALT (.q(HaltOut),       .d(HaltInFinal),       .clk(clk), .rst(rst));
-    dff MTR  (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
+    dff RH (.q(HaltOut),       .d(HaltInFinal),       .clk(clk), .rst(rst));
+    dff RMTR  (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
     
     dff RWRV (.q(writeRegValidOut),       .d(writeRegValidIn),       .clk(clk), .rst(rst));
     dff RTV (.q(RtValidOut),       .d(RtValidIn),       .clk(clk), .rst(rst));

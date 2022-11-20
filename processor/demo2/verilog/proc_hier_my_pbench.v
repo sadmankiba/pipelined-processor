@@ -252,11 +252,11 @@ module proc_hier_my_pbench();
    assign WriteEn = DUT.p0.decode0.regFile0.writeEn;
    assign IsHzdLd = DUT.p0.hzdLoad0.isHazard;
 
-   assign ReadData1InIdEx = DUT.p0.idex0.read1_in;
-   assign ReadData2InIdEx = DUT.p0.idex0.read2_in;
+   assign ReadData1InIdEx = DUT.p0.idex0.readData1In;
+   assign ReadData2InIdEx = DUT.p0.idex0.readData2In;
    assign RsInIdEx = DUT.p0.idex0.RsIn;
    assign RsValidInIdEx = DUT.p0.idex0.RsValidIn;
-   assign ImmValInIdEx = DUT.p0.idex0.imm_in;
+   assign ImmValInIdEx = DUT.p0.idex0.immValIn;
    assign ControlZeroIdEx1 = DUT.p0.idex0.controlZeroIdEx1;
    assign ControlZeroIdEx2 = DUT.p0.idex0.controlZeroIdEx2;
    assign MemWriteInIdEx = DUT.p0.idex0.MemWriteInFinal; 
