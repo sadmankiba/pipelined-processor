@@ -1,22 +1,22 @@
 module exmem_reg (/* input */ aluResIn, 
-    memWriteDataIn, writeRegIn, branchTakeIn, JumpIn, 
+    memWriteDataIn, RtIn, RtValidIn, writeRegIn, writeRegValidIn, branchTakeIn, JumpIn, 
     brAddrIn, jumpAddrIn,
     MemReadIn, MemWriteIn, HaltIn, MemToRegIn, RegWriteIn,
-    writeRegValidIn, controlZeroExMem, clk, rst, 
-    /* output */ aluResOut, memWriteDataOut, 
+    controlZeroExMem, clk, rst, 
+    /* output */ aluResOut, memWriteDataOut, RtOut, RtValidOut,
     writeRegOut, branchTakeOut, JumpOut, brAddrOut, jumpAddrOut,
     MemReadOut, MemWriteOut, HaltOut, MemToRegOut, RegWriteOut, writeRegValidOut);
 
     input clk, rst;
     input [15:0] aluResIn, memWriteDataIn, brAddrIn, jumpAddrIn;
     input branchTakeIn, JumpIn, MemReadIn, MemWriteIn, HaltIn, MemToRegIn, RegWriteIn;
-    input [2:0] writeRegIn;
-    input controlZeroExMem, writeRegValidIn;
+    input [2:0] writeRegIn, RtIn;
+    input controlZeroExMem, writeRegValidIn, RtValidIn;
 
     output [15:0] aluResOut, memWriteDataOut, brAddrOut, jumpAddrOut;
     output branchTakeOut, JumpOut, MemReadOut, MemWriteOut, HaltOut, MemToRegOut, RegWriteOut;
-    output [2:0] writeRegOut;
-    output writeRegValidOut;
+    output [2:0] writeRegOut, RtOut;
+    output writeRegValidOut, RtValidOut;
 
     wire MemWriteInFinal, RegWriteInFinal, HaltInFinal, 
         branchTakeInFinal, JumpInFinal, MemReadInFinal;
@@ -24,7 +24,8 @@ module exmem_reg (/* input */ aluResIn,
     dff ALU  [15:0] (.q(aluResOut),    .d(aluResIn),    .clk(clk), .rst(rst));
     dff READ2[15:0] (.q(memWriteDataOut),     .d(memWriteDataIn),     .clk(clk), .rst(rst));
 
-    dff WRITE_REG [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
+    dff RWR [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
+    dff RT [2:0] (.q(RtOut), .d(RtIn), .clk(clk), .rst(rst));
 
     dff RBA [15:0] (.q(brAddrOut), .d(brAddrIn), .clk(clk), .rst(rst));
     dff RJA [15:0] (.q(jumpAddrOut), .d(jumpAddrIn), .clk(clk), .rst(rst));
@@ -46,6 +47,7 @@ module exmem_reg (/* input */ aluResIn,
     dff HALT (.q(HaltOut),       .d(HaltInFinal),       .clk(clk), .rst(rst));
     dff MTR  (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
     
-    dff RS (.q(writeRegValidOut),       .d(writeRegValidIn),       .clk(clk), .rst(rst));
+    dff RWRV (.q(writeRegValidOut),       .d(writeRegValidIn),       .clk(clk), .rst(rst));
+    dff RTV (.q(RtValidOut),       .d(RtValidIn),       .clk(clk), .rst(rst));
    
 endmodule

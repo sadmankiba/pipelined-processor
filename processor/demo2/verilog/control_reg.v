@@ -73,10 +73,8 @@ module control_reg(/* input */ instr,
         5'b1_0000: // ST
             begin
             RsValid = 1'b1;
-            // Set for setting forwardB
+            // Set for setting forwardB, forwardC
             RtValid = 1'b1;
-            // although store dont writeReg, this is set for ease of forwardC
-            writeRegValid = 1'b1; 
             end
         5'b1_0001: // LD
             begin
@@ -89,7 +87,6 @@ module control_reg(/* input */ instr,
             RsValid = 1'b1;
             // set for same as ST
             RtValid = 1'b1;
-            // set for same as ST 
             writeRegValid = 1'b1;
             end
 
