@@ -7,7 +7,7 @@
    
 module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, invA, invB, cIn, sign,
              AluOp, forwardA, forwardB, aluResExMem, aluResMemWb, memDataMemWb, pc,
-             /* output */ aluRes, memWriteData, zero, ltz, err);
+             /* output */ aluRes, memWriteData, readData1f, zero, ltz, err);
     // TODO: Your code here
     input [2:0] aluControl;   
     input AluSrc;         
@@ -19,10 +19,10 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     input [15:0] aluResExMem, aluResMemWb, memDataMemWb, pc;
     input [4:0] AluOp;
     
-    output [15:0] aluRes, memWriteData; 
+    output [15:0] aluRes, memWriteData, readData1f; 
     output zero, err, ltz;
 
-    wire [15:0] readData1f, readData2f, aluInp1, aluInp2, AluSrcOut;       
+    wire [15:0] readData2f, aluInp1, aluInp2, AluSrcOut;       
     wire isBranch, aluOvf;
     wire [15:0] aluOutput, temp_result, aluOut;
     wire isSetOP, setVal;
@@ -66,7 +66,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     
     // Calc btr Instr result
     equal #(.INPUT_WIDTH(5)) EQ22(.in1(AluOp), .in2(5'b11001), .eq(isBtr));
-    rev RV(.in(readData1), .out(btrOut));
+    rev RV(.in(readData1f), .out(btrOut));
     mux2_1_16b MXBT(.InA(aluOutSet), .InB(btrOut), .S(isBtr), .Out(aluOutSetBtr));
 
     // Calc PC + 2 for jmpLnk

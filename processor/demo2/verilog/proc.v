@@ -52,7 +52,7 @@ module proc (/*AUTOARG*/
     wire invA, invB, sign, cIn;    
     
     wire zero, aluErr, ltz;
-    wire [15:0] aluRes, memWriteData, brAddr, jumpAddr;
+    wire [15:0] aluRes, memWriteData, readData1f, brAddr, jumpAddr;
 
     wire branchTake, pcErr, flushIf, controlZeroIdEx2, controlZeroExMem;
 
@@ -141,9 +141,10 @@ module proc (/*AUTOARG*/
         .cIn(cIn), .sign(sign), .AluOp(AluOpIdEx), 
         .forwardA(forwardA), .forwardB(forwardB), .aluResExMem(aluResExMem), .aluResMemWb(aluResMemWb),
         .memDataMemWb(memDataMemWb), .pc(nxtPcIdEx),
-        /* output */ .aluRes(aluRes), .memWriteData(memWriteData), .zero(zero), .ltz(ltz), .err(aluErr));  
+        /* output */ .aluRes(aluRes), .memWriteData(memWriteData), .readData1f(readData1f),
+            .zero(zero), .ltz(ltz), .err(aluErr));  
 
-    pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData1(readData1IdEx), .zero(zero), .Branch(BranchIdEx), 
+    pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData1(readData1f), .zero(zero), .Branch(BranchIdEx), 
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .AluOp(AluOpIdEx), 
         /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 
