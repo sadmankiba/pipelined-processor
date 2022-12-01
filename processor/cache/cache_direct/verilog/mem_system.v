@@ -26,26 +26,35 @@ module mem_system(/*AUTOARG*/
 
     wire [3:0] StateRegOut, StateRegIn;
     wire [7:0] StateRegDOut;
-    wire isIdle, isMemWait, isRdIs, isRd1, isRdOut, isWrIs;
+    wire isWaitForReq, isMemWait, isReadC1;
+    
+    wire bank;
+    wire memStall;
     wire [3:0] memBusy;
 
     /*
     State register:
-    0- Idle, 1- MemWait, 2- ReadIssue, 
-    3- Read1Cycle, 4- ReadOut, 5- WriteIssue
+    0- WaitForRequest, 1- MemWait, 2- ReadCycle1
     */
-    dff STATEREG [2:0] (.q(StateRegOut), .d(StateRegIn), .clk(clk), .rst(rst));
+    dff STATEREG [1:0] (.q(StateRegOut), .d(StateRegIn), .clk(clk), .rst(rst));
     
-    decoder3_8 DCDST(.in(StateRegOut), .out(StateRegDOut));
-    isIdle = StateRegDOut[0];
+    decoder4_2 DCDST(.in(StateRegOut), .out(StateRegDOut));
+    isWaitForReq = StateRegDOut[0];
     isMemWait = StateRegDOut[1];
-    isRdIs = StateRegDOut[2];
-    isRd1 = StateRegDOut[3];
-    isRdOut = StateRegDOut[4];
-    isWrIs = StateRegDOut[5];
+    isReadC1 = StateRegDOut[2];
+    
+    assign bank = Addr[2:1];
+    mux4_1 BNBS (.InA(memBusy[0]), .InB(memBusy[1]), .InC(memBusy[2]), .InD(memBusy[3]), 
+            .S(bank), .Out(bankBusy));
+    
+    Stall = isMemWait | isReadC1;
+    Done = ~bankBusy & isWaitForReq & (Rd | Wr);
+    
+    MemWaitIn = (isWaitForReq | isMemWait) & bankBusy;
+    ReadC1In = isMemWait & (~bankBusy) & Rd;
+    WaitReqIn = (~bankBusy & Wr);
 
-    Stall = isMemWait | isRdIs | isRd1 | isRdOut | isWrIs;
-    MemWaitIn = isIdle & (Rd | Wr);
+     
     encoder8_3 ECDST(.in({0, MemWaitIn, 6b'000000 }), .out(StateRegIn));
 
 
@@ -74,17 +83,17 @@ module mem_system(/*AUTOARG*/
     
     four_bank_mem mem(// Outputs
                         .data_out          (DataOut),
-                        .stall             (),
+                        .stall             (memStall),
                         .busy              (memBusy),
                         .err               (err),
                         // Inputs
-                        .clk               (),
-                        .rst               (),
-                        .createdump        (),
-                        .addr              (),
-                        .data_in           (),
-                        .wr                (),
-                        .rd                ());
+                        .clk               (clk),
+                        .rst               (rst),
+                        .createdump        (createdump),
+                        .addr              (Addr),
+                        .data_in           (DataIn),
+                        .wr                (Wr),
+                        .rd                (Rd));
 
     
     // your code here
