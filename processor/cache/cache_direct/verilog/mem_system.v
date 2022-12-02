@@ -24,9 +24,9 @@ module mem_system(/*AUTOARG*/
     output err;
 
 
-    wire [1:0] stateRegOut, stateRegIn;
-    wire [3:0] stateRegDOut;
-    wire isWaitForReq, isMemWait, isReadC1, isReadDone;
+    wire [2:0] stateRegOut, stateRegIn;
+    wire [8:0] stateRegDOut;
+    wire isWaitForReq, isMemWait, isReadC1, isReadDone, isWrite;
     wire waitReqIn, memWaitIn, readC1In, readDoneIn;
     
     wire [1:0] bank;
@@ -35,31 +35,35 @@ module mem_system(/*AUTOARG*/
 
     /*
     State register:
-    0- WaitForRequest, 1- MemWait, 2- ReadCycle1, 3- ReadDone
+    0- WaitForRequest, 1- MemWait, 2- ReadCycle1, 3- ReadDone,
+    4- Write
     */
-    dff STATEREG [1:0] (.q(stateRegOut), .d(stateRegIn), .clk(clk), .rst(rst));
+    dff STATEREG [2:0] (.q(stateRegOut), .d(stateRegIn), .clk(clk), .rst(rst));
     
-    decoder2_4 DCDST(.in(stateRegOut), .out(stateRegDOut));
+    decoder3_8 DCDST(.in(stateRegOut), .out(stateRegDOut));
     assign isWaitForReq = stateRegDOut[0];
     assign isMemWait = stateRegDOut[1];
     assign isReadC1 = stateRegDOut[2];
     assign isReadDone = stateRegDOut[3];
+    assign isWrite = stateRegDOut[4];
     
     assign bank = Addr[2:1];
     mux4_1 BNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(bank), .Out(bankBusy));
     
-    assign Stall = isMemWait | isReadC1 | isReadDone;
-    assign Done = (Rd & isReadDone) | (Wr & (~bankBusy) & isWaitForReq);
+    assign Stall = isMemWait | isReadC1 | isReadDone | isWrite;
+    assign Done = (Rd & isReadDone) | (Wr & isWrite);
     assign CacheHit = 0;
     
     assign memWaitIn = (isWaitForReq | isMemWait) & bankBusy;
     assign readC1In = (isMemWait | isWaitForReq) & Rd & (~bankBusy);
     assign readDoneIn = isReadC1;
-    assign waitReqIn = isReadDone | ((~bankBusy) & Wr);
+    assign writeIn = (~bankBusy) & Wr;
+    assign waitReqIn = isReadDone | isWrite;
 
      
-    encoder4_2 ECDST(.in({readDoneIn, readC1In, memWaitIn , waitReqIn}), .out(stateRegIn));
+    encoder8_3 ECDST(.in({3'b000, writeIn, readDoneIn, readC1In, memWaitIn , waitReqIn}), 
+        .out(stateRegIn));
 
 
     /* data_mem = 1, inst_mem = 0 *

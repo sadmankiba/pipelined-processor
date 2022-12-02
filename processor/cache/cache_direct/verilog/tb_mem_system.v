@@ -21,15 +21,15 @@ module tb_mem_system();
                     .err(err) );
 
     mem_system DUT(  /* output */
-                       .DataOut         (DataOut[15:0]),
+                       .DataOut         (DataOut),
                        .Done            (Done),
                        .Stall           (Stall),
                        .CacheHit        (CacheHit),
                        .err        (Err),
 
                     /* input */
-                       .Addr            (Addr[15:0]),
-                       .DataIn          (DataIn[15:0]),
+                       .Addr            (Addr),
+                       .DataIn          (DataIn),
                        .Rd              (Rd),
                        .Wr              (Wr),
                        .clk             (clk), 
@@ -47,8 +47,8 @@ module tb_mem_system();
                       .Stall            (Stall_ref),
                       .CacheHit         (CacheHit_ref),
                       /* input */
-                      .Addr             (Addr[15:0]),
-                      .DataIn           (DataIn[15:0]),
+                      .Addr             (Addr),
+                      .DataIn           (DataIn),
                       .Rd               (Rd),
                       .Wr               (Wr),
                       .clk              (clk),
@@ -85,7 +85,7 @@ module tb_mem_system();
             end
             $display("DONE: ReqNum %0d Cycle %0d ", n_replies, clkgen.cycle_count, 
                 "ReqCycle %0d Rd %d Wr %d ", req_cycle, Rd, Wr, 
-                "Addr 0x%04x Bank %d DataOut 0x%04x ", Addr, bank, DataOut,
+                "Addr 0x%04x bank %d DataOut 0x%04x ", Addr, Addr[2:1], DataOut,
                 "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DataIn);
             if (Rd) begin
                 if (DataOut != DataOut_ref) begin
@@ -115,7 +115,7 @@ module tb_mem_system();
 
         $display("EVERY: Cycle %0d ReqCycle %0d ", clkgen.cycle_count, req_cycle, 
                 "Rd %d Wr %d ", Rd, Wr,
-                "Addr 0x%04x bank %d bankBusy %d DataOut 0x%04x ", DUT.Addr, DUT.bank, DUT.bankBusy, DataOut,
+                "tbAddr 0x%04x memAddr 0x%04x bank %d bankBusy %d DataOut 0x%04x ", Addr, DUT.Addr, DUT.bank, DUT.bankBusy, DataOut,
                 "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DataIn);
         $display("Stall %d Done %0d ", Stall, Done,
             "stateReg: %02b stateRegDOut: %04b memBusy %04b ", DUT.stateRegOut, DUT.stateRegDOut, DUT.memBusy,
@@ -153,7 +153,7 @@ module tb_mem_system();
                     DataIn = $random % 16'hffff;
                     Rd = ~Wr;
                     n_requests = n_requests + 1;
-                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x Bank %0d DataIn 0x%04x", 
+                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x bank %0d DataIn 0x%04x", 
                         clkgen.cycle_count, Rd, Wr, Addr, Addr[2:1], DataIn);          
                 end else begin
                     Wr = 1'd0;
@@ -177,7 +177,7 @@ module tb_mem_system();
                     DataIn = $random % 16'hffff;
                     Rd = ~Wr;
                     n_requests = n_requests + 1;    
-                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x Bank %0d DataIn 0x%04x", 
+                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x bank %0d DataIn 0x%04x", 
                         clkgen.cycle_count, Rd, Wr, Addr, Addr[2:1], DataIn);           
                 end else begin
                     Wr = 1'd0;
