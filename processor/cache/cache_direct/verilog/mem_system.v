@@ -24,38 +24,42 @@ module mem_system(/*AUTOARG*/
     output err;
 
 
-    wire [3:0] StateRegOut, StateRegIn;
-    wire [7:0] StateRegDOut;
-    wire isWaitForReq, isMemWait, isReadC1;
+    wire [1:0] StateRegOut, StateRegIn;
+    wire [3:0] StateRegDOut;
+    wire isWaitForReq, isMemWait, isReadC1, isReadDone;
+    wire waitReqIn, memWaitIn, readC1In, readDoneIn;
     
-    wire bank;
+    wire [1:0] bank;
     wire memStall;
     wire [3:0] memBusy;
 
     /*
     State register:
-    0- WaitForRequest, 1- MemWait, 2- ReadCycle1
+    0- WaitForRequest, 1- MemWait, 2- ReadCycle1, 3- ReadDone
     */
     dff STATEREG [1:0] (.q(StateRegOut), .d(StateRegIn), .clk(clk), .rst(rst));
     
-    decoder4_2 DCDST(.in(StateRegOut), .out(StateRegDOut));
-    isWaitForReq = StateRegDOut[0];
-    isMemWait = StateRegDOut[1];
-    isReadC1 = StateRegDOut[2];
+    decoder2_4 DCDST(.in(StateRegOut), .out(StateRegDOut));
+    assign isWaitForReq = StateRegDOut[0];
+    assign isMemWait = StateRegDOut[1];
+    assign isReadC1 = StateRegDOut[2];
+    assign isReadDone = StateRegDOut[3];
     
     assign bank = Addr[2:1];
-    mux4_1 BNBS (.InA(memBusy[0]), .InB(memBusy[1]), .InC(memBusy[2]), .InD(memBusy[3]), 
+    mux4_1 BNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(bank), .Out(bankBusy));
     
-    Stall = isMemWait | isReadC1;
-    Done = ~bankBusy & isWaitForReq & (Rd | Wr);
+    assign Stall = isMemWait | isReadC1 | isReadDone;
+    assign Done = (Rd & isReadDone) | (Wr & (~bankBusy) & isWaitForReq);
+    assign CacheHit = 0;
     
-    MemWaitIn = (isWaitForReq | isMemWait) & bankBusy;
-    ReadC1In = isMemWait & (~bankBusy) & Rd;
-    WaitReqIn = (~bankBusy & Wr);
+    assign memWaitIn = (isWaitForReq | isMemWait) & bankBusy;
+    assign readC1In = (isMemWait | isWaitForReq) & Rd & (~bankBusy);
+    assign readDoneIn = isReadC1;
+    assign waitReqIn = isReadDone | ((~bankBusy) & Wr);
 
      
-    encoder8_3 ECDST(.in({0, MemWaitIn, 6b'000000 }), .out(StateRegIn));
+    encoder4_2 ECDST(.in({readDoneIn, readC1In, memWaitIn , waitReqIn}), .out(StateRegIn));
 
 
     /* data_mem = 1, inst_mem = 0 *

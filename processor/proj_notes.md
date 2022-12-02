@@ -28,6 +28,14 @@ cd project/demo1/verilog
 wsrun.pl -pipe -prog /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/inst_tests/lbi_0.asm proc_hier_pbench *.v
 ```
 
+- Run memory programs 
+
+```sh
+wsrun.pl -addr mem.addr mem_system_perfbench *.v
+# or
+wsrun.pl mem_system_randbench *.v
+```
+
 Ref: Ian's tutorial video
 
 ### Submission
