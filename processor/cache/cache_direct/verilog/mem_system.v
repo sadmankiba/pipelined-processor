@@ -24,8 +24,8 @@ module mem_system(/*AUTOARG*/
     output err;
 
 
-    wire [1:0] StateRegOut, StateRegIn;
-    wire [3:0] StateRegDOut;
+    wire [1:0] stateRegOut, stateRegIn;
+    wire [3:0] stateRegDOut;
     wire isWaitForReq, isMemWait, isReadC1, isReadDone;
     wire waitReqIn, memWaitIn, readC1In, readDoneIn;
     
@@ -37,13 +37,13 @@ module mem_system(/*AUTOARG*/
     State register:
     0- WaitForRequest, 1- MemWait, 2- ReadCycle1, 3- ReadDone
     */
-    dff STATEREG [1:0] (.q(StateRegOut), .d(StateRegIn), .clk(clk), .rst(rst));
+    dff STATEREG [1:0] (.q(stateRegOut), .d(stateRegIn), .clk(clk), .rst(rst));
     
-    decoder2_4 DCDST(.in(StateRegOut), .out(StateRegDOut));
-    assign isWaitForReq = StateRegDOut[0];
-    assign isMemWait = StateRegDOut[1];
-    assign isReadC1 = StateRegDOut[2];
-    assign isReadDone = StateRegDOut[3];
+    decoder2_4 DCDST(.in(stateRegOut), .out(stateRegDOut));
+    assign isWaitForReq = stateRegDOut[0];
+    assign isMemWait = stateRegDOut[1];
+    assign isReadC1 = stateRegDOut[2];
+    assign isReadDone = stateRegDOut[3];
     
     assign bank = Addr[2:1];
     mux4_1 BNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
@@ -59,7 +59,7 @@ module mem_system(/*AUTOARG*/
     assign waitReqIn = isReadDone | ((~bankBusy) & Wr);
 
      
-    encoder4_2 ECDST(.in({readDoneIn, readC1In, memWaitIn , waitReqIn}), .out(StateRegIn));
+    encoder4_2 ECDST(.in({readDoneIn, readC1In, memWaitIn , waitReqIn}), .out(stateRegIn));
 
 
     /* data_mem = 1, inst_mem = 0 *
