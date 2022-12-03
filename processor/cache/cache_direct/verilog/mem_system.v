@@ -70,7 +70,7 @@ module mem_system(/*AUTOARG*/
     dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(readBankN), .Out(readBankNBusy));
-    assign isRBNZero = ~ | readBankN;
+    assign isRBNZero = ~|readBankN;
 
     assign cHitAndValid = cHit & cValid;
     assign readDoneIn = isWaitForReq? 1'b0: (isCompareTag & cHitAndValid);

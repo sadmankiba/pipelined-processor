@@ -1,4 +1,4 @@
-module tb_mem_system();     
+module tb_mem_system_ref();     
     wire [15:0]          DataOut;
     wire                 Done;
     wire                 CacheHit;                
@@ -20,32 +20,11 @@ module tb_mem_system();
                     .rst(rst),
                     .err(err) );
 
-    mem_system DUT(  /* output */
-                       .DataOut         (DataOut),
-                       .Done            (Done),
-                       .Stall           (Stall),
-                       .CacheHit        (CacheHit),
-                       .err        (Err),
-
-                    /* input */
-                       .Addr            (Addr),
-                       .DataIn          (DataIn),
-                       .Rd              (Rd),
-                       .Wr              (Wr),
-                       .clk             (clk), 
-                       .rst             (rst),
-                       .createdump      (1'b0));
-    
-    wire [15:0]          DataOut_ref;
-    wire                 Done_ref;
-    wire                 Stall_ref;
-    wire                 CacheHit_ref;
-
-    mem_system_ref ref(/* output */
-                      .DataOut          (DataOut_ref),
-                      .Done             (Done_ref),
-                      .Stall            (Stall_ref),
-                      .CacheHit         (CacheHit_ref),
+    mem_system_ref DUT(/* output */
+                      .DataOut          (DataOut),
+                      .Done             (Done),
+                      .Stall            (Stall),
+                      .CacheHit         (CacheHit),
                       /* input */
                       .Addr             (Addr),
                       .DataIn           (DataIn),
@@ -80,19 +59,10 @@ module tb_mem_system();
 
         if (Done) begin
             n_replies = n_replies + 1;
-            if (CacheHit) begin
-                n_cache_hits = n_cache_hits + 1;
-            end
             $display("DONE: ReqNum %0d Cycle %0d ", n_replies, clkgen.cycle_count, 
                 "ReqCycle %0d Rd %d Wr %d ", req_cycle, Rd, Wr, 
-                "Addr 0x%04x bank %d DataOut 0x%04x ", Addr, Addr[2:1], DataOut,
-                "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DataIn);
-            if (Rd) begin
-                if (DataOut != DataOut_ref) begin
-                    $display("ERROR: DataOut != DataOut_ref");
-                    test_success = 1'b0;
-                end
-            end
+                "Addr 0x%04x DataOut 0x%04x ", Addr, DataOut,
+                "DataIn 0x%04x ", DataIn);
             Rd = 1'd0;
             Wr = 1'd0;
         end
@@ -115,28 +85,24 @@ module tb_mem_system();
 
         $display("EVERY: Cycle %0d ReqCycle %0d ", clkgen.cycle_count, req_cycle, 
                 "Rd %d Wr %d ", Rd, Wr,
-                "tbAddr 0x%04x memAddr 0x%04x bank %d bankBusy %d DataOut 0x%04x ", 
-                Addr, DUT.Addr, DUT.bank, DUT.bankBusy, DataOut,
-                "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DataIn);
-        $display("Stall %d Done %0d ", Stall, Done,
-            "stateReg: %03b stateRegDOut: %08b memBusy %04b ", DUT.stateRegOut, DUT.stateRegDOut, DUT.memBusy,
-            "waitReqIn %d compTagIn %d readIn %d readC1In %d allocateIn %d writeIn %d", 
-            DUT.waitReqIn, DUT.compareTagIn, DUT.readIn, DUT.readC1In, DUT.allocateIn, DUT.writeIn);
+                "tbAddr 0x%04x memAddr 0x%04x DataOut 0x%04x ", 
+                Addr, DUT.Addr, DataOut,
+                "DataIn 0x%04x ", DataIn);
     end
 
     task check_dropped_request;
   	    begin	
             if (n_replies != n_requests) begin
                 if (Rd) begin
-                    $display("ERRLOG: ReqNum %4d Cycle %8d ReqCycle %8d Rd Addr 0x%04x RefValue 0x%04x\n",
-                            n_replies, clkgen.cycle_count, req_cycle, Addr, DataOut_ref);
+                    $display("ERRLOG: ReqNum %4d Cycle %8d ReqCycle %8d Rd Addr 0x%04x\n",
+                            n_replies, clkgen.cycle_count, req_cycle, Addr);
                 end
                 if (Wr) begin
                     $display("ERRLOG: ReQNum %4d Cycle %8d ReqCycle %8d Wr Addr 0x%04x Value 0x%04x\n",
                             n_replies, clkgen.cycle_count, req_cycle, Addr, DataIn);
                 end
                 $display("ERROR! Request dropped");
-                test_success = 1'b0;               
+                test_success = 1'b0;             
                 n_replies = n_requests;	       
             end            
         end
@@ -154,8 +120,8 @@ module tb_mem_system();
                     DataIn = $random % 16'hffff;
                     Rd = ~Wr;
                     n_requests = n_requests + 1;
-                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x bank %0d DataIn 0x%04x", 
-                        clkgen.cycle_count, Rd, Wr, Addr, Addr[2:1], DataIn);          
+                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x DataIn 0x%04x", 
+                        clkgen.cycle_count, Rd, Wr, Addr, DataIn);          
                 end else begin
                     Wr = 1'd0;
                     Rd = 1'd0;
@@ -178,8 +144,8 @@ module tb_mem_system();
                     DataIn = $random % 16'hffff;
                     Rd = ~Wr;
                     n_requests = n_requests + 1;    
-                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x bank %0d DataIn 0x%04x", 
-                        clkgen.cycle_count, Rd, Wr, Addr, Addr[2:1], DataIn);           
+                    $display("REQ: ReqCy: %0d Rd %d Wr %d Addr 0x%04x DataIn 0x%04x", 
+                        clkgen.cycle_count, Rd, Wr, Addr, DataIn);           
                 end else begin
                     Wr = 1'd0;
                     Rd = 1'd0;
