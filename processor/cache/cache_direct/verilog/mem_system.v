@@ -40,7 +40,7 @@ module mem_system(/*AUTOARG*/
 
     wire [15:0] memDataOut, memAddrIn;
     wire [1:0] bank, readBankNIn, readBankN;
-    wire memStall;
+    wire memStall, memErr;
     wire [3:0] memBusy;
 
     /*
@@ -69,6 +69,7 @@ module mem_system(/*AUTOARG*/
     dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(readBankN), .Out(readBankNBusy));
+    assign isRBNZero = ~ | readBankN;
 
     assign cHitAndValid = cHit & cValid;
     assign readDoneIn = isWaitForReq? 1'b0: (isCompareTag & cHitAndValid);
@@ -80,25 +81,25 @@ module mem_system(/*AUTOARG*/
     /* Set mem/cache input */
     assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
     assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
-    assign cWriteIn = isAllocate;
-    assign cValidIn = isAllocate;
+    assign cWriteIn = isAllocate | (isCompareTag & Wr);
+    assign cValidIn = isAllocate | (isCompareTag & Wr);
     assign cEnable = ~rst;
 
     /* Set mem system output signals */
     assign Stall = isCompareTag | isRead | isReadC1 | isAllocate | isWrite;
     assign Done = readDone | writeDone;
-    assign CacheHit = 0;
+    assign CacheHit = cHitAndValid & Rd;
+    assign err = cErr | memErr;
     
     /* Set next state */
-    assign isRBNZero = ~ | readBankN;
-
-    assign waitReqIn = (isCompareTag & cHitAndValid) | (isWrite & (~bankBusy));
-    assign compareTagIn = (isWaitForReq & Rd & (~readDone)) | (isAllocate & isRBNZero);
-    assign readIn = (isCompareTag & (~cHitAndValid)) | (isRead & readBankNBusy)
+    assign waitReqIn = (isCompareTag & cHitAndValid & Rd) | (isWrite & (~bankBusy));
+    assign compareTagIn = (isWaitForReq & (~readDone) & (~writeDone)) 
+            | (isAllocate & isRBNZero);
+    assign readIn = (isCompareTag & Rd & (~cHitAndValid)) | (isRead & readBankNBusy)
             | (isAllocate & (~isRBNZero));
     assign readC1In = isRead & (~readBankNBusy);
     assign allocateIn = isReadC1;
-    assign writeIn = isWaitForReq & Wr & (~writeDone);
+    assign writeIn = (isCompareTag & Wr) | (isWrite & bankBusy);
      
     encoder8_3 ECDST(.in({2'b00, compareTagIn, writeIn, allocateIn, 
         readC1In, readIn , waitReqIn}), 
@@ -132,7 +133,7 @@ module mem_system(/*AUTOARG*/
                         .data_out          (memDataOut),
                         .stall             (memStall),
                         .busy              (memBusy),
-                        .err               (err),
+                        .err               (memErr),
                         // Inputs
                         .clk               (clk),
                         .rst               (rst),
