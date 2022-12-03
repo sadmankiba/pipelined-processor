@@ -23,46 +23,76 @@ module mem_system(/*AUTOARG*/
     output CacheHit;
     output err;
 
-
+    /* cache controller */
     wire [2:0] stateRegOut, stateRegIn;
     wire [8:0] stateRegDOut;
-    wire isWaitForReq, isMemWait, isReadC1, isReadDone, isWrite;
-    wire waitReqIn, memWaitIn, readC1In, readDoneIn;
+    wire isWaitForReq, isRead, isReadC1, isAllocate, isWrite,
+        isCompareTag;
+    wire bankBusy, readBankNBusy;
+    wire writeDoneIn, writeDoneOut;
+    wire waitReqIn, readIn, readC1In, allocateIn, compareTagIn, writeIn;
     
-    wire [1:0] bank;
+    /* mem/cache */
+    wire [1:0] cOffsetIn;
+    wire cWriteIn;
+    wire cHit, cDirty, cValid, cErr;
+    wire [4:0] cTagIn, cTagOut;
+
+    wire [15:0] memDataOut, memAddrIn;
+    wire [1:0] bank, readBankNIn, readBankNOut;
     wire memStall;
     wire [3:0] memBusy;
 
     /*
     State register:
-    0- WaitForRequest, 1- MemWait, 2- ReadCycle1, 3- ReadDone,
-    4- Write
+    0- WaitForRequest, 1- Read, 2- ReadCycle1, 3- Allocate,
+    4- Write, 5- CompareTag
     */
     dff STATEREG [2:0] (.q(stateRegOut), .d(stateRegIn), .clk(clk), .rst(rst));
     
+    /* Get current state */
     decoder3_8 DCDST(.in(stateRegOut), .out(stateRegDOut));
     assign isWaitForReq = stateRegDOut[0];
-    assign isMemWait = stateRegDOut[1];
+    assign isRead = stateRegDOut[1];
     assign isReadC1 = stateRegDOut[2];
-    assign isReadDone = stateRegDOut[3];
+    assign isAllocate = stateRegDOut[3];
     assign isWrite = stateRegDOut[4];
-    
+    assign isCompareTag = stateRegDOut[5];
+
+    /* Get mem output */
     assign bank = Addr[2:1];
     mux4_1 BNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(bank), .Out(bankBusy));
+
+    /* Get/set mem system registers */
+    assign readBankNIn = isReadC1? (readBankNIn + 1) : readBankNOut;
+    dff RBANKN [1:0] (.q(readBankNOut), .d(readBankNIn), .clk(clk), .rst(rst));
+    mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
+            .S(readBankNOut), .Out(readBankNBusy));
+
+    assign writeDoneIn = isWaitForReq? 1'b0: isWrite & (~bankBusy);
+    dff WRDONE [2:0] (.q(writeDoneOut), .d(writeDoneIn), .clk(clk), .rst(rst));
     
-    assign Stall = isMemWait | isReadC1 | isReadDone | isWrite;
-    assign Done = (Rd & isReadDone) | (Wr & isWrite);
+    /* Set mem/cache input */
+    assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankNOut, 1'b0};
+    assign cOffsetIn = (isAllocate)? {readBankNOut, 1'b0} : Addr[2:0];
+    assign cWriteIn = isAllocate;
+
+    /* Set mem system output signals */
+    assign Stall = isRead | isReadC1 | isAllocate | isWrite;
+    assign Done = (Rd & isAllocate) | (Wr & isWrite);
     assign CacheHit = 0;
     
-    assign memWaitIn = (isWaitForReq | isMemWait) & bankBusy;
-    assign readC1In = (isMemWait | isWaitForReq) & Rd & (~bankBusy);
-    assign readDoneIn = isReadC1;
-    assign writeIn = (~bankBusy) & Wr;
-    assign waitReqIn = isReadDone | isWrite;
-
+    /* Set next state */
+    assign waitReqIn = isAllocate | (isWrite & (~bankBusy));
+    assign readIn = (isWaitForReq & Rd) | (isRead & readBankNBusy);
+    assign readC1In = isRead & (~bankBusy);
+    assign allocateIn = isReadC1;
+    assign writeIn = (isWaitForReq & Wr & (~writeDoneOut));
+    assign compareTagIn = 1'b0;
      
-    encoder8_3 ECDST(.in({3'b000, writeIn, readDoneIn, readC1In, memWaitIn , waitReqIn}), 
+    encoder8_3 ECDST(.in({2'b00, compareTagIn, writeIn, allocateIn, 
+        readC1In, readIn , waitReqIn}), 
         .out(stateRegIn));
 
 
@@ -70,27 +100,27 @@ module mem_system(/*AUTOARG*/
         * needed for cache parameter */
     parameter memtype = 0;
     cache #(0 + memtype) c0(// Outputs
-                            .tag_out              (),
-                            .data_out             (),
-                            .hit                  (),
-                            .dirty                (),
-                            .valid                (),
-                            .err                  (),
+                            .tag_out              (cTagOut),
+                            .data_out             (DataOut),
+                            .hit                  (cHit),
+                            .dirty                (cDirty),
+                            .valid                (cValid),
+                            .err                  (cErr),
                             // Inputs
-                            .enable               (),
-                            .clk                  (),
-                            .rst                  (),
-                            .createdump           (),
-                            .tag_in               (),
-                            .index                (),
-                            .offset               (),
-                            .data_in              (),
-                            .comp                 (),
-                            .write                (),
-                            .valid_in             ());
+                            .enable               (~rst),
+                            .clk                  (clk),
+                            .rst                  (rst),
+                            .createdump           (createdump),
+                            .tag_in               (Addr[15:11]),
+                            .index                (Addr[10:3]),
+                            .offset               (cOffsetIn),
+                            .data_in              (memDataOut),
+                            .comp                 (1'b1),
+                            .write                (cWriteIn),
+                            .valid_in             (1'b1));
     
     four_bank_mem mem(// Outputs
-                        .data_out          (DataOut),
+                        .data_out          (memDataOut),
                         .stall             (memStall),
                         .busy              (memBusy),
                         .err               (err),
@@ -98,7 +128,7 @@ module mem_system(/*AUTOARG*/
                         .clk               (clk),
                         .rst               (rst),
                         .createdump        (createdump),
-                        .addr              (Addr),
+                        .addr              (memAddrIn),
                         .data_in           (DataIn),
                         .wr                (Wr),
                         .rd                (Rd));
