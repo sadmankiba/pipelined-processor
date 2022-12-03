@@ -33,6 +33,7 @@ module mem_system(/*AUTOARG*/
     wire waitReqIn, readIn, readC1In, allocateIn, compareTagIn, writeIn;
     
     /* mem/cache */
+    wire cDataIn;
     wire [1:0] cOffsetIn;
     wire cWriteIn, cEnable, cValidIn;
     wire cHit, cDirty, cValid, cErr, cHitAndValid;
@@ -80,6 +81,7 @@ module mem_system(/*AUTOARG*/
     
     /* Set mem/cache input */
     assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
+    assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
     assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
     assign cWriteIn = isAllocate | (isCompareTag & Wr);
     assign cValidIn = isAllocate | (isCompareTag & Wr);
@@ -124,7 +126,7 @@ module mem_system(/*AUTOARG*/
                             .tag_in               (Addr[15:11]),
                             .index                (Addr[10:3]),
                             .offset               (cOffsetIn),
-                            .data_in              (memDataOut),
+                            .data_in              (cDataIn),
                             .comp                 (isCompareTag),
                             .write                (cWriteIn),
                             .valid_in             (cValidIn));
