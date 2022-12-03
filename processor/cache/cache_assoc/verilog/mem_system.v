@@ -38,7 +38,9 @@ module mem_system(/*AUTOARG*/
     wire c0WriteIn, c1WriteIn, c0Enable, c1Enable, c0ValidIn, c1ValidIn;
     wire c0Hit, c1Hit, c0Dirty, c1Dirty, c0Valid, c1Valid, c0Err, c1Err, 
         c0HitAndValid, c1HitAndValid, cHitAndValid;
+    wire writeCache; // Which cache to write block from mem
     wire [4:0] c0TagOut, c1TagOut;
+    wire victimway, victimwayIn;
 
     wire [15:0] memDataOut, memAddrIn;
     wire [1:0] bank, readBankNIn, readBankN;
@@ -81,27 +83,35 @@ module mem_system(/*AUTOARG*/
 
     assign writeDoneIn = isWaitForReq? 1'b0: isWrite & (~bankBusy);
     dff WRDONE (.q(writeDone), .d(writeDoneIn), .clk(clk), .rst(rst));
+
+    assign victimwayIn = victimway ^ ((isCompareTag & Rd) | c0WriteIn | c1WriteIn);
+    dff VC (.q(victimway), .d(victimwayIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
     assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
     assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
-    assign c0WriteIn = isAllocate | (isCompareTag & Wr);
-    assign c1WriteIn = isAllocate | (isCompareTag & Wr);
-    assign c0ValidIn = isAllocate | (isCompareTag & Wr);
     assign c0Enable = ~rst;
-
+    
+    mux4_1 WRC (.InD(victimway), .InC(1'b0), .InB(1'b1), .InA(1'b0), 
+        .S({c1Valid, c0Valid}), .Out(writeCache));
+    assign c0WriteIn = (isAllocate & (~writeCache)) | (isCompareTag & Wr);
+    assign c1WriteIn = (isAllocate & writeCache) | (isCompareTag & Wr);
+    assign c0ValidIn = (isAllocate & (~writeCache)) | (isCompareTag & Wr);
+    assign c1ValidIn = (isAllocate & writeCache) | (isCompareTag & Wr);
+    
     /* Set mem system output signals */
+    mux2_1_16b DO (.InB(c1DataOut), .InA(c0DataOut), .S(c1HitAndValid), .Out(DataOut));
     assign Stall = isCompareTag | isRead | isReadC1 | isAllocate | isWrite;
     assign Done = readDone | writeDone;
-    assign CacheHit = c0HitAndValid & Rd;
-    assign err = c0Err | memErr;
+    assign CacheHit = cHitAndValid & Rd;
+    assign err = c0Err | c1Err | memErr;
     
     /* Set next state */
-    assign waitReqIn = (isCompareTag & c0HitAndValid & Rd) | (isWrite & (~bankBusy));
+    assign waitReqIn = (isCompareTag & cHitAndValid & Rd) | (isWrite & (~bankBusy));
     assign compareTagIn = (isWaitForReq & (~readDone) & (~writeDone)) 
             | (isAllocate & isRBNZero);
-    assign readIn = (isCompareTag & Rd & (~c0HitAndValid)) | (isRead & readBankNBusy)
+    assign readIn = (isCompareTag & Rd & (~cHitAndValid)) | (isRead & readBankNBusy)
             | (isAllocate & (~isRBNZero));
     assign readC1In = isRead & (~readBankNBusy);
     assign allocateIn = isReadC1;
