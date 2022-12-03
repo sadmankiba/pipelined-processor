@@ -84,7 +84,7 @@ module mem_system(/*AUTOARG*/
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
     assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
     assign cWriteIn = isAllocate | (isCompareTag & Wr);
-    assign cValidIn = isAllocate | (isCompareTag & Wr);
+    assign cValidIn = isAllocate;
     assign cEnable = ~rst;
 
     /* Set mem system output signals */

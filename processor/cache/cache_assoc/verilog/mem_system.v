@@ -35,7 +35,7 @@ module mem_system(/*AUTOARG*/
     /* mem/cache */
     wire [15:0] cDataIn, c0DataOut, c1DataOut;
     wire [1:0] cOffsetIn;
-    wire c0WriteIn, c1WriteIn, c0Enable, c1Enable, c0ValidIn, c1ValidIn;
+    wire c0WriteIn, c1WriteIn, cEnable, c0ValidIn, c1ValidIn;
     wire c0Hit, c1Hit, c0Dirty, c1Dirty, c0Valid, c1Valid, c0Err, c1Err, 
         c0HitAndValid, c1HitAndValid, cHitAndValid;
     wire writeCache; // Which cache to write block from mem
@@ -91,14 +91,14 @@ module mem_system(/*AUTOARG*/
     assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
     assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
-    assign c0Enable = ~rst;
+    assign cEnable = ~rst;
     
     mux4_1 WRC (.InD(victimway), .InC(1'b0), .InB(1'b1), .InA(1'b0), 
         .S({c1Valid, c0Valid}), .Out(writeCache));
     assign c0WriteIn = (isAllocate & (~writeCache)) | (isCompareTag & Wr);
     assign c1WriteIn = (isAllocate & writeCache) | (isCompareTag & Wr);
-    assign c0ValidIn = (isAllocate & (~writeCache)) | (isCompareTag & Wr);
-    assign c1ValidIn = (isAllocate & writeCache) | (isCompareTag & Wr);
+    assign c0ValidIn = (isAllocate & (~writeCache));
+    assign c1ValidIn = (isAllocate & writeCache);
     
     /* Set mem system output signals */
     mux2_1_16b DO (.InB(c1DataOut), .InA(c0DataOut), .S(c1HitAndValid), .Out(DataOut));
@@ -132,7 +132,7 @@ module mem_system(/*AUTOARG*/
                             .valid                (c0Valid),
                             .err                  (c0Err),
                             // Inputs
-                            .enable               (c0Enable),
+                            .enable               (cEnable),
                             .clk                  (clk),
                             .rst                  (rst),
                             .createdump           (createdump),
@@ -151,7 +151,7 @@ module mem_system(/*AUTOARG*/
                           .valid                (c1Valid),
                           .err                  (c1Err),
                           // Inputs
-                          .enable               (c1Enable),
+                          .enable               (cEnable),
                           .clk                  (clk),
                           .rst                  (rst),
                           .createdump           (createdump),
