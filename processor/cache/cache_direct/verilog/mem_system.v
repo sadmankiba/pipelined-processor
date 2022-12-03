@@ -29,17 +29,17 @@ module mem_system(/*AUTOARG*/
     wire isWaitForReq, isRead, isReadC1, isAllocate, isWrite,
         isCompareTag;
     wire bankBusy, readBankNBusy, isRBNZero;
-    wire writeDoneIn, writeDoneOut;
+    wire writeDoneIn, writeDone;
     wire waitReqIn, readIn, readC1In, allocateIn, compareTagIn, writeIn;
     
     /* mem/cache */
     wire [1:0] cOffsetIn;
-    wire cWriteIn, cEnable;
-    wire cHit, cDirty, cValid, cErr;
+    wire cWriteIn, cEnable, cValidIn;
+    wire cHit, cDirty, cValid, cErr, cHitAndValid;
     wire [4:0] cTagIn, cTagOut;
 
     wire [15:0] memDataOut, memAddrIn;
-    wire [1:0] bank, readBankNIn, readBankNOut;
+    wire [1:0] bank, readBankNIn, readBankN;
     wire memStall;
     wire [3:0] memBusy;
 
@@ -65,38 +65,40 @@ module mem_system(/*AUTOARG*/
             .S(bank), .Out(bankBusy));
 
     /* Get/set mem system registers */
-    assign readBankNIn = isReadC1? (readBankNIn + 1) : readBankNOut;
-    dff RBANKN [1:0] (.q(readBankNOut), .d(readBankNIn), .clk(clk), .rst(rst));
+    assign readBankNIn = isReadC1? (readBankNIn + 1) : readBankN;
+    dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
-            .S(readBankNOut), .Out(readBankNBusy));
+            .S(readBankN), .Out(readBankNBusy));
 
-    assign readDoneIn = isWaitForReq? 1'b0: isCompareTag;
-    dff RDDONE (.q(readDoneOut), .d(readDoneIn), .clk(clk), .rst(rst));
+    assign cHitAndValid = cHit & cValid;
+    assign readDoneIn = isWaitForReq? 1'b0: (isCompareTag & cHitAndValid);
+    dff RDDONE (.q(readDone), .d(readDoneIn), .clk(clk), .rst(rst));
 
     assign writeDoneIn = isWaitForReq? 1'b0: isWrite & (~bankBusy);
-    dff WRDONE (.q(writeDoneOut), .d(writeDoneIn), .clk(clk), .rst(rst));
+    dff WRDONE (.q(writeDone), .d(writeDoneIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
-    assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankNOut, 1'b0};
-    assign cOffsetIn = (isAllocate)? {readBankNOut, 1'b0} : Addr[2:0];
+    assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
+    assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
     assign cWriteIn = isAllocate;
+    assign cValidIn = isAllocate;
     assign cEnable = ~rst;
 
     /* Set mem system output signals */
-    assign Stall = isRead | isReadC1 | isAllocate | isWrite;
-    assign Done = readDoneOut | writeDoneOut;
+    assign Stall = isCompareTag | isRead | isReadC1 | isAllocate | isWrite;
+    assign Done = readDone | writeDone;
     assign CacheHit = 0;
     
     /* Set next state */
-    assign isRBNZero = ~ | readBankNOut;
+    assign isRBNZero = ~ | readBankN;
 
-    assign waitReqIn = isCompareTag | (isWrite & (~bankBusy));
-    assign readIn = (isWaitForReq & Rd) | (isRead & readBankNBusy)
+    assign waitReqIn = (isCompareTag & cHitAndValid) | (isWrite & (~bankBusy));
+    assign compareTagIn = (isWaitForReq & Rd & (~readDone)) | (isAllocate & isRBNZero);
+    assign readIn = (isCompareTag & (~cHitAndValid)) | (isRead & readBankNBusy)
             | (isAllocate & (~isRBNZero));
     assign readC1In = isRead & (~readBankNBusy);
     assign allocateIn = isReadC1;
-    assign writeIn = isWaitForReq & Wr & (~writeDoneOut);
-    assign compareTagIn = isAllocate & isRBNZero;
+    assign writeIn = isWaitForReq & Wr & (~writeDone);
      
     encoder8_3 ECDST(.in({2'b00, compareTagIn, writeIn, allocateIn, 
         readC1In, readIn , waitReqIn}), 
@@ -122,9 +124,9 @@ module mem_system(/*AUTOARG*/
                             .index                (Addr[10:3]),
                             .offset               (cOffsetIn),
                             .data_in              (memDataOut),
-                            .comp                 (1'b0),
+                            .comp                 (isCompareTag),
                             .write                (cWriteIn),
-                            .valid_in             (1'b1));
+                            .valid_in             (cValidIn));
     
     four_bank_mem mem(// Outputs
                         .data_out          (memDataOut),
