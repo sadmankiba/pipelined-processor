@@ -38,7 +38,7 @@ module mem_system(/*AUTOARG*/
     wire c0WriteIn, c1WriteIn, cEnable, c0ValidIn, c1ValidIn;
     wire c0Hit, c1Hit, c0Dirty, c1Dirty, c0Valid, c1Valid, c0Err, c1Err, 
         c0HitAndValid, c1HitAndValid, cHitAndValid;
-    wire writeCache; // Which cache to write block from mem
+    wire writeCache, writeCacheIn, writeCacheSet; // Which cache to write block from mem
     wire [4:0] c0TagOut, c1TagOut;
     wire victimway, victimwayIn;
 
@@ -72,12 +72,12 @@ module mem_system(/*AUTOARG*/
 
     /* Get/set mem system registers */
     cla_4b SBN (.sum(rbnp1), .c_out(carryOut), 
-+        .a({2'b00, readBankN}), .b(4'b0001), .c_in(1'b0));
+        .a({2'b00, readBankN}), .b(4'b0001), .c_in(1'b0));
     assign readBankNIn = isReadC1? rbnp1[1:0] : readBankN;
     dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(readBankN), .Out(readBankNBusy));
-    assign isRBNZero = ~ | readBankN;
+    assign isRBNZero = ~|readBankN;
 
     assign c0HitAndValid = c0Hit & c0Valid;
     assign c1HitAndValid = c1Hit & c1Valid;
@@ -93,6 +93,11 @@ module mem_system(/*AUTOARG*/
 
     assign victimwayIn = victimway ^ ((isCompareTag & Rd) | c0WriteIn | c1WriteIn);
     dff VC (.q(victimway), .d(victimwayIn), .clk(clk), .rst(rst));
+
+    mux4_1 WRC (.InD(victimway), .InC(1'b0), .InB(1'b1), .InA(1'b0), 
+        .S({c1Valid, c0Valid}), .Out(writeCache));
+    assign writeCacheIn = (isCompareTag & Rd & (~readFetched))? writeCache: writeCacheSet;
+    dff WRC (.q(writeCacheSet), .d(writeCacheIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
@@ -101,12 +106,10 @@ module mem_system(/*AUTOARG*/
     assign cOffsetIn = (isAllocate)? {rbnm1[1:0], 1'b0} : Addr[2:0];
     assign cEnable = ~rst;
     
-    mux4_1 WRC (.InD(victimway), .InC(1'b0), .InB(1'b1), .InA(1'b0), 
-        .S({c1Valid, c0Valid}), .Out(writeCache));
-    assign c0WriteIn = (isAllocate & (~writeCache)) | (isCompareTag & Wr);
-    assign c1WriteIn = (isAllocate & writeCache) | (isCompareTag & Wr);
-    assign c0ValidIn = (isAllocate & (~writeCache));
-    assign c1ValidIn = (isAllocate & writeCache);
+    assign c0WriteIn = (isAllocate & (~writeCacheSet)) | (isCompareTag & Wr);
+    assign c1WriteIn = (isAllocate & writeCacheSet) | (isCompareTag & Wr);
+    assign c0ValidIn = (isAllocate & (~writeCacheSet));
+    assign c1ValidIn = (isAllocate & writeCacheSet);
     
     assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
     assign memWriteIn = isWrite & Wr;
