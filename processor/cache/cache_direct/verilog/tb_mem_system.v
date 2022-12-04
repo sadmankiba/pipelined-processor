@@ -61,7 +61,6 @@ module tb_mem_system();
     integer n_cache_hits;
     reg test_success;
    
-    assign DataOut_ref = 16'd0; 
     initial begin
         Rd = 1'b0;
         Wr = 1'b0;
@@ -100,28 +99,37 @@ module tb_mem_system();
         // change inputs for next cycle
       
         #85;
-        if (!rst && (!Stall)) begin      
-            if (n_requests < 20) begin
-                small_random_addr;
-            end else if (n_requests < 40) begin
-                full_random_addr;
-            end else begin
-                end_simulation;
+        if (!rst) begin      
+            if (!Stall) begin
+                if (n_requests < 20) begin
+                    small_random_addr;
+                end else if (n_requests < 40) begin
+                    full_random_addr;
+                end else begin
+                    end_simulation;
+                end
+                if ( (Rd | Wr) && (!rst) ) begin
+                    req_cycle = clkgen.cycle_count;
+                end
             end
-            if ( (Rd | Wr) && (!rst) ) begin
-                req_cycle = clkgen.cycle_count;
-            end
+            $display("EVERY: Cycle %0d ReqCycle %0d ", clkgen.cycle_count, req_cycle, 
+                    "Stall %d Done %0d ", Stall, Done,
+                    "Rd %d Wr %d ", DUT.Rd, DUT.Wr,
+                    "tbAddr 0x%04x memsAddr 0x%04x DataOut 0x%04x ", 
+                    Addr, DUT.Addr, DUT.DataOut,
+                    "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DUT.DataIn);
+            $display(
+                "stateReg: %d stateRegD: %08b ", DUT.stateReg, DUT.stateRegD,
+                "waitReqIn %d compTagIn %d readIn %d readC1In %d allocateIn %d writeIn %d", 
+                DUT.waitReqIn, DUT.compareTagIn, DUT.readIn, DUT.readC1In, DUT.allocateIn, DUT.writeIn);
+            $display("bank %d rbankN %d bankBusy %d memBusy %04b ", DUT.bank, DUT.readBankN, DUT.bankBusy, DUT.memBusy,
+                "memRd %d memWr %d memDataOut 0x%04x", 
+                DUT.memReadIn, DUT.memWriteIn, DUT.memDataOut);
+            $display("cDataIn 0x%04x cOffsetIn %03b cWriteIn %d cValidIn %d", 
+                DUT.cDataIn, DUT.cOffsetIn, DUT.cWriteIn, DUT.cValidIn);
         end
 
-        $display("EVERY: Cycle %0d ReqCycle %0d ", clkgen.cycle_count, req_cycle, 
-                "Rd %d Wr %d ", Rd, Wr,
-                "tbAddr 0x%04x memAddr 0x%04x bank %d bankBusy %d DataOut 0x%04x ", 
-                Addr, DUT.Addr, DUT.bank, DUT.bankBusy, DataOut,
-                "DataOutRef 0x%04x DataIn 0x%04x ", DataOut_ref, DataIn);
-        $display("Stall %d Done %0d ", Stall, Done,
-            "stateReg: %03b stateRegDOut: %08b memBusy %04b ", DUT.stateRegOut, DUT.stateRegDOut, DUT.memBusy,
-            "waitReqIn %d compTagIn %d readIn %d readC1In %d allocateIn %d writeIn %d", 
-            DUT.waitReqIn, DUT.compareTagIn, DUT.readIn, DUT.readC1In, DUT.allocateIn, DUT.writeIn);
+        
     end
 
     task check_dropped_request;

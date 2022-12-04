@@ -24,8 +24,8 @@ module mem_system(/*AUTOARG*/
     output err;
 
     /* cache controller */
-    wire [2:0] stateRegOut, stateRegIn;
-    wire [8:0] stateRegDOut;
+    wire [2:0] stateReg, stateRegIn;
+    wire [7:0] stateRegD;
     wire isWaitForReq, isRead, isReadC1, isAllocate, isWrite,
         isCompareTag;
     wire bankBusy, readBankNBusy, isRBNZero;
@@ -33,15 +33,15 @@ module mem_system(/*AUTOARG*/
     wire waitReqIn, readIn, readC1In, allocateIn, compareTagIn, writeIn;
     
     /* mem/cache */
-    wire cDataIn;
-    wire [1:0] cOffsetIn;
+    wire [15:0] cDataIn;
+    wire [2:0] cOffsetIn;
     wire cWriteIn, cEnable, cValidIn;
     wire cHit, cDirty, cValid, cErr, cHitAndValid;
     wire [4:0] cTagIn, cTagOut;
 
     wire [15:0] memDataOut, memAddrIn;
     wire [1:0] bank, readBankNIn, readBankN;
-    wire memStall, memErr;
+    wire memWriteIn, memReadIn, memStall, memErr;
     wire [3:0] memBusy;
 
     /*
@@ -49,16 +49,16 @@ module mem_system(/*AUTOARG*/
     0- WaitForRequest, 1- Read, 2- ReadCycle1, 3- Allocate,
     4- Write, 5- CompareTag
     */
-    dff STATEREG [2:0] (.q(stateRegOut), .d(stateRegIn), .clk(clk), .rst(rst));
+    dff STATEREG [2:0] (.q(stateReg), .d(stateRegIn), .clk(clk), .rst(rst));
     
     /* Get current state */
-    decoder3_8 DCDST(.in(stateRegOut), .out(stateRegDOut));
-    assign isWaitForReq = stateRegDOut[0];
-    assign isRead = stateRegDOut[1];
-    assign isReadC1 = stateRegDOut[2];
-    assign isAllocate = stateRegDOut[3];
-    assign isWrite = stateRegDOut[4];
-    assign isCompareTag = stateRegDOut[5];
+    decoder3_8 DCDST(.in(stateReg), .out(stateRegD));
+    assign isWaitForReq = stateRegD[0];
+    assign isRead = stateRegD[1];
+    assign isReadC1 = stateRegD[2];
+    assign isAllocate = stateRegD[3];
+    assign isWrite = stateRegD[4];
+    assign isCompareTag = stateRegD[5];
 
     /* Get mem output */
     assign bank = Addr[2:1];
@@ -66,7 +66,7 @@ module mem_system(/*AUTOARG*/
             .S(bank), .Out(bankBusy));
 
     /* Get/set mem system registers */
-    assign readBankNIn = isReadC1? (readBankNIn + 1) : readBankN;
+    assign readBankNIn = isReadC1? (readBankN + 1) : readBankN;
     dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(readBankN), .Out(readBankNBusy));
@@ -80,12 +80,15 @@ module mem_system(/*AUTOARG*/
     dff WRDONE (.q(writeDone), .d(writeDoneIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
-    assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
-    assign cOffsetIn = (isAllocate)? {readBankN, 1'b0} : Addr[2:0];
+    assign cOffsetIn = (isAllocate)? {(readBankN - 1), 1'b0} : Addr[2:0];
     assign cWriteIn = isAllocate | (isCompareTag & Wr);
     assign cValidIn = isAllocate;
     assign cEnable = ~rst;
+
+    assign memAddrIn = (Wr)? Addr: {Addr[15:3], readBankN, 1'b0};
+    assign memWriteIn = isWrite & Wr;
+    assign memReadIn = isRead & Rd;
 
     /* Set mem system output signals */
     assign Stall = isCompareTag | isRead | isReadC1 | isAllocate | isWrite;
@@ -94,8 +97,9 @@ module mem_system(/*AUTOARG*/
     assign err = cErr | memErr;
     
     /* Set next state */
-    assign waitReqIn = (isCompareTag & cHitAndValid & Rd) | (isWrite & (~bankBusy));
-    assign compareTagIn = (isWaitForReq & (~readDone) & (~writeDone)) 
+    assign waitReqIn = (isWaitForReq & (~(Rd | Wr))) | (isCompareTag & cHitAndValid & Rd) 
+            | (isWrite & (~bankBusy));
+    assign compareTagIn = (isWaitForReq & (~readDone) & (~writeDone) & (Rd | Wr)) 
             | (isAllocate & isRBNZero);
     assign readIn = (isCompareTag & Rd & (~cHitAndValid)) | (isRead & readBankNBusy)
             | (isAllocate & (~isRBNZero));
@@ -142,9 +146,8 @@ module mem_system(/*AUTOARG*/
                         .createdump        (createdump),
                         .addr              (memAddrIn),
                         .data_in           (DataIn),
-                        .wr                (Wr),
-                        .rd                (Rd));
-
+                        .wr                (memWriteIn),
+                        .rd                (memReadIn));
     
     // your code here
 
