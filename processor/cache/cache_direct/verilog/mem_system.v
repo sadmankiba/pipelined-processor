@@ -41,7 +41,8 @@ module mem_system(/*AUTOARG*/
 
     wire [15:0] memDataOut, memAddrIn;
     wire [1:0] bank, readBankNIn, readBankN;
-    wire memWriteIn, memReadIn, memStall, memErr;
+    wire [3:0] rbnp1, rbnm1;
+    wire memWriteIn, memReadIn, memStall, memErr, carryOut;
     wire [3:0] memBusy;
 
     /*
@@ -66,7 +67,9 @@ module mem_system(/*AUTOARG*/
             .S(bank), .Out(bankBusy));
 
     /* Get/set mem system registers */
-    assign readBankNIn = isReadC1? (readBankN + 1) : readBankN;
+    cla_4b SBN (.sum(rbnp1), .c_out(carryOut), 
+        .a({2'b00, readBankN}), .b(4'b0001), .c_in(1'b0));
+    assign readBankNIn = isReadC1? rbnp1[1:0] : readBankN;
     dff RBANKN [1:0] (.q(readBankN), .d(readBankNIn), .clk(clk), .rst(rst));
     mux4_1 BNNBS (.InD(memBusy[3]),  .InC(memBusy[2]), .InB(memBusy[1]), .InA(memBusy[0]),   
             .S(readBankN), .Out(readBankNBusy));
@@ -81,7 +84,9 @@ module mem_system(/*AUTOARG*/
     
     /* Set mem/cache input */
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
-    assign cOffsetIn = (isAllocate)? {(readBankN - 1), 1'b0} : Addr[2:0];
+    cla_4b ADN (.sum(rbnm1), .c_out(carryOut), 
+        .a({2'b00, readBankN}), .b(4'b1111), .c_in(1'b0));
+    assign cOffsetIn = (isAllocate)? {rbnm1[1:0], 1'b0} : Addr[2:0];
     assign cWriteIn = isAllocate | (isCompareTag & Wr);
     assign cValidIn = isAllocate;
     assign cEnable = ~rst;
@@ -99,7 +104,7 @@ module mem_system(/*AUTOARG*/
     /* Set next state */
     assign waitReqIn = (isWaitForReq & (~(Rd | Wr))) | (isCompareTag & cHitAndValid & Rd) 
             | (isWrite & (~bankBusy));
-    assign compareTagIn = (isWaitForReq & (~readDone) & (~writeDone) & (Rd | Wr)) 
+    assign compareTagIn = (isWaitForReq & (Rd | Wr)) 
             | (isAllocate & isRBNZero);
     assign readIn = (isCompareTag & Rd & (~cHitAndValid)) | (isRead & readBankNBusy)
             | (isAllocate & (~isRBNZero));
