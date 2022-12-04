@@ -97,7 +97,7 @@ module mem_system(/*AUTOARG*/
     mux4_1 WRC (.InD(victimway), .InC(1'b0), .InB(1'b1), .InA(1'b0), 
         .S({c1Valid, c0Valid}), .Out(writeCache));
     assign writeCacheIn = (isCompareTag & Rd & (~readFetched))? writeCache: writeCacheSet;
-    dff WRC (.q(writeCacheSet), .d(writeCacheIn), .clk(clk), .rst(rst));
+    dff WRCS (.q(writeCacheSet), .d(writeCacheIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
