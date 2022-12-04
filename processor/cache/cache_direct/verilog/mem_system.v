@@ -41,8 +41,9 @@ module mem_system(/*AUTOARG*/
 
     wire [15:0] memDataOut, memAddrIn;
     wire [1:0] bank, readBankNIn, readBankN;
-    wire [3:0] rbnp1, rbnm1;
-    wire memWriteIn, memReadIn, memStall, memErr, carryOut;
+    wire [3:0] rbnp1, rbnm1, carryOut;
+    wire memWriteIn, memReadIn, memStall, memErr,     
+        readFetched, readFetchedIn;
     wire [3:0] memBusy;
 
     /*
@@ -76,11 +77,14 @@ module mem_system(/*AUTOARG*/
     assign isRBNZero = ~|readBankN;
 
     assign cHitAndValid = cHit & cValid;
-    assign readDoneIn = isWaitForReq? 1'b0: (isCompareTag & cHitAndValid);
+    assign readDoneIn = isWaitForReq? 1'b0: (isCompareTag & cHitAndValid & Rd);
     dff RDDONE (.q(readDone), .d(readDoneIn), .clk(clk), .rst(rst));
 
     assign writeDoneIn = isWaitForReq? 1'b0: isWrite & (~bankBusy);
     dff WRDONE (.q(writeDone), .d(writeDoneIn), .clk(clk), .rst(rst));
+
+    assign readFetchedIn = (isAllocate & isRBNZero)? 1'b1: readFetched & (~isWaitForReq);
+    dff RDF (.q(readFetched), .d(readFetchedIn), .clk(clk), .rst(rst));
     
     /* Set mem/cache input */
     assign cDataIn = (isCompareTag & Wr)? DataIn: memDataOut;
@@ -98,7 +102,7 @@ module mem_system(/*AUTOARG*/
     /* Set mem system output signals */
     assign Stall = isCompareTag | isRead | isReadC1 | isAllocate | isWrite;
     assign Done = readDone | writeDone;
-    assign CacheHit = cHitAndValid & Rd;
+    assign CacheHit = cHitAndValid & Rd & (~readFetched);
     assign err = cErr | memErr;
     
     /* Set next state */

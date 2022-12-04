@@ -59,6 +59,7 @@ module tb_mem_system();
     integer n_replies;
     integer req_cycle;
     integer n_cache_hits;
+    integer MAX_REQUESTS;
     reg test_success;
    
     initial begin
@@ -69,8 +70,10 @@ module tb_mem_system();
         reg_readorwrite = 1'b0;
         n_requests = 0;
         n_replies = 0;
+        n_cache_hits = 0;
         test_success = 1'b1;
         req_cycle = 0;
+        MAX_REQUESTS = 100;
     end
    
     always @ (posedge clk) begin
@@ -92,6 +95,23 @@ module tb_mem_system();
                     test_success = 1'b0;
                 end
             end
+            if (Rd | Wr) begin
+                if (CacheHit) begin
+                    if ((clkgen.cycle_count - req_cycle) > 2) begin
+                        $display("LOG: WARNING: PERFORMANCE ERROR? CacheHit Latency (%3d)", 
+                        "greater than 2 cycles?", clkgen.cycle_count - req_cycle);
+                        test_success = 1'b0;                  
+                    end
+                    end else begin
+                    if ( ((clkgen.cycle_count - req_cycle) > 20) 
+                        ||  ((clkgen.cycle_count - req_cycle) <= 2) ) begin
+                        $display("LOG: WARNING: PERFORMANCE ERROR? CacheMiss Latency (%3d)", 
+                        clkgen.cycle_count - req_cycle,
+                        "greater than 20 or less than equal 2 cycles?");
+                        test_success = 1'b0;
+                    end
+                end
+            end
             Rd = 1'd0;
             Wr = 1'd0;
         end
@@ -101,9 +121,9 @@ module tb_mem_system();
         #85;
         if (!rst) begin      
             if (!Stall) begin
-                if (n_requests < 20) begin
+                if (n_requests < (MAX_REQUESTS / 2)) begin
                     small_random_addr;
-                end else if (n_requests < 40) begin
+                end else if (n_requests < MAX_REQUESTS) begin
                     full_random_addr;
                 end else begin
                     end_simulation;
@@ -113,7 +133,7 @@ module tb_mem_system();
                 end
             end
             $display("EVERY: Cycle %0d ReqCycle %0d ", clkgen.cycle_count, req_cycle, 
-                    "Stall %d Done %0d ", Stall, Done,
+                    "Stall %d Done %0d CacheHit %d ", Stall, Done, CacheHit,
                     "Rd %d Wr %d ", DUT.Rd, DUT.Wr,
                     "tbAddr 0x%04x memsAddr 0x%04x DataOut 0x%04x ", 
                     Addr, DUT.Addr, DUT.DataOut,
@@ -198,10 +218,12 @@ module tb_mem_system();
 
     task end_simulation;
         begin
-            $display("LOG: Done Requests: %10d Replies: %10d Cycles: %10d",
+            $display("LOG: Done Requests: %10d Replies: %10d Cycles: %10d CHits: %10d",
                     n_requests,
                     n_replies,
-                    clkgen.cycle_count);
+                    clkgen.cycle_count,
+                    n_cache_hits);
+
             if (!test_success)  begin
                 $display("Test status: FAIL");
             end else begin
