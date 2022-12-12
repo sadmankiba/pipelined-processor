@@ -63,6 +63,7 @@ module proc (/*AUTOARG*/
         writeRegValidExMem, RtValidExMem;
 
     wire [15:0] memData;
+    wire dMemErr;
 
     wire [15:0] memDataMemWb, aluResMemWb;
     wire [2:0] writeRegMemWb;
@@ -160,7 +161,7 @@ module proc (/*AUTOARG*/
         .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), .clk(clk), .rst(rst), 
         //Control Inputs
         .MemReadIn(MemReadIdEx), .MemWriteIn(MemWriteIdEx), .HaltIn(haltIdEx),
-        .MemToRegIn(memToRegIdEx), .RegWriteIn(RegWriteIdEx), 
+        .MemToRegIn(memToRegIfIdEx), .RegWriteIn(RegWriteIdEx), 
         .controlZeroExMem(controlZeroExMem),
         //Outputs
         .aluResOut(aluResExMem), .memWriteDataOut(memWriteDataExMem), 
@@ -180,7 +181,7 @@ module proc (/*AUTOARG*/
     dmemory memory0(/* input */ .MemWrite(MemWriteExMem), .MemRead(MemReadExMem), .memAddr(aluResExMem), 
         .writeData(memWriteDataExMem), .forwardC(forwardC), .memDataMemWb(memDataMemWb),
         .halt(HaltExMem), .clk(clk), .rst(rst), 
-        /* output */ .readData(memData));
+        /* output */ .readData(memData), .err(dMemErr));
     
     memwb_reg memwb0(/* input */
         .memDataIn(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
@@ -195,6 +196,8 @@ module proc (/*AUTOARG*/
 
     wb wb0 (/* input */ .aluRes(aluResMemWb), .memData(memDataMemWb), .memToReg(MemToRegMemWb), 
         /* output */.writeData(writeDataWb)); 
+
+    assign err = fetchErr | cntrlErr | errDcd | aluErr | pcErr | dMemErr;
     
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:
