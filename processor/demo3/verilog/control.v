@@ -27,7 +27,8 @@ module control(/* input */ opcode, validIns,
 			/* halt, nop */
 			5'b0_0000: 	
 				begin
-					halt = 1'b1;
+					// Sets halt in memory that finishes testbench execution. 
+					halt = 1'b1; 
 				end
 			5'b0_0001: 
 				begin

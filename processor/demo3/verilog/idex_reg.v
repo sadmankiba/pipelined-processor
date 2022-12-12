@@ -1,11 +1,14 @@
 module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, jumpDistIn,
     functIn, writeRegIn,
-    AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
-    MemToRegIn, RegWriteIn, JumpIn, HaltIn,
+    /* control */ AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
+    MemToRegIn, errIn1, errIn2, errIn3,
+    /* register */ RegWriteIn, JumpIn, HaltIn,
     RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx1, controlZeroIdEx2,
     /* output */ readData1Out, readData2Out, pcOut, immValOut, jumpDistOut, functOut,
-    writeRegOut, AluOpOut, AluSrcOut, BranchOut, MemReadOut, MemWriteOut,
-    MemToRegOut, RegWriteOut, JumpOut, HaltOut,
+    writeRegOut, 
+    /* control */ AluOpOut, AluSrcOut, BranchOut, MemReadOut, MemWriteOut,
+    MemToRegOut, errOut,
+    /* register */ RegWriteOut, JumpOut, HaltOut,
     RsOut, RtOut, RsValidOut, RtValidOut, writeRegValidOut);
 
     input [15:0] pcIn, readData1In, readData2In, immValIn, jumpDistIn;
@@ -13,7 +16,7 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     input [2:0] writeRegIn;
     input [1:0] functIn;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
-        RegWriteIn, JumpIn, HaltIn, controlZeroIdEx1, controlZeroIdEx2;
+        RegWriteIn, JumpIn, HaltIn, controlZeroIdEx1, controlZeroIdEx2, errIn1, errIn2, errIn3;
     input [2:0] RsIn, RtIn;
     input RsValidIn, RtValidIn, writeRegValidIn;
     input clk, rst;
@@ -22,13 +25,13 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     output [2:0] writeRegOut;
     output [1:0] functOut;
     output AluSrcOut, BranchOut, MemReadOut, MemWriteOut, MemToRegOut, 
-        RegWriteOut, JumpOut, HaltOut;
+        RegWriteOut, JumpOut, HaltOut, errOut;
     output [15:0] readData1Out, readData2Out, pcOut, immValOut, jumpDistOut;
     output [2:0] RsOut, RtOut;
     output RsValidOut, RtValidOut, writeRegValidOut;
 
     wire controlZero, MemWriteInFinal, RegWriteInFinal, HaltInFinal, 
-        BranchInFinal, JumpInFinal, MemReadInFinal;
+        BranchInFinal, JumpInFinal, MemReadInFinal, errIn;
 
     dff RAO [4:0] (.q(AluOpOut),     .d(AluOpIn),     .clk(clk), .rst(rst));
     dff RWR [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
@@ -47,6 +50,7 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     assign BranchInFinal = controlZero? 1'b0: BranchIn;
     assign JumpInFinal = controlZero? 1'b0: JumpIn;
     assign MemReadInFinal = controlZero? 1'b0: MemReadIn;
+    assign errIn = errIn1 | errIn2 | errIn3;
 
     dff BR_FF       (.q(BranchOut),     .d(BranchInFinal),     .clk(clk), .rst(rst));
     dff MEMR_FF     (.q(MemReadOut),   .d(MemReadInFinal),   .clk(clk), .rst(rst));
@@ -61,4 +65,5 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     dff RRSV  (.q(RsValidOut), .d(RsValidIn), .clk(clk), .rst(rst));
     dff RRTV  (.q(RtValidOut), .d(RtValidIn), .clk(clk), .rst(rst));
     dff RRDV (.q(writeRegValidOut), .d(writeRegValidIn), .clk(clk), .rst(rst));
+    dff ERR (.q(errOut), .d(errIn), .clk(clk), .rst(rst));
 endmodule

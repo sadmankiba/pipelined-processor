@@ -30,7 +30,7 @@ module proc (/*AUTOARG*/
 
     wire [15:0] nxtPcIfId, instrIfId;
     wire [2:0] RsIfId, RtIfId;
-    wire validInsIfId, RsValidIfId, RtValidIfId, writeRegValidIfId;
+    wire validInsIfId, RsValidIfId, RtValidIfId, writeRegValidIfId, errIfId;
 
     wire RegDst, Jump, Branch, MemRead, memToReg, MemWrite, AluSrc, RegWrite; 
     wire [4:0] AluOp;
@@ -43,7 +43,7 @@ module proc (/*AUTOARG*/
     wire RsValid, RtValid, writeRegValid, RsValidIdEx, RtValidIdEx, writeRegValidIdEx;
     wire [4:0] AluOpIdEx;
     wire AluSrcIdEx, MemReadIdEx, MemWriteIdEx, BranchIdEx, haltIdEx, memToRegIdEx,
-        JumpIdEx, RegWriteIdEx; 
+        JumpIdEx, RegWriteIdEx, errIdEx; 
     wire [1:0] functIdEx;
 
     wire writePc, writeIfId, controlZeroIdEx1;
@@ -60,14 +60,14 @@ module proc (/*AUTOARG*/
     wire [2:0] writeRegExMem, RtExMem;
     wire MemReadExMem, MemWriteExMem, HaltExMem, MemToRegExMem, 
         RegWriteExMem, branchTakeExMem, JumpExMem, 
-        writeRegValidExMem, RtValidExMem;
+        writeRegValidExMem, RtValidExMem, errExMem;
 
     wire [15:0] memData;
     wire dMemErr;
 
     wire [15:0] memDataMemWb, aluResMemWb;
     wire [2:0] writeRegMemWb;
-    wire MemToRegMemWb, RegWriteMemWb, MemReadMemWb, writeRegValidMemWb;
+    wire MemToRegMemWb, RegWriteMemWb, MemReadMemWb, writeRegValidMemWb, errMemWb;
     
     wire [15:0] writeDataWb;
 
@@ -84,12 +84,14 @@ module proc (/*AUTOARG*/
         .lastRsIn(RsIfId), .lastRtIn(RtIfId), 
         .lastValidInsOut(validInsIfId), .lastRsValidOut(RsValidIfId), 
         .lastRtValidOut(RtValidIfId), .lastWriteRegValidOut(writeRegValidIfId), 
+        .lastErrOut(errIfId),
         .pcIn(nxtPc), .instrIn(instr), .RsIn(Rs), .RtIn(Rt), .validInsIn(validIns), 
         .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId(writeIfId),
-        .flushIf(flushIf), .clk(clk), .rst(rst), 
+        .flushIf(flushIf), .errIn(fetchErr), .clk(clk), .rst(rst), 
         /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), 
         .RsOut(RsIfId), .RtOut(RtIfId), .validInsOut(validInsIfId),
-        .RsValidOut(RsValidIfId), .RtValidOut(RtValidIfId), .writeRegValidOut(writeRegValidIfId));
+        .RsValidOut(RsValidIfId), .RtValidOut(RtValidIfId), 
+        .writeRegValidOut(writeRegValidIfId), .errOut(errIfId));
     
     control control0(/* input */ .opcode(instrIfId[15:11]), .validIns(validInsIfId),
         /* output */ .RegDst(RegDst), .AluSrc(AluSrc),.AluOp(AluOp), 
@@ -114,7 +116,7 @@ module proc (/*AUTOARG*/
         /* control */ .AluOpIn(AluOp), .AluSrcIn(AluSrc), 
         .BranchIn(Branch), .MemReadIn(MemRead), .MemWriteIn(MemWrite), .HaltIn(halt), 
         .MemToRegIn(memToReg), .RegWriteIn(RegWrite), .JumpIn(Jump), .controlZeroIdEx1(controlZeroIdEx1),
-        .controlZeroIdEx2(controlZeroIdEx2),
+        .controlZeroIdEx2(controlZeroIdEx2), .errIn1(errIfId), .errIn2(cntrlErr), .errIn3(errDcd), 
         /* register */ .RsIn(RsIfId), .RtIn(RtIfId), .RsValidIn(RsValidIfId), .RtValidIn(RtValidIfId), 
         .writeRegValidIn(writeRegValidIfId), 
         .clk(clk), .rst(rst), 
@@ -123,7 +125,8 @@ module proc (/*AUTOARG*/
         .writeRegOut(writeRegIdEx),
         /* control */ .AluOpOut(AluOpIdEx), .AluSrcOut(AluSrcIdEx), 
         .BranchOut(BranchIdEx), .MemReadOut(MemReadIdEx), .MemWriteOut(MemWriteIdEx),
-        .HaltOut(haltIdEx), .MemToRegOut(memToRegIdEx), .RegWriteOut(RegWriteIdEx), .JumpOut(JumpIdEx),
+        .HaltOut(haltIdEx), .MemToRegOut(memToRegIdEx), .RegWriteOut(RegWriteIdEx), 
+        .JumpOut(JumpIdEx), .errOut(errIdEx),
         /* register */ .RsOut(RsIdEx), .RtOut(RtIdEx), .RsValidOut(RsValidIdEx), 
         .RtValidOut(RtValidIdEx), .writeRegValidOut(writeRegValidIdEx));
     
@@ -161,17 +164,18 @@ module proc (/*AUTOARG*/
         .brAddrIn(brAddr), .jumpAddrIn(jumpAddr), .clk(clk), .rst(rst), 
         //Control Inputs
         .MemReadIn(MemReadIdEx), .MemWriteIn(MemWriteIdEx), .HaltIn(haltIdEx),
-        .MemToRegIn(memToRegIfIdEx), .RegWriteIn(RegWriteIdEx), 
-        .controlZeroExMem(controlZeroExMem),
+        .MemToRegIn(memToRegIdEx), .RegWriteIn(RegWriteIdEx), 
+        .controlZeroExMem(controlZeroExMem), .errIn1(errIdEx), .errIn2(aluErr),  
+        .errIn3(pcErr),
         //Outputs
         .aluResOut(aluResExMem), .memWriteDataOut(memWriteDataExMem), 
-        .RtOut(RtExMem), .RtValidOut(RtValidExMem),
-        .writeRegOut(writeRegExMem),
-        .branchTakeOut(branchTakeExMem), .JumpOut(JumpExMem), .brAddrOut(brAddrExMem), .jumpAddrOut(jumpAddrExMem),
+        .RtOut(RtExMem), .RtValidOut(RtValidExMem), .writeRegOut(writeRegExMem),
+        .branchTakeOut(branchTakeExMem), .JumpOut(JumpExMem), .brAddrOut(brAddrExMem), 
+        .jumpAddrOut(jumpAddrExMem),
         //Control Outputs
         .MemReadOut(MemReadExMem), .MemWriteOut(MemWriteExMem), .HaltOut(HaltExMem),
         .MemToRegOut(MemToRegExMem), .RegWriteOut(RegWriteExMem), 
-        .writeRegValidOut(writeRegValidExMem));
+        .writeRegValidOut(writeRegValidExMem), .errOut(errExMem));
    
     forward_mem fmem0(/* input */ .MemWriteExMem(MemWriteExMem), .MemReadMemWb(MemReadMemWb), 
         .RtExMem(RtExMem), .writeRegMemWb(writeRegMemWb),
@@ -180,24 +184,25 @@ module proc (/*AUTOARG*/
 
     dmemory memory0(/* input */ .MemWrite(MemWriteExMem), .MemRead(MemReadExMem), .memAddr(aluResExMem), 
         .writeData(memWriteDataExMem), .forwardC(forwardC), .memDataMemWb(memDataMemWb),
-        .halt(HaltExMem), .clk(clk), .rst(rst), 
+        .HaltIn(HaltExMem), .errIn(errExMem), .clk(clk), .rst(rst), 
         /* output */ .readData(memData), .err(dMemErr));
     
     memwb_reg memwb0(/* input */
         .memDataIn(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
         //Control Inputs
         .MemToRegIn(MemToRegExMem), .RegWriteIn(RegWriteExMem), .MemReadIn(MemReadExMem),
-        .writeRegValidIn(writeRegValidExMem), .clk(clk), .rst(rst),
+        .writeRegValidIn(writeRegValidExMem), .errIn1(errExMem), .errIn2(dMemErr), 
+        .clk(clk), .rst(rst),
         //Outputs
         .memDataOut(memDataMemWb), .aluResOut(aluResMemWb), .writeRegOut(writeRegMemWb),
         //Control Outputs
         .MemToRegOut(MemToRegMemWb), .RegWriteOut(RegWriteMemWb), .MemReadOut(MemReadMemWb),
-        .writeRegValidOut(writeRegValidMemWb));
+        .writeRegValidOut(writeRegValidMemWb), .errOut(errMemWb));
 
     wb wb0 (/* input */ .aluRes(aluResMemWb), .memData(memDataMemWb), .memToReg(MemToRegMemWb), 
         /* output */.writeData(writeDataWb)); 
 
-    assign err = fetchErr | cntrlErr | errDcd | aluErr | pcErr | dMemErr;
+    assign err = errMemWb;
     
 endmodule // proc
 // DUMMY LINE FOR REV CONTROL :0:
