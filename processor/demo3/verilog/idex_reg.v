@@ -34,8 +34,8 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     wire controlZero, MemWriteInFinal, RegWriteInFinal, HaltInFinal, 
         BranchInFinal, JumpInFinal, MemReadInFinal, errIn;
 
-    dff RAO [4:0] (.q(AluOpOut),     .d(AluOpIn),     .clk(clk), .rst(rst));
-    dff RWR [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(5)) RAO (.rdData(AluOpOut), .wrData(AluOpIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(3)) RWR (.rdData(writeRegOut), .wrData(writeRegIn), .wr(writeIdEx), .clk(clk), .rst(rst));
     dff RI [1:0] (.q(functOut), .d(functIn), .clk(clk), .rst(rst));
     dff RAS (.q(AluSrcOut),    .d(AluSrcIn),    .clk(clk), .rst(rst));
     dff RPC [15:0] (.q(pcOut),        .d(pcIn),        .clk(clk), .rst(rst));
