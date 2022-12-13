@@ -46,7 +46,7 @@ module proc (/*AUTOARG*/
         JumpIdEx, RegWriteIdEx, errIdEx; 
     wire [1:0] functIdEx;
 
-    wire writePc, writeIfId, controlZeroIdEx1;
+    wire writePc1, writeIfId1, controlZeroIdEx1;
 
     wire [2:0] aluControl;
     wire invA, invB, sign, cIn;    
@@ -63,7 +63,7 @@ module proc (/*AUTOARG*/
         writeRegValidExMem, RtValidExMem, errExMem;
 
     wire [15:0] memData;
-    wire writeExMem, writeIdEx, dMemErr;
+    wire writeExMem, writeIdEx, writeIfId2, writePc2, dMemErr;
 
     wire [15:0] memDataMemWb, aluResMemWb;
     wire [2:0] writeRegMemWb;
@@ -73,20 +73,15 @@ module proc (/*AUTOARG*/
 
     wire [1:0] forwardA,forwardB;
 
-    fetch fetch0(/* input */ .clk(clk), .rst(rst), .writePc(writePc), .brAddr(brAddrExMem), 
+    fetch fetch0(/* input */ .writePc1(writePc1), .writePc2(writePc2), .brAddr(brAddrExMem), .clk(clk), .rst(rst), 
         .jumpAddr(jumpAddrExMem), .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .pcOut(pcOut), .instr(instr), .nxtPc(nxtPc), .validIns(validIns), .err(fetchErr));
 
     control_reg controlReg0(/*input*/ .instr(instr), 
         /* output */ .Rs(Rs), .Rt(Rt), .RsValid(RsValid), .RtValid(RtValid), .writeRegValid(writeRegValid));
 
-    ifid_reg ifid0(/* input */ .lastPcOut(nxtPcIfId), .lastInstrOut(instrIfId),
-        .lastRsIn(RsIfId), .lastRtIn(RtIfId), 
-        .lastValidInsOut(validInsIfId), .lastRsValidOut(RsValidIfId), 
-        .lastRtValidOut(RtValidIfId), .lastWriteRegValidOut(writeRegValidIfId), 
-        .lastErrOut(errIfId),
-        .pcIn(nxtPc), .instrIn(instr), .RsIn(Rs), .RtIn(Rt), .validInsIn(validIns), 
-        .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId(writeIfId),
+    ifid_reg ifid0(/* input */ .pcIn(nxtPc), .instrIn(instr), .RsIn(Rs), .RtIn(Rt), .validInsIn(validIns), 
+        .RsValidIn(RsValid), .RtValidIn(RtValid), .writeRegValidIn(writeRegValid), .writeIfId1(writeIfId1), .writeIfId2(writeIfId2),
         .flushIf(flushIf), .errIn(fetchErr), .clk(clk), .rst(rst), 
         /* output */ .pcOut(nxtPcIfId), .instrOut(instrIfId), 
         .RsOut(RsIfId), .RtOut(RtIfId), .validInsOut(validInsIfId),
@@ -101,7 +96,7 @@ module proc (/*AUTOARG*/
     hazard_load hzdLoad0(/* input */ .MemReadIdEx(MemReadIdEx), 
         .writeRegIdEx(writeRegIdEx), .RsIfId(RsIfId), .RtIfId(RtIfId), 
         .writeRegValidIdEx(writeRegValidIdEx), .RsValidIfId(RsValidIfId), .RtValidIfId(RtValidIfId),
-        /* output */ .writePc(writePc), .writeIfId(writeIfId), .controlZeroIdEx(controlZeroIdEx1)
+        /* output */ .writePc(writePc1), .writeIfId(writeIfId1), .controlZeroIdEx(controlZeroIdEx1)
     );
 
     decode decode0(/* input */ .instr(instrIfId), .RegDst(RegDst), .RegWrite(RegWriteMemWb),
@@ -187,7 +182,7 @@ module proc (/*AUTOARG*/
         .writeData(memWriteDataExMem), .forwardC(forwardC), .memDataMemWb(memDataMemWb),
         .HaltIn(HaltExMem), .errIn(errExMem), .clk(clk), .rst(rst), 
         /* output */ .readData(memData), .writeExMem(writeExMem), 
-        .writeIdEx(writeIdEx), .err(dMemErr));
+        .writeIdEx(writeIdEx), .writeIfId(writeIfId2), .writePc(writePc2), .err(dMemErr));
     
     memwb_reg memwb0(/* input */
         .memDataIn(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),

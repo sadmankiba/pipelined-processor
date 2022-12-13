@@ -1,6 +1,6 @@
 module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData, 
     forwardC, memDataMemWb, HaltIn, errIn, clk, rst, 
-    /*output */ readData, writeExMem, writeIdEx, err);
+    /*output */ readData, writeExMem, writeIdEx, writeIfId, writePc, err);
 
     input MemWrite, MemRead;
     input [15:0] memAddr, writeData, memDataMemWb;        
@@ -8,7 +8,7 @@ module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData,
     input clk, rst;
 
     output [15:0] readData;
-    output writeExMem, writeIdEx, err;
+    output writeExMem, writeIdEx, writeIfId, writePc, err;
 
     wire memEnable, Halt, Done, Stall, CacheHit;
     wire [15:0] writeDataFinal;
@@ -26,5 +26,7 @@ module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData,
     assign Done = 1'b1;
     assign writeExMem = Done;
     assign writeIdEx = Done;
+    assign writeIfId = Done;
+    assign writePc =  Done;
     assign Halt = HaltIn | errIn | err;
 endmodule

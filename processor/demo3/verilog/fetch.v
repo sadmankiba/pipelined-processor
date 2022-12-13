@@ -5,12 +5,12 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 
-module fetch(/*input */ writePc, brAddr, jumpAddr, branchTake, Jump, clk, rst, 
+module fetch(/*input */ writePc1, writePc2, brAddr, jumpAddr, branchTake, Jump, clk, rst, 
     /* output */ pcOut, nxtPc, instr, validIns, err);
     
     // TODO: Your code here
     input [15:0] brAddr, jumpAddr;
-    input writePc;          // on load-use hazard, stop writing PC.
+    input writePc1, writePc2;          // writePc1 = 0 on load-use hazard.
     input branchTake, Jump;
     input clk, rst;
 
@@ -20,14 +20,12 @@ module fetch(/*input */ writePc, brAddr, jumpAddr, branchTake, Jump, clk, rst,
     output validIns, err;
 
     wire [15:0] pcIn;       // PC for next cycle
-    wire [15:0] brPcAddr, pcFinal, nxtOrLastPc;
+    wire [15:0] brPcAddr, nxtOrLastPc;
     wire Done, Stall, CacheHit, memEn, ofErr, iMemErr;
-
-    mux2_1_16b DN(.InB(nxtPc), .InA(pcOut), .S(writePc & Done), .Out(nxtOrLastPc));
+    
+    mux2_1_16b DN(.InB(nxtPc), .InA(pcOut), .S(writePc1 & writePc2 & Done), .Out(nxtOrLastPc));
     mux2_1_16b MXBT(.InB(brAddr), .InA(nxtOrLastPc), .S(branchTake), .Out(brPcAddr));
-    mux2_1_16b MXA(.InB(jumpAddr), .InA(brPcAddr), .S(Jump), .Out(pcFinal));
-
-    assign pcIn = pcFinal;
+    mux2_1_16b MXA(.InB(jumpAddr), .InA(brPcAddr), .S(Jump), .Out(pcIn));
 
     dff DF [15:0] (.q(pcOut), .d(pcIn), .clk(clk), .rst(rst));
 

@@ -36,13 +36,13 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
 
     reg_nb #(.REG_WIDTH(5)) RAO (.rdData(AluOpOut), .wrData(AluOpIn), .wr(writeIdEx), .clk(clk), .rst(rst));
     reg_nb #(.REG_WIDTH(3)) RWR (.rdData(writeRegOut), .wrData(writeRegIn), .wr(writeIdEx), .clk(clk), .rst(rst));
-    dff RI [1:0] (.q(functOut), .d(functIn), .clk(clk), .rst(rst));
-    dff RAS (.q(AluSrcOut),    .d(AluSrcIn),    .clk(clk), .rst(rst));
-    dff RPC [15:0] (.q(pcOut),        .d(pcIn),        .clk(clk), .rst(rst));
-    dff RD1 [15:0] (.q(readData1Out),     .d(readData1In),     .clk(clk), .rst(rst));
-    dff RD2 [15:0] (.q(readData2Out),     .d(readData2In),     .clk(clk), .rst(rst));
-    dff RIM   [15:0] (.q(immValOut),       .d(immValIn),       .clk(clk), .rst(rst));
-    dff RJD [15:0] (.q(jumpDistOut),  .d(jumpDistIn),  .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(2)) RI (.rdData(functOut), .wrData(functIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) RAS (.rdData(AluSrcOut),    .wrData(AluSrcIn),    .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(16)) RPC (.rdData(pcOut),        .wrData(pcIn),        .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(16)) RD1 (.rdData(readData1Out),     .wrData(readData1In),     .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(16)) RD2 (.rdData(readData2Out),     .wrData(readData2In),     .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(16)) RIM (.rdData(immValOut),       .wrData(immValIn),       .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(16)) RJD (.rdData(jumpDistOut),  .wrData(jumpDistIn),  .wr(writeIdEx), .clk(clk), .rst(rst));
     
     assign controlZero = (controlZeroIdEx1 | controlZeroIdEx2);
     assign MemWriteInFinal = (controlZero) ? 1'b0 : MemWriteIn;
@@ -53,18 +53,18 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     assign MemReadInFinal = controlZero? 1'b0: MemReadIn;
     assign errIn = errIn1 | errIn2 | errIn3;
 
-    dff BR_FF       (.q(BranchOut),     .d(BranchInFinal),     .clk(clk), .rst(rst));
-    dff MEMR_FF     (.q(MemReadOut),   .d(MemReadInFinal),   .clk(clk), .rst(rst));
-    dff MEMW_FF     (.q(MemWriteOut),  .d(MemWriteInFinal),  .clk(clk), .rst(rst));
-    dff RW_FF       (.q(RegWriteOut),  .d(RegWriteInFinal),  .clk(clk), .rst(rst));
-    dff MEMTR_FF    (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
-    dff JUMP_FF     (.q(JumpOut),       .d(JumpInFinal),       .clk(clk), .rst(rst));
-    dff HALT_FF     (.q(HaltOut),       .d(HaltInFinal),       .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) BR (.rdData(BranchOut), .wrData(BranchInFinal),     .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) MRD (.rdData(MemReadOut), .wrData(MemReadInFinal), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) MEMW (.rdData(MemWriteOut),  .wrData(MemWriteInFinal),  .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) RW (.rdData(RegWriteOut),  .wrData(RegWriteInFinal),  .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) MTR (.rdData(MemToRegOut), .wrData(MemToRegIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) JMP (.rdData(JumpOut),  .wrData(JumpInFinal),       .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) HLT (.rdData(HaltOut),       .wrData(HaltInFinal),       .wr(writeIdEx), .clk(clk), .rst(rst));
 
-    dff RRS [2:0] (.q(RsOut), .d(RsIn), .clk(clk), .rst(rst));
-    dff RRT [2:0] (.q(RtOut), .d(RtIn), .clk(clk), .rst(rst));
-    dff RRSV  (.q(RsValidOut), .d(RsValidIn), .clk(clk), .rst(rst));
-    dff RRTV  (.q(RtValidOut), .d(RtValidIn), .clk(clk), .rst(rst));
-    dff RRDV (.q(writeRegValidOut), .d(writeRegValidIn), .clk(clk), .rst(rst));
-    dff ERR (.q(errOut), .d(errIn), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(3)) RRS (.rdData(RsOut), .wrData(RsIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(3)) RRT (.rdData(RtOut), .wrData(RtIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) RRSV (.rdData(RsValidOut), .wrData(RsValidIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) RRTV (.rdData(RtValidOut), .wrData(RtValidIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) RRDV (.rdData(writeRegValidOut), .wrData(writeRegValidIn), .wr(writeIdEx), .clk(clk), .rst(rst));
+    reg_nb #(.REG_WIDTH(1)) ERR (.rdData(errOut), .wrData(errIn), .wr(writeIdEx), .clk(clk), .rst(rst));
 endmodule
