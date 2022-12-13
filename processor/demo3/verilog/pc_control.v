@@ -30,5 +30,5 @@ module pc_control(/* input */ immVal, zero, Branch, ltz, readData1, pc, jumpDist
     mux4_1 MXB(.InA(zero), .InB(notZ), .InC(ltz), .InD(gez), .S(brOp), .Out(brCond));
     assign branchTake = Branch & brCond;
 
-    assign err = brOfl | jmpOfl;
+    assign err = 0;
 endmodule

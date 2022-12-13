@@ -22,7 +22,7 @@ module control(/* input */ opcode, validIns,
 		Branch   = 1'b0; MemRead  = 1'b0; MemWrite = 1'b0; 
 		memToReg = 1'b0; Jump     = 1'b0; 
 		halt     = 1'b0; zeroExt = 1'b0; 
-		i1Fmt = 1'b0; 
+		i1Fmt = 1'b0; err = 1'b0;
 		case(newOpc)
 			/* halt, nop */
 			5'b0_0000: 	

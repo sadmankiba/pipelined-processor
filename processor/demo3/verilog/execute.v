@@ -77,6 +77,6 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     assign aluRes = (jmpLnk) ? pc : aluOutSetBtr; 
     
     // Error bit
-    assign err = aluOvf;
+    assign err = 0;
 
 endmodule

@@ -31,17 +31,17 @@ module proc_hier_my_pbench();
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
    wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
-   wire     FlushIf, WritePc, ValidInsIfId, WriteIfId;
+   wire  FlushIf, WritePc, ValidInsIfId, WriteIfId, ErrIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
    wire WriteEn, IsHzdLd;
 
    wire [4:0] NewOpc;
-   wire RegDst, ALUSrc, ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, 
-      RsValidInIdEx, MemWriteInIdEx;
-   wire [15:0] ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx;
-   wire [2:0] RsInIdEx;
+   wire RegDst, ALUSrc, ControlZeroIdEx1, ControlZeroIdEx2, RegWriteIdEx, 
+      RsValidIdEx, MemWriteIdEx, ErrIdEx;
+   wire [15:0] ReadData1IdEx, ReadData2IdEx, ImmValIdEx;
+   wire [2:0] RsIdEx;
    
    wire [15:0] AluRes, AluInp1, AluInp2;
    wire [2:0] AluControl;
@@ -49,11 +49,11 @@ module proc_hier_my_pbench();
    wire [4:0] AluOp;
    wire MemForwardA;
 
-   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeInExMem;
+   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem;
    wire [2:0] RtExMem;
    wire [15:0] MemWriteDataExMem;
-   wire MemWriteInExMem, MemToRegExMem, RegWriteInExMem, 
-      ControlZeroExMem, RtValidExMem;
+   wire MemWriteExMem, MemToRegExMem, RegWriteExMem, 
+      ControlZeroExMem, RtValidExMem, ErrExMem;
 
    wire [2:0] WriteRegMemWb;
    wire MemToRegMemWb, RegWriteMemWb, WriteRegValidMemWb;
@@ -116,26 +116,29 @@ module proc_hier_my_pbench();
                    MemDataIn);
          $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %d", 
                   PcIn, WritePc);
-         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d", 
-                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId);
-         $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d Halt: %d", 
-                  NewOpc, RegDst, ALUSrc, Halt);
+         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d Err: %d", 
+                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId, ErrIfId);
+         $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d", 
+                  NewOpc, RegDst, ALUSrc);
          $fdisplay(sim_log_file, "DECODE: I: %4x readReg1: %d readReg2: %d", 
                   InstrDcd, ReadReg1, ReadReg2);
          $fdisplay(sim_log_file, "HZDLD: isHzd: %d", IsHzdLd);
          // $fdisplay(sim_log_file, "REGFILE: read1DataInit: %4x read2DataInit: %4x", 
          //          Read1DataInit, Read2DataInit);         
-         $fdisplay(sim_log_file, "ID/EX: rD1: %4x rD2: %4x imV: %4x, ctrl01: %d ctrl02: %d RgW: %d MmW: %d Rs: %d RsValid: %d", 
-                  ReadData1InIdEx, ReadData2InIdEx, ImmValInIdEx,
-                  ControlZeroIdEx1, ControlZeroIdEx2, RegWriteInIdEx, MemWriteInIdEx, RsInIdEx, RsValidInIdEx);   
+         $fdisplay(sim_log_file, "ID/EX: rD1: %4x rD2: %4x imV: %4x, ctrl01: %d ctrl02: %d RgW: %d ", 
+                  ReadData1IdEx, ReadData2IdEx, ImmValIdEx,
+                  ControlZeroIdEx1, ControlZeroIdEx2, RegWriteIdEx,
+                  "MmW: %d Rs: %d RsV: %d Err: %d", 
+                   MemWriteIdEx, RsIdEx, RsValidIdEx, ErrIdEx);   
          $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluCtrl: %3b",
                   AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);
          $fdisplay(sim_log_file, "FWDX: mmFwA: %d", MemForwardA);  
-         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d RgW: %d ctrl0: %d Rt: %d RtV: %d", 
-                  AluRes, BranchTakeInExMem, MemWriteInExMem, MemWriteDataExMem, 
-                  MemToRegExMem, RegWriteInExMem, ControlZeroExMem, RtExMem, RtValidExMem); 
-         $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x", 
-                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn);
+         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d ", 
+                  AluRes, BranchTakeExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, 
+                  "RgW: %d ctrl0: %d Rt: %d RtV: %d Err: %d",
+                  RegWriteExMem, ControlZeroExMem, RtExMem, RtValidExMem, ErrExMem); 
+         $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x Halt: %d", 
+                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, Halt);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
          $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d, writeRegMemWb: %d writeRegValidMemWb: %d", 
                   MemToRegMemWb, RegWriteMemWb, WriteRegMemWb, WriteRegValidMemWb); 
@@ -227,7 +230,7 @@ module proc_hier_my_pbench();
    // Signal indicating a valid data cache hit
    // Above assignment is a dummy example
    
-   assign Halt = DUT.p0.memory0.halt;
+   assign Halt = DUT.p0.memory0.Halt;
    // Processor halted
    
    
@@ -239,6 +242,7 @@ module proc_hier_my_pbench();
    assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
    assign WriteIfId = DUT.p0.ifid0.writeIfId;
    assign FlushIf = DUT.p0.ifid0.flushIf;
+   assign ErrIfId = DUT.p0.ifid0.errOut;
 
    assign NewOpc = DUT.p0.control0.newOpc;
    assign RegDst = DUT.p0.RegDst;
@@ -252,15 +256,16 @@ module proc_hier_my_pbench();
    assign WriteEn = DUT.p0.decode0.regFile0.writeEn;
    assign IsHzdLd = DUT.p0.hzdLoad0.isHazard;
 
-   assign ReadData1InIdEx = DUT.p0.idex0.readData1In;
-   assign ReadData2InIdEx = DUT.p0.idex0.readData2In;
-   assign RsInIdEx = DUT.p0.idex0.RsIn;
-   assign RsValidInIdEx = DUT.p0.idex0.RsValidIn;
-   assign ImmValInIdEx = DUT.p0.idex0.immValIn;
+   assign ReadData1IdEx = DUT.p0.idex0.readData1Out;
+   assign ReadData2IdEx = DUT.p0.idex0.readData2Out;
+   assign RsIdEx = DUT.p0.idex0.RsOut;
+   assign RsValidIdEx = DUT.p0.idex0.RsValidOut;
+   assign ImmValIdEx = DUT.p0.idex0.immValOut;
    assign ControlZeroIdEx1 = DUT.p0.idex0.controlZeroIdEx1;
    assign ControlZeroIdEx2 = DUT.p0.idex0.controlZeroIdEx2;
-   assign MemWriteInIdEx = DUT.p0.idex0.MemWriteInFinal; 
-   assign RegWriteInIdEx = DUT.p0.idex0.RegWriteInFinal;
+   assign MemWriteIdEx = DUT.p0.idex0.MemWriteOut; 
+   assign RegWriteIdEx = DUT.p0.idex0.RegWriteOut;
+   assign ErrIdEx = DUT.p0.idex0.errOut;
    
    assign AluOp = DUT.p0.exec0.AluOp;
    assign ForwardA = DUT.p0.exec0.forwardA;
@@ -276,12 +281,13 @@ module proc_hier_my_pbench();
    assign ForwardC = DUT.p0.memory0.forwardC;
    assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign ControlZeroIdExHzd = DUT.p0.hzdBr0.controlZeroIdEx;
-   assign BranchTakeInExMem = DUT.p0.exmem0.branchTakeIn;
-   assign MemWriteDataExMem = DUT.p0.exmem0.memWriteDataIn;
+   assign BranchTakeExMem = DUT.p0.exmem0.branchTakeOut;
+   assign MemWriteDataExMem = DUT.p0.exmem0.memWriteDataOut;
    assign ControlZeroExMem = DUT.p0.exmem0.controlZeroExMem;
-   assign MemWriteInExMem = DUT.p0.exmem0.MemWriteInFinal;
-   assign MemToRegExMem = DUT.p0.exmem0.MemToRegIn;
-   assign RegWriteInExMem = DUT.p0.exmem0.RegWriteInFinal;
+   assign MemWriteExMem = DUT.p0.exmem0.MemWriteOut;
+   assign MemToRegExMem = DUT.p0.exmem0.MemToRegOut;
+   assign RegWriteExMem = DUT.p0.exmem0.RegWriteOut;
+   assign ErrExMem = DUT.p0.exmem0.errOut;
 
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;
    assign RegWriteMemWb = DUT.p0.memwb0.RegWriteIn;
