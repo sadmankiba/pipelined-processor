@@ -73,7 +73,7 @@ module proc (/*AUTOARG*/
 
     wire [1:0] forwardA,forwardB;
 
-    fetch fetch0(/* input */ .lastPcOut(pcOut), .clk(clk), .rst(rst), .writePc(writePc), .brAddr(brAddrExMem), 
+    fetch fetch0(/* input */ .clk(clk), .rst(rst), .writePc(writePc), .brAddr(brAddrExMem), 
         .jumpAddr(jumpAddrExMem), .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .pcOut(pcOut), .instr(instr), .nxtPc(nxtPc), .validIns(validIns), .err(fetchErr));
 
@@ -154,6 +154,7 @@ module proc (/*AUTOARG*/
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .AluOp(AluOpIdEx), 
         /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 
+    /* If branch taken or jump, make IF/ID, ID/EX, EX/MEM invalid */ 
     hazard_pc hzdBr0(/*input*/ .branchTake(branchTakeExMem), .Jump(JumpExMem),
         /* output */ .flushIf(flushIf), .controlZeroIdEx(controlZeroIdEx2), .controlZeroExMem(controlZeroExMem));
 

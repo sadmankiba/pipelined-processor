@@ -5,23 +5,29 @@
    Description     : This is the module for the overall fetch stage of the processor.
 */
 
-module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTake, Jump,
+module fetch(/*input */ writePc, brAddr, jumpAddr, branchTake, Jump, clk, rst, 
     /* output */ pcOut, nxtPc, instr, validIns, err);
     
     // TODO: Your code here
-    input [15:0] lastPcOut, brAddr, jumpAddr;
-    input clk, rst, writePc, branchTake, Jump;
+    input [15:0] brAddr, jumpAddr;
+    input writePc;          // on load-use hazard, stop writing PC.
+    input branchTake, Jump;
+    input clk, rst;
 
-    output [15:0] pcOut, nxtPc, instr;
+    output [15:0] pcOut;    // PC to fetch instruction in this cycle
+    output [15:0] nxtPc;    // PC + 2 
+    output [15:0] instr;
     output validIns, err;
 
-    wire [15:0] pcIn, brPcAddr, pcFinal;
-    wire memEn, ofErr, iMemErr;
+    wire [15:0] pcIn;       // PC for next cycle
+    wire [15:0] brPcAddr, pcFinal, nxtOrLastPc;
+    wire Done, Stall, CacheHit, memEn, ofErr, iMemErr;
 
-    mux2_1_16b MXBT(.InA(nxtPc), .InB(brAddr), .S(branchTake), .Out(brPcAddr));
-    mux2_1_16b MXA(.InA(brPcAddr), .InB(jumpAddr), .S(Jump), .Out(pcFinal));
+    mux2_1_16b DN(.InB(nxtPc), .InA(pcOut), .S(writePc & Done), .Out(nxtOrLastPc));
+    mux2_1_16b MXBT(.InB(brAddr), .InA(nxtOrLastPc), .S(branchTake), .Out(brPcAddr));
+    mux2_1_16b MXA(.InB(jumpAddr), .InA(brPcAddr), .S(Jump), .Out(pcFinal));
 
-    assign pcIn = writePc? pcFinal: lastPcOut;
+    assign pcIn = pcFinal;
 
     dff DF [15:0] (.q(pcOut), .d(pcIn), .clk(clk), .rst(rst));
 
@@ -29,10 +35,11 @@ module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTa
             .sign(1'b0), .sum(nxtPc), .ofl(ofErr));
 
     assign memEn = ~rst;  
-    memory2c_align MEMI(.data_out(instr), .data_in(16'b0000_0000_0000_0000), .addr(pcOut), .enable(memEn), 
-            .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst), .err(iMemErr));
+    stallmem MEMI (.DataOut(instr), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(iMemErr), 
+        .Addr(pcOut), .DataIn(16'b0000_0000_0000_0000), .Rd(memEn), .Wr(1'b0), 
+        .createdump(1'b0), .clk(clk), .rst(rst));
 
-    assign validIns = 1'b1; 
+    assign validIns = Done; 
     assign err = ofErr | iMemErr;
 
 endmodule
