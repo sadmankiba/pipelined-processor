@@ -1,7 +1,7 @@
 module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, jumpDistIn,
     functIn, writeRegIn,
     /* control */ AluOpIn, AluSrcIn, BranchIn, MemReadIn, MemWriteIn,
-    MemToRegIn, errIn1, errIn2, errIn3,
+    MemToRegIn, writeIdEx, errIn1, errIn2, errIn3,
     /* register */ RegWriteIn, JumpIn, HaltIn,
     RsIn, RtIn, RsValidIn, RtValidIn, writeRegValidIn, controlZeroIdEx1, controlZeroIdEx2,
     /* output */ readData1Out, readData2Out, pcOut, immValOut, jumpDistOut, functOut,
@@ -16,7 +16,8 @@ module idex_reg(/* input */ clk, rst, pcIn, readData1In, readData2In, immValIn, 
     input [2:0] writeRegIn;
     input [1:0] functIn;
     input AluSrcIn, BranchIn, MemReadIn, MemWriteIn, MemToRegIn, 
-        RegWriteIn, JumpIn, HaltIn, controlZeroIdEx1, controlZeroIdEx2, errIn1, errIn2, errIn3;
+        RegWriteIn, JumpIn, HaltIn, controlZeroIdEx1, controlZeroIdEx2, 
+        writeIdEx, errIn1, errIn2, errIn3;
     input [2:0] RsIn, RtIn;
     input RsValidIn, RtValidIn, writeRegValidIn;
     input clk, rst;
