@@ -1,13 +1,13 @@
 module memwb_reg(/*input*/ memDataIn,  
                     aluResIn, writeRegIn, MemToRegIn, RegWriteIn, MemReadIn,
-                    writeRegValidIn, errIn1, errIn2, clk, rst,  
+                    writeRegValidIn, controlZero, errIn1, errIn2, clk, rst,  
                     /*output*/ memDataOut, aluResOut, 
                     writeRegOut, MemToRegOut, RegWriteOut, MemReadOut,
                     writeRegValidOut, errOut);
 
     input [15:0]memDataIn, aluResIn;
     input [2:0] writeRegIn;
-    input MemToRegIn, RegWriteIn, MemReadIn, errIn1, errIn2;
+    input MemToRegIn, RegWriteIn, MemReadIn, controlZero, errIn1, errIn2;
     input  writeRegValidIn;
     input clk, rst;
 

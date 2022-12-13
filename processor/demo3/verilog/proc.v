@@ -63,7 +63,7 @@ module proc (/*AUTOARG*/
         writeRegValidExMem, RtValidExMem, errExMem;
 
     wire [15:0] memData;
-    wire writeExMem, writeIdEx, writeIfId2, writePc2, dMemErr;
+    wire writeExMem, writeIdEx, writeIfId2, writePc2, controlZeroMemWb, dMemErr;
 
     wire [15:0] memDataMemWb, aluResMemWb;
     wire [2:0] writeRegMemWb;
@@ -182,17 +182,17 @@ module proc (/*AUTOARG*/
         .writeData(memWriteDataExMem), .forwardC(forwardC), .memDataMemWb(memDataMemWb),
         .HaltIn(HaltExMem), .errIn(errExMem), .clk(clk), .rst(rst), 
         /* output */ .readData(memData), .writeExMem(writeExMem), 
-        .writeIdEx(writeIdEx), .writeIfId(writeIfId2), .writePc(writePc2), .err(dMemErr));
+        .writeIdEx(writeIdEx), .writeIfId(writeIfId2), .writePc(writePc2), .controlZeroMemWb(controlZeroMemWb), .err(dMemErr));
     
     memwb_reg memwb0(/* input */
         .memDataIn(memData), .aluResIn(aluResExMem), .writeRegIn(writeRegExMem),
-        //Control Inputs
+        /*control*/
         .MemToRegIn(MemToRegExMem), .RegWriteIn(RegWriteExMem), .MemReadIn(MemReadExMem),
         .writeRegValidIn(writeRegValidExMem), .errIn1(errExMem), .errIn2(dMemErr), 
-        .clk(clk), .rst(rst),
-        //Outputs
+        ,controlZero(controlZeroMemWb), .clk(clk), .rst(rst),
+        /* output */
         .memDataOut(memDataMemWb), .aluResOut(aluResMemWb), .writeRegOut(writeRegMemWb),
-        //Control Outputs
+        /* control */
         .MemToRegOut(MemToRegMemWb), .RegWriteOut(RegWriteMemWb), .MemReadOut(MemReadMemWb),
         .writeRegValidOut(writeRegValidMemWb), .errOut(errMemWb));
 

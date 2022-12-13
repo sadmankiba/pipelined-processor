@@ -31,7 +31,7 @@ module proc_hier_my_pbench();
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
    wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
-   wire  FlushIf, WritePc, ValidInsIfId, WriteIfId, ErrIfId;
+   wire  FlushIf, IncPc, ValidInsIfId, WriteIfId, ErrIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
@@ -114,8 +114,8 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  writePc: %d", 
-                  PcIn, WritePc);
+         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  incPc: %d", 
+                  PcIn, IncPc);
          $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d Err: %d", 
                   NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId, ErrIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d", 
@@ -156,7 +156,7 @@ module proc_hier_my_pbench();
 
          if (MemWrite) begin
             $fdisplay(trace_file,"STORE: ADDR: 0x%04x VALUE: 0x%04x",
-                      MemAddress, MemDataIn  );
+                      MemAddress, MemDataIn);
          end
          if (Halt) begin
             $fdisplay(sim_log_file, "SIMLOG:: Processor halted\n");
@@ -198,10 +198,10 @@ module proc_hier_my_pbench();
    assign WriteData = DUT.p0.decode0.regFile0.writeData;
    // Data being written to the register. (16 bits)
    
-   assign MemRead =  DUT.p0.memory0.MemRead; // & ~DUT.p0.notdonem);
+   assign MemRead =  DUT.p0.memory0.MemRead & DUT.p0.memory0.go;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
-   assign MemWrite = (DUT.p0.memory0.memEnable & DUT.p0.memory0.MemWrite); // & ~DUT.p0.notdonem);
+   assign MemWrite = DUT.p0.memory0.MemWrite & DUT.p0.memory0.go;
    // Is memory being written to (1 bit signal)
    
    assign MemAddress = DUT.p0.memory0.memAddr;
@@ -236,7 +236,7 @@ module proc_hier_my_pbench();
    
    /* Add anything else you want here */
    assign PcIn = DUT.p0.fetch0.pcIn;
-   assign WritePc = DUT.p0.fetch0.writePc;
+   assign IncPc = DUT.p0.fetch0.writePc1 & DUT.p0.fetch0.writePc2 & DUT.p0.fetch0.Done;
    assign NxtPcIfId = DUT.p0.ifid0.pcIn;
    assign InstrIfId = DUT.p0.ifid0.instrFinal;
    assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
