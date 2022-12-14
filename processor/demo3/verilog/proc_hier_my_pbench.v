@@ -31,7 +31,7 @@ module proc_hier_my_pbench();
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
    wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
-   wire  FlushIf, IncPc, ValidInsIfId, WriteIfId, ErrIfId;
+   wire  FlushIf, BJRead, IncPc, InsMemDone, ValidIns, WriteIfId, ErrIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
@@ -114,10 +114,10 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "FETCH: pcIn: %4x  incPc: %d", 
-                  PcIn, IncPc);
-         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x validIns: %d flushIf: %d writeIfId: %d Err: %d", 
-                  NxtPcIfId, InstrIfId, ValidInsIfId, FlushIf, WriteIfId, ErrIfId);
+         $fdisplay(sim_log_file, "FETCH: pcIn: %4x incPc: %d bjRead: %d Done: %d validIns: %d", 
+                  PcIn, IncPc, BJRead, InsMemDone, ValidIns);
+         $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x writeIfId: %d Err: %d", 
+                  NxtPcIfId, InstrIfId, WriteIfId, ErrIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d", 
                   NewOpc, RegDst, ALUSrc);
          $fdisplay(sim_log_file, "DECODE: I: %4x readReg1: %d readReg2: %d", 
@@ -236,12 +236,15 @@ module proc_hier_my_pbench();
    
    /* Add anything else you want here */
    assign PcIn = DUT.p0.fetch0.pcIn;
-   assign IncPc = DUT.p0.fetch0.writePc1 & DUT.p0.fetch0.writePc2 & DUT.p0.fetch0.Done;
-   assign NxtPcIfId = DUT.p0.ifid0.pcIn;
-   assign InstrIfId = DUT.p0.ifid0.instrFinal;
-   assign ValidInsIfId = DUT.p0.ifid0.validInsIn;
+   assign IncPc = DUT.p0.fetch0.incPc;
+   assign BJRead = DUT.p0.fetch0.bjRead;
+   assign InsMemDone = DUT.p0.fetch0.Done;
+   assign ValidIns = DUT.p0.fetch0.validIns;
+
+
+   assign NxtPcIfId = DUT.p0.ifid0.pcOut;
+   assign InstrIfId = DUT.p0.ifid0.instrOut;
    assign WriteIfId = DUT.p0.ifid0.writeIfId;
-   assign FlushIf = DUT.p0.ifid0.flushIf;
    assign ErrIfId = DUT.p0.ifid0.errOut;
 
    assign NewOpc = DUT.p0.control0.newOpc;

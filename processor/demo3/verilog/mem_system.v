@@ -51,8 +51,15 @@ module mem_system(/*AUTOARG*/
 
     /*
     State register:
-    0- WaitForRequest, 1- Read, 2- ReadCycle1, 3- Allocate,
-    4- Write, 5- CompareTag
+    0- WaitForRequest, 
+    1- Read, 
+    2- ReadCycle1, 
+    3- Allocate,
+    4- Write, 
+    5- CompareTag: 
+        If read and cache hit, move to waitForReq state
+        If read and cache miss, move to Read state 
+        If write, move to Write state
     */
     dff STATEREG [2:0] (.q(stateReg), .d(stateRegIn), .clk(clk), .rst(rst));
     
