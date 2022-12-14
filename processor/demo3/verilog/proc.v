@@ -189,7 +189,7 @@ module proc (/*AUTOARG*/
         /*control*/
         .MemToRegIn(MemToRegExMem), .RegWriteIn(RegWriteExMem), .MemReadIn(MemReadExMem),
         .writeRegValidIn(writeRegValidExMem), .errIn1(errExMem), .errIn2(dMemErr), 
-        ,controlZero(controlZeroMemWb), .clk(clk), .rst(rst),
+        .controlZero(controlZeroMemWb), .clk(clk), .rst(rst),
         /* output */
         .memDataOut(memDataMemWb), .aluResOut(aluResMemWb), .writeRegOut(writeRegMemWb),
         /* control */

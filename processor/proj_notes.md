@@ -2,7 +2,11 @@
 
 
 ## Run and Test Programs
-Assembly files are in dir - /u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/*/*.asm. Copied to testprograms/ dir. 
+Assembly files are in dir - 
+/u/s/i/sinclair/courses/cs552/spring2022/handouts/testprograms/public/*/*.asm and
+/u/s/w/swamit/public/html/courses/cs552/fall2022/handouts/testprograms/public/*
+
+Copied to testprograms/ dir. 
 
 ### Running program
 

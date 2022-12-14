@@ -16,18 +16,20 @@ module memwb_reg(/*input*/ memDataIn,
     output MemToRegOut, RegWriteOut, MemReadOut, errOut;
     output writeRegValidOut;
 
-    wire errIn;
+    wire RegWriteInFinal, MemReadInFinal, errIn;
 
     assign errIn = errIn1 | errIn2; 
+    assign RegWriteInFinal = controlZero? 1'b0: RegWriteIn;
+    assign MemReadInFinal = controlZero? 1'b0: MemReadIn;
 
     dff RMD [15:0](.q(memDataOut),     .d(memDataIn),     .clk(clk), .rst(rst));
     dff RAR [15:0](.q(aluResOut),   .d(aluResIn),   .clk(clk), .rst(rst));
     dff RWR [2:0] (.q(writeRegOut), .d(writeRegIn), .clk(clk), .rst(rst));
 
     dff RMTR (.q(MemToRegOut), .d(MemToRegIn), .clk(clk), .rst(rst));
-    dff RRW (.q(RegWriteOut),  .d(RegWriteIn),  .clk(clk), .rst(rst));
-    dff RMR (.q(MemReadOut),  .d(MemReadIn),  .clk(clk), .rst(rst));
+    dff RRW (.q(RegWriteOut),  .d(RegWriteInFinal),  .clk(clk), .rst(rst));
+    dff RMR (.q(MemReadOut),  .d(MemReadInFinal),  .clk(clk), .rst(rst));
     
-    dff RS (.q(writeRegValidOut),       .d(writeRegValidIn),       .clk(clk), .rst(rst));
+    dff RS (.q(writeRegValidOut),      .d(writeRegValidIn),       .clk(clk), .rst(rst));
     dff ERR (.q(errOut), .d(errIn), .clk(clk), .rst(rst));
 endmodule
