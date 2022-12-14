@@ -23,7 +23,7 @@ module fetch(/*input */ writePc1, writePc2, brAddr, jumpAddr, branchTake, Jump, 
     wire [15:0] brPcAddr, nxtOrLastPc;
     wire Done, Stall, CacheHit, memEn, ofErr, iMemErr;
     
-    mux2_1_16b DN(.InB(nxtPc), .InA(pcOut), .S(writePc1 & writePc2 & Done), .Out(nxtOrLastPc));
+    mux2_1_16b DN(.InB(nxtPc), .InA(pcOut), .S(writePc1 & writePc2 & validIns), .Out(nxtOrLastPc));
     mux2_1_16b MXBT(.InB(brAddr), .InA(nxtOrLastPc), .S(branchTake), .Out(brPcAddr));
     mux2_1_16b MXA(.InB(jumpAddr), .InA(brPcAddr), .S(Jump), .Out(pcIn));
 
@@ -37,7 +37,7 @@ module fetch(/*input */ writePc1, writePc2, brAddr, jumpAddr, branchTake, Jump, 
         .Addr(pcOut), .DataIn(16'b0000_0000_0000_0000), .Rd(memEn), .Wr(1'b0), 
         .createdump(1'b0), .clk(clk), .rst(rst));
 
-    assign validIns = Done; 
+    assign validIns = memEn & (~Stall);  // or validIns = Done 
     assign err = ofErr | iMemErr;
 
 endmodule

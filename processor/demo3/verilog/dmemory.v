@@ -19,7 +19,7 @@ module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData,
         .Addr(memAddr), .DataIn(writeDataFinal), .Rd(MemRead), .Wr(MemWrite), 
         .createdump(Halt), .clk(clk), .rst(rst));
 
-    assign go = (~(MemRead | MemWrite)) | Done; // other, go = ~Stall
+    assign go = (~rst) & (~Stall); // or, go = (~(MemRead | MemWrite)) | Done
     assign writeExMem = go;
     assign writeIdEx = go;
     assign writeIfId = go;

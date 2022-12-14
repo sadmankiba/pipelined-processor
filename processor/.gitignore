@@ -3,7 +3,9 @@ submission/
 *.log
 *.dmem
 *.reg
-dumpfile
+Icache*
+largest
+dumpfile*
 *.out
 *.ptrace
 *.trace

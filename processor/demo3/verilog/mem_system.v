@@ -18,8 +18,8 @@ module mem_system(/*AUTOARG*/
     input        rst;
     
     output [15:0] DataOut;
-    output Done;
-    output Stall;
+    output Done;        // Rd/Wr issued and mem system ready to take new request
+    output Stall;       // Mem system not ready to take rd/wr request
     output CacheHit;
     output err;
 
