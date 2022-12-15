@@ -50,11 +50,11 @@ module proc_hier_my_pbench();
    wire [15:0] BrAddr, JmpAddr;
    wire  MemForwardA;
 
-   wire ForwardC, DMemDone, DMemStall, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem, JumpExMem;
+   wire ForwardC, DMemDone, ErrDMem, DMemStall, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem, JumpExMem;
    wire [2:0] RtExMem;
    wire [15:0] MemWriteDataExMem;
    wire MemWriteExMem, MemToRegExMem, RegWriteExMem, 
-      ControlZeroExMem, RtValidExMem, ErrExMem;
+      ControlZeroExMem, RtValidExMem, HaltExMem, ErrExMem;
 
    wire [2:0] WriteRegMemWb;
    wire MemToRegMemWb, RegWriteMemWb, WriteRegValidMemWb;
@@ -135,12 +135,12 @@ module proc_hier_my_pbench();
                   AluOp, AluInp1, AluInp2, AluControl, AluRes);
          $fdisplay(sim_log_file, "FWDX: frwdAB: %2b %2b", ForwardA, ForwardB);  
          $fdisplay(sim_log_file, "PCCTL: brAd: %4x jAd: %4x", BrAddr, JmpAddr);
-         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d J: %d MmW: %d mmWD %4x M2R: %d ", 
-                  AluRes, BranchTakeExMem, JumpExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, 
+         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d J: %d MmW: %d mmWD %4x M2R: %d Halt: %d ", 
+                  AluRes, BranchTakeExMem, JumpExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, HaltExMem, 
                   "RgW: %d ctrl0: %d Rt: %d RtV: %d Err: %d",
                   RegWriteExMem, ControlZeroExMem, RtExMem, RtValidExMem, ErrExMem); 
-         $fdisplay(sim_log_file, "MEM: MRd: %d MWr: %d frwC: %d Addr: %x wrData: %4x Done: %b Stall: %b Halt: %d", 
-                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, DMemDone, DMemStall, Halt);
+         $fdisplay(sim_log_file, "MEM: MRd: %d MWr: %d frwC: %d Addr: %x wrData: %4x Done: %d Stall: %d Err: %d Halt: %d", 
+                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, DMemDone, DMemStall, ErrDMem, Halt);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
          $fdisplay(sim_log_file, "MEM/WB: M2R: %d RgWr: %d, wrReg: %d wrRegV: %d", 
                   MemToRegMemWb, RegWriteMemWb, WriteRegMemWb, WriteRegValidMemWb); 
@@ -293,11 +293,13 @@ module proc_hier_my_pbench();
    assign MemToRegExMem = DUT.p0.exmem0.MemToRegOut;
    assign RegWriteExMem = DUT.p0.exmem0.RegWriteOut;
    assign ErrExMem = DUT.p0.exmem0.errOut;
+   assign HaltExMem = DUT.p0.exmem0.HaltOut;
 
    assign ForwardC = DUT.p0.memory0.forwardC;
    assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign DMemDone = DUT.p0.memory0.Done;
    assign DMemStall = DUT.p0.memory0.Stall;
+   assign ErrDMem = DUT.p0.memory0.err;
 
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegOut;
    assign RegWriteMemWb = DUT.p0.memwb0.RegWriteOut;

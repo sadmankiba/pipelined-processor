@@ -39,7 +39,7 @@ module shifter (In, ShAmt, Oper, Out);
     // Rotate right
     sign_ext #(.INPUT_WIDTH(4), .OUTPUT_WIDTH(16)) SX (.in(ShAmt), .out(ShAmtExt));
     xor16 XR(.A(ShAmtExt), .B(16'hffff), .Out(ShAmtInv));
-    cla_16b CLA (.sum(SixteenMinusShAmt), .ofl(ofl), .sign(1'b1), .a(16), .b(ShAmtInv), .c_in(1'b1));
-    assign Out = (Oper == 2'b10)? ((In >> ShAmt) | (In << SixteenMinusShAmt)): oneOut;
+    cla_16b CLA (.sum(SixteenMinusShAmt), .ofl(ofl), .sign(1'b1), .a(16'h0010), .b(ShAmtInv), .c_in(1'b1));
+    assign Out = (Oper == 2'b10)? ((In >> ShAmt) | (In << (16 - ShAmt))): oneOut;
    
 endmodule

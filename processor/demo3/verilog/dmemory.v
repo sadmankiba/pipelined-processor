@@ -11,12 +11,15 @@ module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData,
     output writeExMem, writeIdEx, writeIfId, writePc, controlZeroMemWb, err;
 
     wire Halt, Done, Stall, go, stallPipe, CacheHit;
-    wire [15:0] writeDataFinal;
+    wire [15:0] memAddrFinal, writeDataFinal;
 
     assign writeDataFinal = (forwardC)? memDataMemWb: writeData; 
 
+    /* Avoid odd address */
+    assign memAddrFinal = (MemRead | MemWrite)? memAddr: 16'h0000;
+
     mem_system MEMD (.DataOut(readData), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
-        .Addr(memAddr), .DataIn(writeDataFinal), .Rd(MemRead), .Wr(MemWrite), 
+        .Addr(memAddrFinal), .DataIn(writeDataFinal), .Rd(MemRead), .Wr(MemWrite), 
         .createdump(Halt), .clk(clk), .rst(rst));
 
     // assign go = (~(MemRead | MemWrite)) | Done; 
