@@ -28,6 +28,8 @@ module shifter (In, ShAmt, Oper, Out);
     output [15:0] Out;
 
 	wire [15:0] eightOut, fourOut, twoOut, oneOut;
+    wire [15:0] ShAmtExt, ShAmtInv, SixteenMinusShAmt;
+    wire ofl;
 
 	shifter_8b s3(.Out(eightOut),.In(In), .ShAmt(ShAmt[3]), .Oper(Oper));
 	shifter_4b s2 (.Out(fourOut), .In(eightOut),.ShAmt(ShAmt[2]), .Oper(Oper));
@@ -35,6 +37,9 @@ module shifter (In, ShAmt, Oper, Out);
     shifter_1b s0  (.Out(oneOut), .In(twoOut),.ShAmt(ShAmt[0]), .Oper(Oper));
 
     // Rotate right
-    assign Out = (Oper == 2'b10)? ((In >> ShAmt) | (In << (16 - ShAmt))): oneOut;
+    sign_ext #(.INPUT_WIDTH(4), .OUTPUT_WIDTH(16)) SX (.in(ShAmt), .out(ShAmtExt));
+    xor16 XR(.A(ShAmtExt), .B(16'hffff), .Out(ShAmtInv));
+    cla_16b CLA (.sum(SixteenMinusShAmt), .ofl(ofl), .sign(1'b1), .a(16), .b(ShAmtInv), .c_in(1'b1));
+    assign Out = (Oper == 2'b10)? ((In >> ShAmt) | (In << SixteenMinusShAmt)): oneOut;
    
 endmodule

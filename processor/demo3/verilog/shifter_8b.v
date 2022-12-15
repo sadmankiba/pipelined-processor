@@ -53,13 +53,4 @@ module shifter_8b (In, ShAmt, Oper, Out);
 	
 	mux4_1 OP15(.InD(1'b0), .InC(In[15]), .InB(In[7]), .InA(In[7]), .S(Oper), .Out(shOut[15]));
 	mux2_1 POS15(.InB(shOut[15]), .InA(In[15]), .S(ShAmt), .Out(Out[15]));
-		
-	
-	
-	
-	
-	
-		
-	
-	
 endmodule

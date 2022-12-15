@@ -9,8 +9,8 @@ module hazard_load(/* input */ MemReadIdEx, writeRegIdEx, RsIfId, RtIfId,
     
     output writePc, writeIfId, controlZeroIdEx; 
     
-    assign isHazard = MemReadIdEx && 
-            (((writeRegIdEx == RsIfId) & writeRegValidIdEx & RsValidIfId) || 
+    assign isHazard = MemReadIdEx &
+            (((writeRegIdEx == RsIfId) & writeRegValidIdEx & RsValidIfId) | 
             ((writeRegIdEx == RtIfId) & writeRegValidIdEx & RtValidIfId));
 
     assign writePc = (isHazard) ? 1'b0 : 1'b1;

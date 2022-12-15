@@ -10,8 +10,8 @@ module regFile_bypass (/* input */ clk, rst, read1RegSel, read2RegSel, writeRegS
 
 	wire [15:0] read1DataInit, read2DataInit;
 
-	assign read1Data = (writeEn && (read1RegSel == writeRegSel)) ? writeData : read1DataInit;
-	assign read2Data = (writeEn && (read2RegSel == writeRegSel)) ? writeData : read2DataInit;
+	assign read1Data = (writeEn & (read1RegSel == writeRegSel)) ? writeData : read1DataInit;
+	assign read2Data = (writeEn & (read2RegSel == writeRegSel)) ? writeData : read2DataInit;
 
 	regFile RF (/* input */ .clk(clk), .rst(rst), 
         .read1RegSel(read1RegSel), .read2RegSel(read2RegSel), .writeRegSel(writeRegSel), 
