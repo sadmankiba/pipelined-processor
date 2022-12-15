@@ -47,9 +47,10 @@ module proc_hier_my_pbench();
    wire [2:0] AluControl;
    wire [1:0] ForwardA, ForwardB;
    wire [4:0] AluOp;
-   wire MemForwardA;
+   wire [15:0] BrAddr, JmpAddr;
+   wire  MemForwardA;
 
-   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem;
+   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem, JumpExMem;
    wire [2:0] RtExMem;
    wire [15:0] MemWriteDataExMem;
    wire MemWriteExMem, MemToRegExMem, RegWriteExMem, 
@@ -130,17 +131,18 @@ module proc_hier_my_pbench();
                   ControlZeroIdEx1, ControlZeroIdEx2, RegWriteIdEx,
                   "MmW: %d Rs: %d RsV: %d Err: %d", 
                    MemWriteIdEx, RsIdEx, RsValidIdEx, ErrIdEx);   
-         $fdisplay(sim_log_file, "EXEC: AluOp: %5b frwdAB: %2b %2b aluInp1: %4x aluInp2: %4x aluCtrl: %3b",
-                  AluOp, ForwardA, ForwardB, AluInp1, AluInp2, AluControl);
-         $fdisplay(sim_log_file, "FWDX: mmFwA: %d", MemForwardA);  
-         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d MmW: %d mmWD %4x M2R: %d ", 
-                  AluRes, BranchTakeExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, 
+         $fdisplay(sim_log_file, "EXEC: AluOp: %5b aluInp1: %4x aluInp2: %4x aluCtrl: %3b aluRes: %4x",
+                  AluOp, AluInp1, AluInp2, AluControl, AluRes);
+         $fdisplay(sim_log_file, "FWDX: frwdAB: %2b %2b", ForwardA, ForwardB);  
+         $fdisplay(sim_log_file, "PCCTL: brAd: %4x jAd: %4x", BrAddr, JmpAddr);
+         $fdisplay(sim_log_file, "EX/MEM: aluRes: %4x BrTk: %d J: %d MmW: %d mmWD %4x M2R: %d ", 
+                  AluRes, BranchTakeExMem, JumpExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, 
                   "RgW: %d ctrl0: %d Rt: %d RtV: %d Err: %d",
                   RegWriteExMem, ControlZeroExMem, RtExMem, RtValidExMem, ErrExMem); 
          $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x Halt: %d", 
                   MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, Halt);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
-         $fdisplay(sim_log_file, "MEM/WB: MemtoReg: %d RegWrite: %d, writeRegMemWb: %d writeRegValidMemWb: %d", 
+         $fdisplay(sim_log_file, "MEM/WB: M2R: %d RgWr: %d, wrReg: %d wrRegV: %d", 
                   MemToRegMemWb, RegWriteMemWb, WriteRegMemWb, WriteRegValidMemWb); 
          $fdisplay(sim_log_file, "WB: RegWrite %d writeReg %d writeData %4x writeEn %d", 
                    RegWrite, WriteRegister, WriteData, WriteEn);
@@ -271,20 +273,22 @@ module proc_hier_my_pbench();
    assign ErrIdEx = DUT.p0.idex0.errOut;
    
    assign AluOp = DUT.p0.exec0.AluOp;
-   assign ForwardA = DUT.p0.exec0.forwardA;
-   assign ForwardB = DUT.p0.exec0.forwardB;
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
-   assign AluRes = DUT.p0.exmem0.aluResIn;
+   assign AluRes = DUT.p0.exec0.aluRes;
    assign RtExMem = DUT.p0.exmem0.RtOut;
    assign RtValidExMem = DUT.p0.exmem0.RtValidOut;
    assign AluControl = DUT.p0.exec0.aluControl;
-   assign MemForwardA = DUT.p0.fex0.memFrwdA;
+   assign ForwardA = DUT.p0.fex0.forwardA;
+   assign ForwardB = DUT.p0.fex0.forwardB;
+   assign BrAddr = DUT.p0.pcCntrl0.brAddr;
+   assign JmpAddr = DUT.p0.pcCntrl0.jumpAddr;
 
    assign ForwardC = DUT.p0.memory0.forwardC;
    assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign ControlZeroIdExHzd = DUT.p0.hzdBr0.controlZeroIdEx;
    assign BranchTakeExMem = DUT.p0.exmem0.branchTakeOut;
+   assign JumpExMem = DUT.p0.exmem0.JumpOut;
    assign MemWriteDataExMem = DUT.p0.exmem0.memWriteDataOut;
    assign ControlZeroExMem = DUT.p0.exmem0.controlZeroExMem;
    assign MemWriteExMem = DUT.p0.exmem0.MemWriteOut;
@@ -292,8 +296,8 @@ module proc_hier_my_pbench();
    assign RegWriteExMem = DUT.p0.exmem0.RegWriteOut;
    assign ErrExMem = DUT.p0.exmem0.errOut;
 
-   assign MemToRegMemWb = DUT.p0.memwb0.MemToRegIn;
-   assign RegWriteMemWb = DUT.p0.memwb0.RegWriteIn;
+   assign MemToRegMemWb = DUT.p0.memwb0.MemToRegOut;
+   assign RegWriteMemWb = DUT.p0.memwb0.RegWriteOut;
    assign WriteRegMemWb = DUT.p0.memwb0.writeRegOut;
    assign WriteRegValidMemWb = DUT.p0.memwb0.writeRegValidOut;
 

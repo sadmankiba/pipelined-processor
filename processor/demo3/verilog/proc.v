@@ -145,7 +145,7 @@ module proc (/*AUTOARG*/
         /* output */ .aluRes(aluRes), .memWriteData(memWriteData), .readData1f(readData1f),
             .zero(zero), .ltz(ltz), .err(aluErr));  
 
-    pc_control pcControl0(/*input */ .immVal(immValIdEx), .readData1(readData1f), .zero(zero), .Branch(BranchIdEx), 
+    pc_control pcCntrl0(/*input */ .immVal(immValIdEx), .readData1(readData1f), .zero(zero), .Branch(BranchIdEx), 
         .pc(nxtPcIdEx), .jumpDistIn(jumpDistIdEx), .ltz(ltz), .AluOp(AluOpIdEx), 
         /* output */ .brAddr(brAddr), .jumpAddr(jumpAddr), .branchTake(branchTake), .err(pcErr));
 

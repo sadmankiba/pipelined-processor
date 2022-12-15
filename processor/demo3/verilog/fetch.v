@@ -10,14 +10,16 @@ module fetch(/*input */ writePc1, writePc2, brAddr, jumpAddr, branchTake, Jump, 
     
     // TODO: Your code here
     input [15:0] brAddr, jumpAddr;
-    input writePc1, writePc2;          // writePc1 = 0 on load-use hazard.
+    input writePc1;         // writePc1 = 0 on load-use hazard
+    input writePc2;         // writePc2 = 0 on data mem stall
     input branchTake, Jump;
     input clk, rst;
 
     output [15:0] pcOut;    // PC to fetch instruction in this cycle
     output [15:0] nxtPc;    // PC + 2 
     output [15:0] instr;
-    output validIns, err;
+    output validIns;        // validIns = 0 on ins mem stall
+    output err;
 
     wire [15:0] pcIn;       // PC for next cycle
     wire [15:0] brPcAddr, nxtOrLastPc;
@@ -31,7 +33,7 @@ module fetch(/*input */ writePc1, writePc2, brAddr, jumpAddr, branchTake, Jump, 
     dff DF [15:0] (.q(pcOut), .d(pcIn), .clk(clk), .rst(rst));
 
     /* 
-    A clever register to remember to branch if instruction memory
+    A register to remember to branch if instruction memory
     completes read of an invalidated instruction.
     Three cases:
     1. Branch identified at same cycle as read done: 

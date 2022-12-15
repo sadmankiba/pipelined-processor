@@ -69,7 +69,7 @@ module execute(/* input */ readData1, readData2, immVal, aluControl, AluSrc, inv
     rev RV(.in(readData1f), .out(btrOut));
     mux2_1_16b MXBT(.InA(aluOutSet), .InB(btrOut), .S(isBtr), .Out(aluOutSetBtr));
 
-    // Calc PC + 2 for jmpLnk
+    // Set result to PC + 2 for jmpLnk to save in R7
     equal #(.INPUT_WIDTH(5)) EQ2(.in1(AluOp), .in2(5'b00110), .eq(jalInstr));
     equal #(.INPUT_WIDTH(5)) EQ30(.in1(AluOp), .in2(5'b00111), .eq(jalrInstr));
     assign jmpLnk = jalInstr | jalrInstr; 

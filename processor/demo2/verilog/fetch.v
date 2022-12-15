@@ -29,8 +29,9 @@ module fetch(/*input */ lastPcOut, clk, rst, writePc, brAddr, jumpAddr, branchTa
             .sign(1'b0), .sum(nxtPc), .ofl(err));
 
     assign memEn = ~rst;  
-    memory2c MEMI(.data_out(instr), .data_in(16'b0000_0000_0000_0000), .addr(pcOut), .enable(memEn), 
-            .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst));
+    memory2c MEMI(.data_out(instr), .data_in(16'b0000_0000_0000_0000), 
+        .addr(pcOut), .enable(memEn), .wr(1'b0), 
+        .createdump(1'b0), .clk(clk), .rst(rst));
 
     assign validIns = 1'b1; 
 
