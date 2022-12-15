@@ -24,12 +24,13 @@ module control(/* input */ opcode, validIns,
 		halt     = 1'b0; zeroExt = 1'b0; 
 		i1Fmt = 1'b0; err = 1'b0;
 		case(newOpc)
-			/* halt, nop */
+			/* halt */
 			5'b0_0000: 	
 				begin
 					// Sets halt in memory that finishes testbench execution. 
 					halt = 1'b1; 
 				end
+			/* nop */ 
 			5'b0_0001: 
 				begin
 				end
