@@ -31,7 +31,7 @@ module proc_hier_my_pbench();
    wire        Halt;         /* Halt executed and in Memory or writeback stage */
    
    wire  [15:0]  PcIn, NxtPcIfId, InstrIfId;
-   wire  FlushIf, BJRead, IncPc, InsMemDone, ValidIns, WriteIfId, ErrIfId;
+   wire  FlushIf, BJRead, PcWrite, InsMemDone, ValidIns, WriteIfId, ErrIfId;
 
    wire [2:0] ReadReg1, ReadReg2;
    wire [15:0] InstrDcd, Read1DataInit, Read2DataInit;
@@ -115,8 +115,8 @@ module proc_hier_my_pbench();
                    MemWrite,
                    MemAddress,
                    MemDataIn);
-         $fdisplay(sim_log_file, "FETCH: pcIn: %4x incPc: %d bjRead: %d Done: %d validIns: %d", 
-                  PcIn, IncPc, BJRead, InsMemDone, ValidIns);
+         $fdisplay(sim_log_file, "FETCH: pcIn: %4x PcWr: %d bjRead: %d Done: %d validIns: %d", 
+                  PcIn, PcWrite, BJRead, InsMemDone, ValidIns);
          $fdisplay(sim_log_file, "IF/ID: nxtPc: %4x I: %4x writeIfId: %d Err: %d", 
                   NxtPcIfId, InstrIfId, WriteIfId, ErrIfId);
          $fdisplay(sim_log_file, "CONTROL: newOpc: %5b RegDst: %d ALUSrc: %d", 
@@ -238,11 +238,10 @@ module proc_hier_my_pbench();
    
    /* Add anything else you want here */
    assign PcIn = DUT.p0.fetch0.pcIn;
-   assign IncPc = DUT.p0.fetch0.incPc;
+   assign PcWrite = DUT.p0.fetch0.PcWrite;
    assign BJRead = DUT.p0.fetch0.bjRead;
    assign InsMemDone = DUT.p0.fetch0.Done;
    assign ValidIns = DUT.p0.fetch0.validIns;
-
 
    assign NxtPcIfId = DUT.p0.ifid0.pcOut;
    assign InstrIfId = DUT.p0.ifid0.instrOut;
