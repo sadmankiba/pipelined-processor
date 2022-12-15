@@ -50,7 +50,7 @@ module proc_hier_my_pbench();
    wire [15:0] BrAddr, JmpAddr;
    wire  MemForwardA;
 
-   wire ForwardC, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem, JumpExMem;
+   wire ForwardC, DMemDone, DMemStall, IsHzdPc, ControlZeroIdExHzd, BranchTakeExMem, JumpExMem;
    wire [2:0] RtExMem;
    wire [15:0] MemWriteDataExMem;
    wire MemWriteExMem, MemToRegExMem, RegWriteExMem, 
@@ -139,8 +139,8 @@ module proc_hier_my_pbench();
                   AluRes, BranchTakeExMem, JumpExMem, MemWriteExMem, MemWriteDataExMem, MemToRegExMem, 
                   "RgW: %d ctrl0: %d Rt: %d RtV: %d Err: %d",
                   RegWriteExMem, ControlZeroExMem, RtExMem, RtValidExMem, ErrExMem); 
-         $fdisplay(sim_log_file, "MEM: MemRead: %d MemWrite: %d forwardC: %d memAddr: %x writeData: %4x Halt: %d", 
-                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, Halt);
+         $fdisplay(sim_log_file, "MEM: MRd: %d MWr: %d frwC: %d Addr: %x wrData: %4x Done: %b Stall: %b Halt: %d", 
+                  MemRead, MemWrite, ForwardC, MemAddress, MemDataIn, DMemDone, DMemStall, Halt);
          $fdisplay(sim_log_file, "HZDPC: isHzd: %d ctrl0IdEx: %d", IsHzdPc, ControlZeroIdExHzd);
          $fdisplay(sim_log_file, "MEM/WB: M2R: %d RgWr: %d, wrReg: %d wrRegV: %d", 
                   MemToRegMemWb, RegWriteMemWb, WriteRegMemWb, WriteRegValidMemWb); 
@@ -200,10 +200,10 @@ module proc_hier_my_pbench();
    assign WriteData = DUT.p0.decode0.regFile0.writeData;
    // Data being written to the register. (16 bits)
    
-   assign MemRead =  DUT.p0.memory0.MemRead & DUT.p0.memory0.go;
+   assign MemRead =  DUT.p0.memory0.MemRead & DUT.p0.memory0.Done;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
-   assign MemWrite = DUT.p0.memory0.MemWrite & DUT.p0.memory0.go;
+   assign MemWrite = DUT.p0.memory0.MemWrite & DUT.p0.memory0.Done;
    // Is memory being written to (1 bit signal)
    
    assign MemAddress = DUT.p0.memory0.memAddr;
@@ -216,19 +216,20 @@ module proc_hier_my_pbench();
    // Data read from memory for memory reads (16 bits)
 
    // new added 05/03
-   assign ICacheReq = DUT.p0.readData1;
+   assign ICacheReq = (~DUT.p0.fetch0.Stall);
    // Signal indicating a valid instruction read request to cache
    // Above assignment is a dummy example
    
-   assign ICacheHit = DUT.p0.readData1;
+   assign ICacheHit = DUT.p0.fetch0.CacheHit;
    // Signal indicating a valid instruction cache hit
    // Above assignment is a dummy example
 
-   assign DCacheReq = DUT.p0.readData1;
+   assign DCacheReq = (DUT.p0.memory0.MemRead | DUT.p0.memory0.MemWrite) 
+                           & (~DUT.p0.memory0.Stall);
    // Signal indicating a valid instruction data read or write request to cache
    // Above assignment is a dummy example
    //    
-   assign DCacheHit = DUT.p0.readData1;
+   assign DCacheHit = DUT.p0.memory0.CacheHit;
    // Signal indicating a valid data cache hit
    // Above assignment is a dummy example
    
@@ -275,16 +276,14 @@ module proc_hier_my_pbench();
    assign AluInp1 = DUT.p0.exec0.aluInp1;
    assign AluInp2 = DUT.p0.exec0.aluInp2;
    assign AluRes = DUT.p0.exec0.aluRes;
+   assign AluControl = DUT.p0.exec0.aluControl;
+
    assign RtExMem = DUT.p0.exmem0.RtOut;
    assign RtValidExMem = DUT.p0.exmem0.RtValidOut;
-   assign AluControl = DUT.p0.exec0.aluControl;
    assign ForwardA = DUT.p0.fex0.forwardA;
    assign ForwardB = DUT.p0.fex0.forwardB;
    assign BrAddr = DUT.p0.pcCntrl0.brAddr;
    assign JmpAddr = DUT.p0.pcCntrl0.jumpAddr;
-
-   assign ForwardC = DUT.p0.memory0.forwardC;
-   assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
    assign ControlZeroIdExHzd = DUT.p0.hzdBr0.controlZeroIdEx;
    assign BranchTakeExMem = DUT.p0.exmem0.branchTakeOut;
    assign JumpExMem = DUT.p0.exmem0.JumpOut;
@@ -294,6 +293,11 @@ module proc_hier_my_pbench();
    assign MemToRegExMem = DUT.p0.exmem0.MemToRegOut;
    assign RegWriteExMem = DUT.p0.exmem0.RegWriteOut;
    assign ErrExMem = DUT.p0.exmem0.errOut;
+
+   assign ForwardC = DUT.p0.memory0.forwardC;
+   assign IsHzdPc = DUT.p0.hzdBr0.isHazard;
+   assign DMemDone = DUT.p0.memory0.Done;
+   assign DMemStall = DUT.p0.memory0.Stall;
 
    assign MemToRegMemWb = DUT.p0.memwb0.MemToRegOut;
    assign RegWriteMemWb = DUT.p0.memwb0.RegWriteOut;

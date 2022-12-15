@@ -10,20 +10,21 @@ module dmemory(/* input */ MemWrite, MemRead, memAddr, writeData,
     output [15:0] readData;
     output writeExMem, writeIdEx, writeIfId, writePc, controlZeroMemWb, err;
 
-    wire Halt, Done, Stall, go, CacheHit;
+    wire Halt, Done, Stall, go, stallPipe, CacheHit;
     wire [15:0] writeDataFinal;
 
     assign writeDataFinal = (forwardC)? memDataMemWb: writeData; 
 
-    stallmem MEMD (.DataOut(readData), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
+    mem_system MEMD (.DataOut(readData), .Done(Done), .Stall(Stall), .CacheHit(CacheHit), .err(err), 
         .Addr(memAddr), .DataIn(writeDataFinal), .Rd(MemRead), .Wr(MemWrite), 
         .createdump(Halt), .clk(clk), .rst(rst));
 
-    assign go = (~rst) & (~Stall); // or, go = (~(MemRead | MemWrite)) | Done
-    assign writeExMem = go;
-    assign writeIdEx = go;
-    assign writeIfId = go;
-    assign writePc =  go;
-    assign controlZeroMemWb = ~go;
+    // assign go = (~(MemRead | MemWrite)) | Done; 
+    assign stallPipe = (MemRead | MemWrite) & (~Done);
+    assign writeExMem = ~stallPipe;
+    assign writeIdEx = ~stallPipe;
+    assign writeIfId = ~stallPipe;
+    assign writePc =  ~stallPipe;
+    assign controlZeroMemWb = stallPipe;
     assign Halt = HaltIn | errIn | err;
 endmodule
