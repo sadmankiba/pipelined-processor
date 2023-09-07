@@ -3,3 +3,4 @@ __work/
 *.wlf
 wsrun.log
 transcript
+.DS_Store
