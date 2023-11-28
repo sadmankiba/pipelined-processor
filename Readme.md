@@ -1,6 +1,6 @@
-# Arch Assignments
+# Pipelined Processor
 
-Assignments of UW-Madison CS552 course-
+Pipelined processor developed as part of UW-Madison CS552 course-
 
 ```
 hw1/        : Designs demultiplexer and full adders from basic gates 
